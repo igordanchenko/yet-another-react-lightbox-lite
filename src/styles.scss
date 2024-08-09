@@ -1,0 +1,152 @@
+@function globalVar($key, $default) {
+  @return var(--yarll__ + $key, $default);
+}
+
+$color-white: #fff;
+$color-black: #000;
+$button-color: globalVar(button_color, rgba($color-white, 0.8));
+$button-color-active: globalVar(button_color_active, $color-white);
+$button-color-disabled: globalVar(button_color_disabled, rgba($color-white, 0.4));
+$button-focus-outline: globalVar(button_focus_outline, 6px double black);
+$button-focus-box-shadow: globalVar(button_focus_box_shadow, 0 0 0 4px white);
+
+body:has(> .yarll__portal) {
+  overscroll-behavior: none;
+
+  &:not(.yarll__no_scroll_lock) {
+    height: 100%;
+    overflow: hidden;
+    padding-right: globalVar(scrollbar-width, 0px);
+  }
+}
+
+.yarll_ {
+  &_portal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    inset: 0;
+    position: fixed;
+    overflow: hidden;
+    z-index: globalVar(portal_zindex, 9999);
+
+    outline: none;
+    user-select: none;
+    touch-action: none;
+    overscroll-behavior: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+
+    color: globalVar(color, $color-white);
+    background-color: globalVar(backdrop_color, $color-black);
+
+    opacity: 1;
+    transition: globalVar(fade_transition, opacity 0.3s ease);
+
+    &_closed {
+      opacity: 0;
+    }
+
+    & * {
+      box-sizing: border-box;
+    }
+  }
+
+  &_carousel {
+    flex: 1;
+    align-self: stretch;
+    position: relative;
+    margin: globalVar(carousel_margin, 16px);
+  }
+
+  &_slide {
+    inset: 0;
+    position: absolute;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    &[hidden] {
+      display: none;
+    }
+
+    &_image {
+      flex: 1;
+      display: block;
+      min-width: 0;
+      min-height: 0;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  &_button {
+    border: 0;
+    margin: 0;
+    padding: globalVar(button_padding, 8px);
+    cursor: pointer;
+    appearance: none;
+    color: globalVar(button_color, $button-color);
+    background-color: globalVar(button_background_color, transparent);
+    filter: globalVar(button_filter, drop-shadow(2px 2px 2px rgba($color-black, 0.8)));
+
+    &:focus-visible {
+      color: $button-color-active;
+      outline: $button-focus-outline;
+      box-shadow: $button-focus-box-shadow;
+    }
+
+    @supports not selector(:focus-visible) {
+      &:focus {
+        color: $button-color-active;
+        outline: $button-focus-outline;
+        box-shadow: $button-focus-box-shadow;
+      }
+    }
+
+    @media (hover: hover) {
+      &:hover,
+      &:focus:hover,
+      &:focus-visible:hover {
+        color: $button-color-active;
+      }
+    }
+
+    &_close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+    }
+
+    &_prev {
+      left: 8px;
+    }
+
+    &_next {
+      right: 8px;
+    }
+
+    &_prev,
+    &_next {
+      position: absolute;
+      padding: globalVar(navigation_button_padding, 24px 8px);
+    }
+
+    &:disabled {
+      cursor: default;
+      color: globalVar(button_color_disabled, $button-color-disabled);
+    }
+  }
+
+  &_icon {
+    display: block;
+    $icon-size: 32px;
+    width: globalVar(icon_size, $icon-size);
+    height: globalVar(icon_size, $icon-size);
+  }
+}
