@@ -455,6 +455,31 @@ export default function App() {
 }
 ```
 
+## Body Scroll Lock
+
+By default, the lightbox hides the browser window scrollbar and prevents
+document `<body>` from scrolling underneath the lightbox by assigning the
+`height: 100%; overflow: hidden;` styles to the document `<body>` element.
+
+If this behavior causes undesired side effects in your case, and you prefer not
+to use this feature, you can turn it off by assigning the
+`yarll__no_scroll_lock` class to the lightbox.
+
+```tsx
+<Lightbox
+  // ..
+  className="yarll__no_scroll_lock"
+/>
+```
+
+However, if you keep the body scroll lock feature on, you may notice a visual
+layout shift of some fixed-positioned page elements when the lightbox opens. To
+address this, you can assign the `yarll__fixed` CSS class to your
+fixed-positioned elements to keep them in place. Please note that the
+fixed-positioned element container should not have its own border or padding
+styles. If that's the case, you can always add an extra wrapper that just
+defines the fixed position without visual styles.
+
 ## License
 
 MIT © 2024 [Igor Danchenko](https://github.com/igordanchenko)

@@ -12,10 +12,14 @@ $button-focus-box-shadow: globalVar(button_focus_box_shadow, 0 0 0 4px white);
 
 body:has(> .yarll__portal) {
   overscroll-behavior: none;
+}
 
-  &:not(.yarll__no_scroll_lock) {
-    height: 100%;
-    overflow: hidden;
+body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
+  height: 100%;
+  overflow: hidden;
+  padding-right: globalVar(scrollbar-width, 0px);
+
+  & .yarll_fixed {
     padding-right: globalVar(scrollbar-width, 0px);
   }
 }
