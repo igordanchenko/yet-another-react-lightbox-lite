@@ -1,6 +1,7 @@
 import { KeyboardEvent, PointerEvent, useMemo, useRef, WheelEvent } from "react";
 
 import { useController } from "./Controller";
+import { useLightboxContext } from "./LightboxContext";
 import { cssClass } from "../utils";
 
 export default function useSensors() {
@@ -10,6 +11,13 @@ export default function useSensors() {
   const activePointer = useRef<PointerEvent | null>(null);
 
   const { prev, next, close } = useController();
+
+  const { closeOnPullUp, closeOnPullDown, closeOnBackdropClick } = {
+    closeOnPullUp: true,
+    closeOnPullDown: true,
+    closeOnBackdropClick: true,
+    ...useLightboxContext().controller,
+  };
 
   return useMemo(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -40,8 +48,10 @@ export default function useSensors() {
     const onPointerUp = (event: PointerEvent) => {
       if (event.pointerId === activePointer.current?.pointerId) {
         const dx = event.clientX - activePointer.current.clientX;
+        const dy = event.clientY - activePointer.current.clientY;
+
         const deltaX = Math.abs(dx);
-        const deltaY = Math.abs(event.clientY - activePointer.current.clientY);
+        const deltaY = Math.abs(dy);
 
         if (deltaX > 50 && deltaX > 1.2 * deltaY) {
           if (dx > 0) {
@@ -50,8 +60,9 @@ export default function useSensors() {
             next();
           }
         } else if (
-          (deltaY > 50 && deltaY > 1.2 * deltaX) ||
-          (activePointer.current.target instanceof HTMLElement &&
+          (deltaY > 50 && deltaY > 1.2 * deltaX && ((closeOnPullUp && dy < 0) || (closeOnPullDown && dy > 0))) ||
+          (closeOnBackdropClick &&
+            activePointer.current.target instanceof HTMLElement &&
             activePointer.current.target.className.split(" ").includes(cssClass("slide")))
         ) {
           close();
@@ -106,5 +117,5 @@ export default function useSensors() {
       onPointerCancel: onPointerUp,
       onWheel,
     };
-  }, [prev, next, close]);
+  }, [prev, next, close, closeOnPullUp, closeOnPullDown, closeOnBackdropClick]);
 }

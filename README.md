@@ -2,7 +2,7 @@
 
 Lightweight React lightbox component. This is a trimmed-down version of the
 [yet-another-react-lightbox](https://github.com/igordanchenko/yet-another-react-lightbox)
-that provides essential lightbox features and slick UX with just 2.9KB bundle
+that provides essential lightbox features and slick UX with just 3KB bundle
 size.
 
 ## Overview
@@ -200,6 +200,32 @@ Custom UI labels / translations.
     Close: t("Close"),
   }}
   // ...
+/>
+```
+
+### controller
+
+Type: `object`
+
+Controller settings.
+
+- `closeOnPullUp` - if `true`, close the lightbox on pull-up gesture (default:
+  `true`)
+- `closeOnPullDown` - if `true`, close the lightbox on pull-down gesture
+  (default: `true`)
+- `closeOnBackdropClick` - if `true`, close the lightbox when the backdrop is
+  clicked (default: `true`)
+
+Usage example:
+
+```tsx
+<Lightbox
+  // ...
+  controller={{
+    closeOnPullUp: false,
+    closeOnPullDown: false,
+    closeOnBackdropClick: false,
+  }}
 />
 ```
 

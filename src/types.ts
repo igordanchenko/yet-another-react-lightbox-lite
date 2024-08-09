@@ -12,6 +12,8 @@ export interface LightboxProps {
   labels?: Labels;
   /** custom render functions */
   render?: Render;
+  /** controller settings */
+  controller?: Controller;
   /** customization slots styles */
   styles?: SlotStyles;
   /** CSS class of the lightbox root element */
@@ -101,6 +103,16 @@ export interface RenderSlideProps {
   /** if `true`, the slide is the current slide in the viewport */
   current: boolean;
 }
+
+/** Controller settings */
+export type Controller = {
+  /** if `true`, close the lightbox on pull-up gesture (default: `true`) */
+  closeOnPullUp?: boolean;
+  /** if `true`, close the lightbox on pull-down gesture (default: `true`) */
+  closeOnPullDown?: boolean;
+  /** if `true`, close the lightbox when the backdrop is clicked (default: `true`) */
+  closeOnBackdropClick?: boolean;
+};
 
 /** Customization slots */
 export interface SlotType {
