@@ -110,7 +110,6 @@ with `next/image` with the following `render.slide` render function.
 
 ```tsx
 <Lightbox
-  // ...
   render={{
     slide: ({ slide, rect }) => {
       const width =
@@ -147,6 +146,7 @@ with `next/image` with the following `render.slide` render function.
       );
     },
   }}
+  // ...
 />
 ```
 
@@ -203,6 +203,35 @@ Custom UI labels / translations.
 />
 ```
 
+### toolbar
+
+Type: `object`
+
+Toolbar settings.
+
+- `buttons` - custom toolbar buttons (type: `ReactNode[]`)
+
+Usage example:
+
+```tsx
+<Lightbox
+  toolbar={{
+    buttons: [
+      <button
+        type="button"
+        className="yarll__button"
+        onClick={() => {
+          // ...
+        }}
+      >
+        <ButtonIcon />
+      </button>,
+    ],
+  }}
+  // ...
+/>
+```
+
 ### controller
 
 Type: `object`
@@ -220,12 +249,12 @@ Usage example:
 
 ```tsx
 <Lightbox
-  // ...
   controller={{
     closeOnPullUp: false,
     closeOnPullDown: false,
     closeOnBackdropClick: false,
   }}
+  // ...
 />
 ```
 
@@ -294,7 +323,6 @@ slides counter.
 
 ```tsx
 <Lightbox
-  // ...
   render={{
     controls: () =>
       index !== undefined && (
@@ -303,29 +331,7 @@ slides counter.
         </div>
       ),
   }}
-/>
-```
-
-You can also use the `render.controls` render function to add custom buttons to
-the toolbar.
-
-```tsx
-<Lightbox
   // ...
-  render={{
-    controls: () => (
-      <button
-        type="button"
-        className="yarll__button"
-        style={{ position: "absolute", top: 8, right: 64 }}
-        onClick={() => {
-          // ...
-        }}
-      >
-        <ButtonIcon />
-      </button>
-    ),
-  }}
 />
 ```
 
@@ -355,6 +361,7 @@ Supported customization slots:
 - `carousel` - lightbox carousel
 - `slide` - lightbox slide
 - `image` - lightbox slide image
+- `toolbar` - lightbox toolbar
 - `button` - lightbox button
 - `icon` - lightbox icon
 
@@ -362,10 +369,10 @@ Usage example:
 
 ```tsx
 <Lightbox
-  // ...
   styles={{
     portal: { "--yarll__backdrop_color": "rgba(0, 0, 0, 0.6)" },
   }}
+  // ...
 />
 ```
 
@@ -493,8 +500,8 @@ to use this feature, you can turn it off by assigning the
 
 ```tsx
 <Lightbox
-  // ..
   className="yarll__no_scroll_lock"
+  // ...
 />
 ```
 

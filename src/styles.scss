@@ -89,6 +89,17 @@ body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
     }
   }
 
+  &_toolbar {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+  }
+
   &_button {
     border: 0;
     margin: 0;
@@ -121,10 +132,10 @@ body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
       }
     }
 
-    &_close {
+    &_prev,
+    &_next {
       position: absolute;
-      top: 8px;
-      right: 8px;
+      padding: globalVar(navigation_button_padding, 24px 8px);
     }
 
     &_prev {
@@ -133,12 +144,6 @@ body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
 
     &_next {
       right: 8px;
-    }
-
-    &_prev,
-    &_next {
-      position: absolute;
-      padding: globalVar(navigation_button_padding, 24px 8px);
     }
 
     &:disabled {

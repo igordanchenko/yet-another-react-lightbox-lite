@@ -192,6 +192,7 @@ describe("Lightbox", () => {
         portal: { "--yarll__style": "portal" },
         carousel: { "--yarll__style": "carousel" },
         slide: { "--yarll__style": "slide" },
+        toolbar: { "--yarll__style": "toolbarv" },
         button: { "--yarll__style": "button" },
         icon: { "--yarll__style": "icon" },
       },
@@ -199,6 +200,7 @@ describe("Lightbox", () => {
 
     expect(querySelector('div[style*="--yarll__style: portal"]')).toBeInTheDocument();
     expect(querySelector('div[style*="--yarll__style: carousel"]')).toBeInTheDocument();
+    expect(querySelector('div[style*="--yarll__style: toolbar"]')).toBeInTheDocument();
     expect(querySelectorAll('div[style*="--yarll__style: slide"]').length).toBe(slides.length);
     expect(querySelectorAll('button[style*="--yarll__style: button"]').length).toBe(3);
     expect(querySelectorAll('svg[style*="--yarll__style: icon"]').length).toBe(3);
@@ -208,5 +210,24 @@ describe("Lightbox", () => {
     renderLightbox({ className: "custom-class" });
 
     expect(querySelector(".yarll__portal.custom-class")).toBeInTheDocument();
+  });
+
+  it("supports custom toolbar buttons", () => {
+    renderLightbox({
+      toolbar: {
+        buttons: [
+          <button type="button" className="custom_toolbar_button1">
+            Button 1
+          </button>,
+          <button key="button2" type="button" className="custom_toolbar_button2">
+            Button 2
+          </button>,
+          "react node",
+        ],
+      },
+    });
+
+    expect(querySelector(".custom_toolbar_button1")).toBeInTheDocument();
+    expect(querySelector(".custom_toolbar_button2")).toBeInTheDocument();
   });
 });

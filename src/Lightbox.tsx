@@ -1,4 +1,4 @@
-import { Carousel, Controller, LightboxContext, Navigation, Portal } from "./components";
+import { Carousel, Controller, LightboxContext, Navigation, Portal, Toolbar } from "./components";
 import { LightboxProps } from "./types";
 
 export default function Lightbox({ slides, index, setIndex, ...rest }: LightboxProps) {
@@ -8,6 +8,7 @@ export default function Lightbox({ slides, index, setIndex, ...rest }: LightboxP
     <LightboxContext {...{ slides, index, ...rest }}>
       <Controller {...{ setIndex }}>
         <Portal>
+          <Toolbar />
           <Carousel />
           <Navigation />
         </Portal>
