@@ -22,7 +22,7 @@ function setAttribute(element: Element, attribute: string, value: string) {
 }
 
 export default function Portal({ children }: PropsWithChildren) {
-  const { styles } = useLightboxContext();
+  const { styles, className } = useLightboxContext();
 
   const cleanup = useRef<Callback[]>([]);
 
@@ -124,7 +124,7 @@ export default function Portal({ children }: PropsWithChildren) {
           tabIndex={-1}
           ref={handleRef}
           style={styles?.portal}
-          className={clsx(cssClass("portal"), !visible && cssClass("portal_closed"))}
+          className={clsx(cssClass("portal"), !visible && cssClass("portal_closed"), className)}
           onTransitionEnd={onTransitionEnd.current}
           onFocus={(event) => {
             if (!restoreFocus.current) {

@@ -343,6 +343,13 @@ Usage example:
 />
 ```
 
+### className
+
+Type: `string`
+
+CSS class of the lightbox root element. You can use this class name to provide
+module-scoped style overrides.
+
 ## Custom Slide Attributes
 
 You can add custom slide attributes with the following module augmentation.

@@ -203,4 +203,10 @@ describe("Lightbox", () => {
     expect(querySelectorAll('button[style*="--yarll__style: button"]').length).toBe(3);
     expect(querySelectorAll('svg[style*="--yarll__style: icon"]').length).toBe(3);
   });
+
+  it("supports lightbox className", () => {
+    renderLightbox({ className: "custom-class" });
+
+    expect(querySelector(".yarll__portal.custom-class")).toBeInTheDocument();
+  });
 });

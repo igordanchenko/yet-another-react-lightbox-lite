@@ -14,6 +14,8 @@ export interface LightboxProps {
   render?: Render;
   /** customization slots styles */
   styles?: SlotStyles;
+  /** CSS class of the lightbox root element */
+  className?: string;
 }
 
 /** Slide */
