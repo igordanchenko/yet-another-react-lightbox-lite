@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 
 import useSensors from "./useSensors";
 import { useController } from "./Controller";
+import { useLightboxContext } from "./LightboxContext";
 import { clsx, cssClass, cssVar } from "../utils";
 import { Callback } from "../types";
 
@@ -21,6 +22,8 @@ function setAttribute(element: Element, attribute: string, value: string) {
 }
 
 export default function Portal({ children }: PropsWithChildren) {
+  const { styles } = useLightboxContext();
+
   const cleanup = useRef<Callback[]>([]);
 
   const [mounted, setMounted] = useState(false);
@@ -120,6 +123,7 @@ export default function Portal({ children }: PropsWithChildren) {
           aria-roledescription="carousel"
           tabIndex={-1}
           ref={handleRef}
+          style={styles?.portal}
           className={clsx(cssClass("portal"), !visible && cssClass("portal_closed"))}
           onTransitionEnd={onTransitionEnd.current}
           onFocus={(event) => {

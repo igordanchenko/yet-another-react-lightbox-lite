@@ -11,7 +11,7 @@ type ButtonProps = Pick<ComponentProps<"button">, "onClick" | "disabled" | "clas
 };
 
 export default function Button({ icon: Icon, renderIcon, label, onClick, disabled, className }: ButtonProps) {
-  const { labels } = useLightboxContext();
+  const { labels, styles } = useLightboxContext();
   const buttonLabel = translateLabel(labels, label);
 
   return (
@@ -21,9 +21,10 @@ export default function Button({ icon: Icon, renderIcon, label, onClick, disable
       aria-label={buttonLabel}
       onClick={onClick}
       disabled={disabled}
+      style={styles?.button}
       className={clsx(cssClass("button"), className)}
     >
-      {renderIcon?.() ?? <Icon className={cssClass("icon")} />}
+      {renderIcon?.() ?? <Icon style={styles?.icon} className={cssClass("icon")} />}
     </button>
   );
 }

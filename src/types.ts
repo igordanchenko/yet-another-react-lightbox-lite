@@ -12,6 +12,8 @@ export interface LightboxProps {
   labels?: Labels;
   /** custom render functions */
   render?: Render;
+  /** customization slots styles */
+  styles?: SlotStyles;
 }
 
 /** Slide */
@@ -97,6 +99,35 @@ export interface RenderSlideProps {
   /** if `true`, the slide is the current slide in the viewport */
   current: boolean;
 }
+
+/** Customization slots */
+export interface SlotType {
+  /** lightbox portal (root) customization slot */
+  portal: "portal";
+  /** lightbox carousel customization slot */
+  carousel: "carousel";
+  /** lightbox slide customization slot */
+  slide: "slide";
+  /** lightbox slide image customization slot */
+  image: "image";
+  /** lightbox button customization slot */
+  button: "button";
+  /** lightbox icon customization slot */
+  icon: "icon";
+}
+
+/** Customization slots */
+export type Slot = SlotType[keyof SlotType];
+
+/** Customization slot CSS properties */
+interface SlotCSSProperties extends React.CSSProperties {
+  [key: `--yarll__${string}`]: string | number;
+}
+
+/** Customization slots styles */
+export type SlotStyles = {
+  [key in Slot]?: SlotCSSProperties;
+};
 
 /** Rect */
 export type Rect = {

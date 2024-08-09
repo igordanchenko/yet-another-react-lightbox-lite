@@ -11,6 +11,10 @@ export function querySelector(selector: string) {
   return document.body.querySelector(selector);
 }
 
+export function querySelectorAll(selector: string) {
+  return document.body.querySelectorAll(selector);
+}
+
 export function getCurrentSlide() {
   return (querySelector(".yarll__slide:not([hidden])") as HTMLDivElement | null) ?? undefined;
 }

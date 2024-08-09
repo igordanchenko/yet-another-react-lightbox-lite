@@ -1,3 +1,4 @@
+import { useLightboxContext } from "./LightboxContext";
 import { cssClass } from "../utils";
 import { Rect, SlideImage } from "../types";
 
@@ -7,6 +8,8 @@ type ImageSlideProps = {
 };
 
 export default function ImageSlide({ slide, rect }: ImageSlideProps) {
+  const { styles } = useLightboxContext();
+
   const { width, height } = slide.srcSet?.[0] ?? slide;
   const imageAspectRatio = width && height ? width / height : undefined;
 
@@ -22,6 +25,7 @@ export default function ImageSlide({ slide, rect }: ImageSlideProps) {
   return (
     <img
       draggable={false}
+      style={styles?.image}
       className={cssClass("slide_image")}
       // `srcSet` must precede `src` attribute
       srcSet={srcSet}

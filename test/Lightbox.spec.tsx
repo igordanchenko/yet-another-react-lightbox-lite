@@ -12,6 +12,7 @@ import {
   pointerSwipe,
   pointerZoom,
   querySelector,
+  querySelectorAll,
   renderLightbox,
   slides,
   wheelSwipe,
@@ -183,5 +184,23 @@ describe("Lightbox", () => {
 
     // @ts-ignore
     document.startViewTransition = undefined;
+  });
+
+  it("supports custom styles", () => {
+    renderLightbox({
+      styles: {
+        portal: { "--yarll__style": "portal" },
+        carousel: { "--yarll__style": "carousel" },
+        slide: { "--yarll__style": "slide" },
+        button: { "--yarll__style": "button" },
+        icon: { "--yarll__style": "icon" },
+      },
+    });
+
+    expect(querySelector('div[style*="--yarll__style: portal"]')).toBeInTheDocument();
+    expect(querySelector('div[style*="--yarll__style: carousel"]')).toBeInTheDocument();
+    expect(querySelectorAll('div[style*="--yarll__style: slide"]').length).toBe(slides.length);
+    expect(querySelectorAll('button[style*="--yarll__style: button"]').length).toBe(3);
+    expect(querySelectorAll('svg[style*="--yarll__style: icon"]').length).toBe(3);
   });
 });

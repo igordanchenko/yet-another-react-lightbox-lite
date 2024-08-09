@@ -6,7 +6,7 @@ import { cssClass } from "../utils";
 import { Rect } from "../types";
 
 export default function Carousel() {
-  const { slides, index, render: { slide: renderSlide, slideHeader, slideFooter } = {} } = useLightboxContext();
+  const { slides, index, styles, render: { slide: renderSlide, slideHeader, slideFooter } = {} } = useLightboxContext();
 
   const [rect, setRect] = useState<Rect>();
   const observer = useRef<ResizeObserver>();
@@ -26,7 +26,7 @@ export default function Carousel() {
   }, []);
 
   return (
-    <div ref={handleRef} className={cssClass("carousel")}>
+    <div ref={handleRef} style={styles?.carousel} className={cssClass("carousel")}>
       {rect &&
         Array.from({ length: 5 }).map((_, i) => {
           const slideIndex = index - 2 + i;
@@ -44,6 +44,7 @@ export default function Carousel() {
               aria-roledescription="slide"
               className={cssClass("slide")}
               hidden={!current}
+              style={styles?.slide}
             >
               {slideHeader?.(context)}
               {renderSlide?.(context) ?? <ImageSlide {...context} />}

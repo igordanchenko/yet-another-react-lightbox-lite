@@ -2,7 +2,7 @@
 
 Lightweight React lightbox component. This is a trimmed-down version of the
 [yet-another-react-lightbox](https://github.com/igordanchenko/yet-another-react-lightbox)
-that provides essential lightbox features and slick UX with just 2.8KB bundle
+that provides essential lightbox features and slick UX with just 2.9KB bundle
 size.
 
 ## Overview
@@ -314,6 +314,34 @@ Render custom `Next` icon.
 #### iconClose: () => ReactNode
 
 Render custom `Close` icon.
+
+### styles
+
+Type: `{ [key in Slot]?: SlotCSSProperties }`
+
+Customization slots styles allow you to specify custom CSS styles or override
+`--yarll__*` CSS variables by passing your custom styles through to the
+corresponding lightbox elements.
+
+Supported customization slots:
+
+- `portal` - lightbox portal (root)
+- `carousel` - lightbox carousel
+- `slide` - lightbox slide
+- `image` - lightbox slide image
+- `button` - lightbox button
+- `icon` - lightbox icon
+
+Usage example:
+
+```tsx
+<Lightbox
+  // ...
+  styles={{
+    portal: { "--yarll__backdrop_color": "rgba(0, 0, 0, 0.6)" },
+  }}
+/>
+```
 
 ## Custom Slide Attributes
 
