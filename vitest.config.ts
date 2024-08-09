@@ -11,12 +11,7 @@ export default defineConfig({
       all: true,
       enabled: true,
       include: ["src"],
-      thresholds: {
-        lines: 95,
-        branches: 95,
-        functions: 95,
-        statements: 95,
-      },
+      thresholds: { "100": true },
       reporter: [
         ["text", { skipEmpty: true }],
         ["html", { skipEmpty: true }],

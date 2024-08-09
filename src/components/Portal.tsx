@@ -93,6 +93,7 @@ export default function Portal({ children }: PropsWithChildren) {
         });
 
         // mark portal siblings inert
+        /* c8 ignore next */
         const elements = node.parentNode?.children ?? [];
         for (let i = 0; i < elements.length; i += 1) {
           const element = elements[i];

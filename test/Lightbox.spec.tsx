@@ -1,5 +1,6 @@
+import { createContext, createElement } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
 import {
@@ -15,8 +16,10 @@ import {
   querySelectorAll,
   renderLightbox,
   slides,
+  suppressConsoleErrors,
   wheelSwipe,
 } from "./test-utils";
+import { makeUseContext } from "../src/utils";
 
 async function testNavigation(
   prev: () => void | Promise<void>,
@@ -235,5 +238,33 @@ describe("Lightbox", () => {
     renderLightbox({ toolbar: { fixed: true } });
 
     expect(querySelector(".yarll__toolbar_fixed")).toBeInTheDocument();
+  });
+
+  it("respects portal siblings attributes", () => {
+    const node = document.createElement("div");
+    node.setAttribute("inert", "true");
+    node.setAttribute("aria-hidden", "true");
+    document.body.appendChild(node);
+
+    renderLightbox().unmount();
+
+    expect(node.getAttribute("inert")).toBe("true");
+    expect(node.getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("supports proper context nesting", () => {
+    suppressConsoleErrors(() =>
+      expect(() => render(createElement(() => makeUseContext(createContext(null))()))).toThrowError(),
+    );
+  });
+
+  it("ignores unsupported keyboard input", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+
+    await user.keyboard("[Space][Enter]");
+
+    expectCurrentSlideToBe(0);
   });
 });

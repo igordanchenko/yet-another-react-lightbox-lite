@@ -94,3 +94,14 @@ export async function expectLightboxToBeClosed() {
 
   expect(getCurrentSlideSource()).toBeUndefined();
 }
+
+/* eslint-disable no-console */
+export function suppressConsoleErrors(callback: () => void) {
+  const consoleError = console.error;
+  console.error = vi.fn();
+  try {
+    callback();
+  } finally {
+    console.error = consoleError;
+  }
+}

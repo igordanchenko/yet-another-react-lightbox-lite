@@ -16,15 +16,19 @@ vi.stubGlobal(
   })),
 );
 
+function isCarousel(target: unknown) {
+  return target instanceof Element && target.classList.contains("yarll__carousel");
+}
+
 Object.defineProperties(window.HTMLElement.prototype, {
   clientWidth: {
     get() {
-      return ((this.className || "") as string).includes("yarll__carousel") ? window.innerWidth : 0;
+      return isCarousel(this) ? window.innerWidth : 0;
     },
   },
   clientHeight: {
     get() {
-      return ((this.className || "") as string).includes("yarll__carousel") ? window.innerHeight : 0;
+      return isCarousel(this) ? window.innerHeight : 0;
     },
   },
 });
