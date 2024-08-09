@@ -95,7 +95,7 @@ describe("Lightbox", () => {
     expectCurrentSlideToBe(1);
   });
 
-  it("supports close on pull up", async () => {
+  it("supports closeOnPullUp", async () => {
     const user = userEvent.setup();
 
     renderLightbox();
@@ -104,12 +104,24 @@ describe("Lightbox", () => {
     await expectLightboxToBeClosed();
   });
 
-  it("supports close on pull down", async () => {
+  it("supports closeOnPullDown", async () => {
     const user = userEvent.setup();
 
     renderLightbox();
 
     await pointerSwipe(user, getCurrentSlide(), 0, 100);
+    await expectLightboxToBeClosed();
+  });
+
+  it("supports closeOnBackdropClick", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+    await user.click(querySelector(".yarll__portal")!);
+    await expectLightboxToBeClosed();
+
+    renderLightbox();
+    await user.click(querySelector(".yarll__slide")!);
     await expectLightboxToBeClosed();
   });
 

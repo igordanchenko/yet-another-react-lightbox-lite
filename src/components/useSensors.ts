@@ -62,8 +62,10 @@ export default function useSensors() {
         } else if (
           (deltaY > 50 && deltaY > 1.2 * deltaX && ((closeOnPullUp && dy < 0) || (closeOnPullDown && dy > 0))) ||
           (closeOnBackdropClick &&
-            activePointer.current.target instanceof HTMLElement &&
-            activePointer.current.target.className.split(" ").includes(cssClass("slide")))
+            activePointer.current.target instanceof Element &&
+            Array.from(activePointer.current.target.classList).some((className) =>
+              [cssClass("slide"), cssClass("portal")].includes(className),
+            ))
         ) {
           close();
         }
