@@ -110,6 +110,8 @@ export interface RenderSlideProps {
 export interface ToolbarSettings {
   /** custom toolbar buttons */
   buttons?: React.ReactNode[];
+  /** if `true`, the toolbar is positioned statically above the carousel */
+  fixed?: boolean;
 }
 
 /** Controller settings */

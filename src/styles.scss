@@ -9,6 +9,7 @@ $button-color-active: globalVar(button_color_active, $color-white);
 $button-color-disabled: globalVar(button_color_disabled, rgba($color-white, 0.4));
 $button-focus-outline: globalVar(button_focus_outline, 6px double black);
 $button-focus-box-shadow: globalVar(button_focus_box_shadow, 0 0 0 4px white);
+$toolbar-margin: 8px;
 
 body:has(> .yarll__portal) {
   overscroll-behavior: none;
@@ -91,13 +92,25 @@ body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
 
   &_toolbar {
     position: absolute;
-    top: 8px;
-    right: 8px;
-
+    top: globalVar(toolbar_margin, $toolbar-margin);
+    right: globalVar(toolbar_margin, $toolbar-margin);
     z-index: 1;
 
     display: flex;
     align-items: center;
+
+    &_fixed {
+      position: static;
+      z-index: unset;
+
+      align-self: flex-end;
+      margin-inline-end: globalVar(toolbar_margin, $toolbar-margin);
+      margin-block-start: globalVar(toolbar_margin, $toolbar-margin);
+
+      & + .yarll__carousel {
+        margin-block-start: globalVar(toolbar_margin, $toolbar-margin);
+      }
+    }
   }
 
   &_button {

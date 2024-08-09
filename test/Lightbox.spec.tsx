@@ -230,4 +230,10 @@ describe("Lightbox", () => {
     expect(querySelector(".custom_toolbar_button1")).toBeInTheDocument();
     expect(querySelector(".custom_toolbar_button2")).toBeInTheDocument();
   });
+
+  it("supports fixed toolbar position", () => {
+    renderLightbox({ toolbar: { fixed: true } });
+
+    expect(querySelector(".yarll__toolbar_fixed")).toBeInTheDocument();
+  });
 });

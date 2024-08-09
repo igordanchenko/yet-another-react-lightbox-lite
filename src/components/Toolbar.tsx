@@ -4,14 +4,14 @@ import Button from "./Button";
 import { Close } from "./icons";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
-import { cssClass } from "../utils";
+import { clsx, cssClass } from "../utils";
 
 export default function Toolbar() {
-  const { render: { iconClose } = {}, toolbar: { buttons } = {}, styles } = useLightboxContext();
+  const { render: { iconClose } = {}, toolbar: { buttons, fixed } = {}, styles } = useLightboxContext();
   const { close } = useController();
 
   return (
-    <div style={styles?.toolbar} className={cssClass("toolbar")}>
+    <div style={styles?.toolbar} className={clsx(cssClass("toolbar"), fixed && cssClass("toolbar_fixed"))}>
       {/* eslint-disable-next-line react/no-array-index-key */}
       {buttons?.map((button, key) => (isValidElement(button) && !button.key ? cloneElement(button, { key }) : button))}
 

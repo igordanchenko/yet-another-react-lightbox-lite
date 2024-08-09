@@ -210,12 +210,14 @@ Type: `object`
 Toolbar settings.
 
 - `buttons` - custom toolbar buttons (type: `ReactNode[]`)
+- `fixed` - if `true`, the toolbar is positioned statically above the carousel
 
 Usage example:
 
 ```tsx
 <Lightbox
   toolbar={{
+    fixed: true,
     buttons: [
       <button
         type="button"
