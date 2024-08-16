@@ -26,14 +26,15 @@ import {
   wheelZoom,
   withFakeTimers,
 } from "./test-utils";
+import { useZoom } from "../src/components";
 import { makeUseContext } from "../src/utils";
-import { useZoom } from "../src/components/Zoom";
 
 declare module "../src/types" {
   interface CustomSlide extends GenericSlide {
     type: "custom-slide";
   }
 
+  // noinspection JSUnusedGlobalSymbols
   interface SlideTypes {
     "custom-slide": CustomSlide;
   }

@@ -1,4 +1,4 @@
-import { useZoom } from "./Zoom";
+import { useZoom, useZoomInternal } from "./Zoom";
 import { useLightboxContext } from "./LightboxContext";
 import ImageSlide from "./ImageSlide";
 import { cssClass, isImageSlide, round } from "../utils";
@@ -6,7 +6,8 @@ import { SlideImage } from "../types";
 
 export default function Carousel() {
   const { slides, index, styles, render: { slide: renderSlide, slideHeader, slideFooter } = {} } = useLightboxContext();
-  const { rect, zoom, offsetX, offsetY, setCarouselRef } = useZoom();
+  const { rect, zoom, offsetX, offsetY } = useZoom();
+  const { setCarouselRef } = useZoomInternal();
 
   return (
     <div ref={setCarouselRef} style={styles?.carousel} className={cssClass("carousel")}>

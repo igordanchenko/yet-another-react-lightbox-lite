@@ -15,21 +15,42 @@ import { useLightboxContext } from "./LightboxContext";
 import { isImageSlide, makeUseContext } from "../utils";
 import { Rect } from "../types";
 
+/** Zoom context */
 type ZoomContextType = {
+  /** slide rect */
   rect?: Rect;
+  /** zoom level */
   zoom: number;
+  /** maximum zoom level */
   maxZoom: number;
+  /** horizontal slide position offset */
   offsetX: number;
+  /** vertical slide position offset */
   offsetY: number;
-  changeZoom: (newZoom: number, event?: Pick<MouseEvent, "clientX" | "clientY">) => void;
+  /** change zoom level */
+  changeZoom: (
+    /** new zoom value */
+    newZoom: number,
+    /** pointer/mouse/wheel event that determines zoom-in point */
+    event?: Pick<MouseEvent, "clientX" | "clientY">,
+  ) => void;
+  /** change position offsets */
   changeOffsets: (dx: number, dy: number) => void;
-  carouselRef: RefObject<HTMLDivElement>;
-  setCarouselRef: RefCallback<HTMLDivElement>;
 };
 
 const ZoomContext = createContext<ZoomContextType | null>(null);
 
+/** `useZoom` hook */
 export const useZoom = makeUseContext(ZoomContext);
+
+type ZoomInternalContextType = {
+  carouselRef: RefObject<HTMLDivElement>;
+  setCarouselRef: RefCallback<HTMLDivElement>;
+};
+
+const ZoomInternalContext = createContext<ZoomInternalContextType | null>(null);
+
+export const useZoomInternal = makeUseContext(ZoomInternalContext);
 
 export default function Zoom({ children }: PropsWithChildren) {
   const [zoom, setZoom] = useState(1);
@@ -120,10 +141,16 @@ export default function Zoom({ children }: PropsWithChildren) {
     [zoom, maxZoom, offsetX, offsetY, changeOffsets],
   );
 
-  const context = useMemo(
-    () => ({ rect, zoom, maxZoom, offsetX, offsetY, changeZoom, changeOffsets, carouselRef, setCarouselRef }),
-    [rect, zoom, maxZoom, offsetX, offsetY, changeZoom, changeOffsets, setCarouselRef],
+  return (
+    <ZoomContext.Provider
+      value={useMemo(
+        () => ({ rect, zoom, maxZoom, offsetX, offsetY, changeZoom, changeOffsets }),
+        [rect, zoom, maxZoom, offsetX, offsetY, changeZoom, changeOffsets],
+      )}
+    >
+      <ZoomInternalContext.Provider value={useMemo(() => ({ carouselRef, setCarouselRef }), [setCarouselRef])}>
+        {children}
+      </ZoomInternalContext.Provider>
+    </ZoomContext.Provider>
   );
-
-  return <ZoomContext.Provider value={context}>{children}</ZoomContext.Provider>;
 }

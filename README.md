@@ -524,6 +524,31 @@ fixed-positioned element container should not have its own border or padding
 styles. If that's the case, you can always add an extra wrapper that just
 defines the fixed position without visual styles.
 
+## Hooks (experimental)
+
+The library exports the following experimental hooks that you may find helpful
+in customizing lightbox functionality. All experimental hooks are currently
+exported with the `unstable_` prefix.
+
+### useZoom
+
+You can use the `useZoom` hook to build your custom zoom controls.
+
+```tsx
+import { unstable_useZoom as useZoom } from "yet-another-react-lightbox-lite";
+```
+
+The hook provides an object with the following props:
+
+- `rect` - slide rect
+- `zoom` - current zoom level (numeric value between `1` and `8`)
+- `maxZoom` - maximum zoom level (`1` if zoom is not supported on the current
+  slide)
+- `offsetX` - horizontal slide position offset
+- `offsetY` - vertical slide position offset
+- `changeZoom` - change zoom level
+- `changeOffsets` - change position offsets
+
 ## License
 
 MIT © 2024 [Igor Danchenko](https://github.com/igordanchenko)

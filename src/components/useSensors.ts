@@ -1,6 +1,6 @@
 import { KeyboardEvent, MouseEvent, PointerEvent, useMemo, useRef, WheelEvent } from "react";
 
-import { useZoom } from "./Zoom";
+import { useZoom, useZoomInternal } from "./Zoom";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
 import { cssClass, scaleZoom } from "../utils";
@@ -26,7 +26,8 @@ export default function useSensors() {
   const activePointers = useRef<PointerEvent[]>([]);
   const pinchZoomDistance = useRef<number>();
 
-  const { zoom, changeZoom, changeOffsets, carouselRef } = useZoom();
+  const { zoom, changeZoom, changeOffsets } = useZoom();
+  const { carouselRef } = useZoomInternal();
   const { prev, next, close } = useController();
 
   const { closeOnPullUp, closeOnPullDown, closeOnBackdropClick } = {
