@@ -16,6 +16,8 @@ export interface LightboxProps {
   toolbar?: ToolbarSettings;
   /** controller settings */
   controller?: ControllerSettings;
+  /** zoom settings */
+  zoom?: ZoomSettings;
   /** customization slots styles */
   styles?: SlotStyles;
   /** CSS class of the lightbox root element */
@@ -100,8 +102,10 @@ export interface Render {
 export interface RenderSlideProps {
   /** slide */
   slide: Slide;
-  /** slide */
+  /** slide rect size */
   rect: Rect;
+  /** zoom level */
+  zoom: number;
   /** if `true`, the slide is the current slide in the viewport */
   current: boolean;
 }
@@ -122,6 +126,12 @@ export interface ControllerSettings {
   closeOnPullDown?: boolean;
   /** if `true`, close the lightbox when the backdrop is clicked (default: `true`) */
   closeOnBackdropClick?: boolean;
+}
+
+/** Zoom settings */
+export interface ZoomSettings {
+  /** zoom-enabled custom slide types */
+  supports?: SlideTypeKey[];
 }
 
 /** Customization slots */

@@ -27,18 +27,34 @@ export function expectCurrentSlideToBe(index: number) {
   expect(getCurrentSlideSource()).toBe(slides[index].src);
 }
 
+function getButton(name: string) {
+  return screen.getByRole("button", { name });
+}
+
 function clickButton(name: string) {
   act(() => {
-    screen.getByRole("button", { name }).click();
+    getButton(name).click();
   });
+}
+
+export function getPreviousButton() {
+  return getButton("Previous");
 }
 
 export function clickButtonPrev() {
   clickButton("Previous");
 }
 
+export function getNextButton() {
+  return getButton("Next");
+}
+
 export function clickButtonNext() {
   clickButton("Next");
+}
+
+export function getCloseButton() {
+  return getButton("Close");
 }
 
 export function clickButtonClose() {
@@ -71,10 +87,13 @@ export function wheelSwipe(deltaX: number, deltaY: number, delay = 2_000) {
   act(() => {
     vi.setSystemTime(Date.now() + delay);
 
-    const target = getCurrentSlide()!;
-    expect(target).not.toBeUndefined();
+    fireEvent.wheel(getCurrentSlide()!, { deltaX, deltaY });
+  });
+}
 
-    fireEvent.wheel(target, { deltaX, deltaY });
+export function wheelZoom(deltaX: number, deltaY: number) {
+  act(() => {
+    fireEvent.wheel(getCurrentSlide()!, { deltaX, deltaY, ctrlKey: true });
   });
 }
 
@@ -93,6 +112,29 @@ export async function expectLightboxToBeClosed() {
   });
 
   expect(getCurrentSlideSource()).toBeUndefined();
+}
+
+function isCurrentSlideScaled() {
+  return getCurrentSlide()!.style.transform.indexOf("scale") >= 0;
+}
+
+export function expectToBeZoomedIn() {
+  expect(isCurrentSlideScaled()).toBe(true);
+}
+
+export function expectToBeZoomedOut() {
+  expect(isCurrentSlideScaled()).toBe(false);
+}
+
+export async function withFakeTimers(callback: () => Promise<void>) {
+  vi.useFakeTimers();
+  try {
+    await callback();
+
+    vi.runAllTimers();
+  } finally {
+    vi.useRealTimers();
+  }
 }
 
 /* eslint-disable no-console */

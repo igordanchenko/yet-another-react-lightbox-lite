@@ -1,15 +1,32 @@
-import { KeyboardEvent, PointerEvent, useMemo, useRef, WheelEvent } from "react";
+import { KeyboardEvent, MouseEvent, PointerEvent, useMemo, useRef, WheelEvent } from "react";
 
+import { useZoom } from "./Zoom";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
-import { cssClass } from "../utils";
+import { cssClass, scaleZoom } from "../utils";
+
+const WHEEL_ZOOM_FACTOR = 100;
+const WHEEL_SWIPE_DISTANCE = 100;
+const WHEEL_SWIPE_COOLDOWN_TIME = 1_000;
+const POINTER_SWIPE_DISTANCE = 100;
+const KEYBOARD_ZOOM_FACTOR = 8 ** (1 / 4);
+const KEYBOARD_MOVE_DISTANCE = 50;
+const PINCH_ZOOM_DISTANCE_FACTOR = 100;
+const PREVAILING_DIRECTION_FACTOR = 1.2;
+
+function distance(pointerA: MouseEvent, pointerB: MouseEvent) {
+  return ((pointerA.clientX - pointerB.clientX) ** 2 + (pointerA.clientY - pointerB.clientY) ** 2) ** 0.5;
+}
 
 export default function useSensors() {
   const wheelEvents = useRef<WheelEvent[]>([]);
   const wheelCooldown = useRef<number | null>(null);
   const wheelCooldownMomentum = useRef<number | null>(null);
-  const activePointer = useRef<PointerEvent | null>(null);
 
+  const activePointers = useRef<PointerEvent[]>([]);
+  const pinchZoomDistance = useRef<number>();
+
+  const { zoom, changeZoom, changeOffsets, carouselRef } = useZoom();
   const { prev, next, close } = useController();
 
   const { closeOnPullUp, closeOnPullDown, closeOnBackdropClick } = {
@@ -21,66 +38,154 @@ export default function useSensors() {
 
   return useMemo(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      switch (event.key) {
-        case "Escape":
-          close();
-          break;
-        case "ArrowLeft":
-          prev();
-          break;
-        case "ArrowRight":
-          next();
-          break;
-        default:
+      const meta = event.getModifierState("Meta");
+
+      const preventDefault = () => event.preventDefault();
+
+      const handleChangeZoom = (newZoom: number) => {
+        preventDefault();
+        changeZoom(newZoom);
+      };
+
+      if (event.key === "+" || (meta && event.key === "=")) handleChangeZoom(zoom * KEYBOARD_ZOOM_FACTOR);
+      if (event.key === "-" || (meta && event.key === "_")) handleChangeZoom(zoom / KEYBOARD_ZOOM_FACTOR);
+      if (meta && event.key === "0") handleChangeZoom(1);
+
+      if (event.key === "Escape") close();
+
+      if (zoom > 1) {
+        const move = (deltaX: number, deltaY: number) => {
+          preventDefault();
+          changeOffsets(deltaX, deltaY);
+        };
+
+        if (event.key === "ArrowUp") move(0, KEYBOARD_MOVE_DISTANCE);
+        if (event.key === "ArrowDown") move(0, -KEYBOARD_MOVE_DISTANCE);
+        if (event.key === "ArrowLeft") move(KEYBOARD_MOVE_DISTANCE, 0);
+        if (event.key === "ArrowRight") move(-KEYBOARD_MOVE_DISTANCE, 0);
+
+        return;
       }
+
+      if (event.key === "ArrowLeft") prev();
+      if (event.key === "ArrowRight") next();
+    };
+
+    const removePointer = (event: PointerEvent) => {
+      const pointers = activePointers.current;
+      pointers.splice(0, pointers.length, ...pointers.filter((pointer) => pointer.pointerId !== event.pointerId));
+    };
+
+    const addPointer = (event: PointerEvent) => {
+      event.persist();
+      removePointer(event);
+      activePointers.current.push(event);
     };
 
     const onPointerDown = (event: PointerEvent) => {
-      if (!activePointer.current) {
-        event.persist();
-        activePointer.current = event;
-      } else {
-        // cancel multi-touch gestures
-        activePointer.current = null;
+      const pointers = activePointers.current;
+
+      // ignore clicks on navigation buttons, toolbar, etc.
+      if (
+        event.target instanceof Element &&
+        (event.target.classList.contains(cssClass("button")) ||
+          event.target.classList.contains(cssClass("icon")) ||
+          carouselRef.current?.parentElement?.querySelector(`.${cssClass("toolbar")}`)?.contains(event.target))
+      ) {
+        return;
+      }
+
+      addPointer(event);
+
+      if (pointers.length === 2) {
+        pinchZoomDistance.current = distance(pointers[0], pointers[1]);
+      }
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      const pointers = activePointers.current;
+      const activePointer = pointers.find((pointer) => pointer.pointerId === event.pointerId);
+
+      if (pointers.length === 2 && pinchZoomDistance.current) {
+        addPointer(event);
+
+        const currentDistance = distance(pointers[0], pointers[1]);
+        const delta = currentDistance - pinchZoomDistance.current;
+
+        if (Math.abs(delta) > 0) {
+          changeZoom(scaleZoom(zoom, delta, PINCH_ZOOM_DISTANCE_FACTOR), {
+            clientX: (pointers[0].clientX + pointers[1].clientX) / 2,
+            clientY: (pointers[0].clientY + pointers[1].clientY) / 2,
+          });
+
+          pinchZoomDistance.current = currentDistance;
+        }
+
+        return;
+      }
+
+      if (zoom > 1 && activePointer) {
+        if (pointers.length === 1) {
+          changeOffsets(event.clientX - activePointer.clientX, event.clientY - activePointer.clientY);
+        }
+
+        addPointer(event);
       }
     };
 
     const onPointerUp = (event: PointerEvent) => {
-      if (event.pointerId === activePointer.current?.pointerId) {
-        const dx = event.clientX - activePointer.current.clientX;
-        const dy = event.clientY - activePointer.current.clientY;
+      const pointers = activePointers.current;
+      const activePointer = pointers.find((pointer) => pointer.pointerId === event.pointerId);
+
+      if (activePointer && pointers.length === 1 && zoom === 1) {
+        const dx = event.clientX - activePointer.clientX;
+        const dy = event.clientY - activePointer.clientY;
 
         const deltaX = Math.abs(dx);
         const deltaY = Math.abs(dy);
 
-        if (deltaX > 50 && deltaX > 1.2 * deltaY) {
+        if (deltaX > POINTER_SWIPE_DISTANCE && deltaX > PREVAILING_DIRECTION_FACTOR * deltaY) {
           if (dx > 0) {
             prev();
           } else {
             next();
           }
         } else if (
-          (deltaY > 50 && deltaY > 1.2 * deltaX && ((closeOnPullUp && dy < 0) || (closeOnPullDown && dy > 0))) ||
+          (deltaY > POINTER_SWIPE_DISTANCE &&
+            deltaY > PREVAILING_DIRECTION_FACTOR * deltaX &&
+            ((closeOnPullUp && dy < 0) || (closeOnPullDown && dy > 0))) ||
           (closeOnBackdropClick &&
-            activePointer.current.target instanceof Element &&
-            Array.from(activePointer.current.target.classList).some((className) =>
+            activePointer.target instanceof Element &&
+            Array.from(activePointer.target.classList).some((className) =>
               [cssClass("slide"), cssClass("portal")].includes(className),
             ))
         ) {
           close();
         }
-
-        activePointer.current = null;
       }
+
+      removePointer(event);
     };
 
     const onWheel = (event: WheelEvent) => {
+      if (event.ctrlKey) {
+        if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
+          changeZoom(scaleZoom(zoom, -event.deltaY, WHEEL_ZOOM_FACTOR), event);
+        }
+        return;
+      }
+
+      if (zoom > 1) {
+        changeOffsets(-event.deltaX, -event.deltaY);
+        return;
+      }
+
       if (wheelCooldown.current && wheelCooldownMomentum.current) {
         if (
           event.deltaX * wheelCooldownMomentum.current > 0 &&
-          (event.timeStamp <= wheelCooldown.current + 500 ||
-            (event.timeStamp <= wheelCooldown.current + 1_000 &&
-              Math.abs(event.deltaX) < 1.2 * Math.abs(wheelCooldownMomentum.current)))
+          (event.timeStamp <= wheelCooldown.current + WHEEL_SWIPE_COOLDOWN_TIME / 2 ||
+            (event.timeStamp <= wheelCooldown.current + WHEEL_SWIPE_COOLDOWN_TIME &&
+              Math.abs(event.deltaX) < PREVAILING_DIRECTION_FACTOR * Math.abs(wheelCooldownMomentum.current)))
         ) {
           wheelCooldownMomentum.current = event.deltaX;
           return;
@@ -98,7 +203,7 @@ export default function useSensors() {
       const deltaX = Math.abs(dx);
       const deltaY = Math.abs(wheelEvents.current.map((e) => e.deltaY).reduce((a, b) => a + b, 0));
 
-      if (deltaX > 100 && deltaX > 1.2 * deltaY) {
+      if (deltaX > WHEEL_SWIPE_DISTANCE && deltaX > PREVAILING_DIRECTION_FACTOR * deltaY) {
         if (dx < 0) {
           prev();
         } else {
@@ -114,10 +219,22 @@ export default function useSensors() {
     return {
       onKeyDown,
       onPointerDown,
+      onPointerMove,
       onPointerUp,
       onPointerLeave: onPointerUp,
       onPointerCancel: onPointerUp,
       onWheel,
     };
-  }, [prev, next, close, closeOnPullUp, closeOnPullDown, closeOnBackdropClick]);
+  }, [
+    prev,
+    next,
+    close,
+    zoom,
+    changeZoom,
+    changeOffsets,
+    carouselRef,
+    closeOnPullUp,
+    closeOnPullDown,
+    closeOnBackdropClick,
+  ]);
 }

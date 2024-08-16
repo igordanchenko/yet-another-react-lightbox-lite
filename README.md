@@ -2,7 +2,7 @@
 
 Lightweight React lightbox component. This is a trimmed-down version of the
 [yet-another-react-lightbox](https://github.com/igordanchenko/yet-another-react-lightbox)
-that provides essential lightbox features and slick UX with just 3KB bundle
+that provides essential lightbox features and slick UX with just 4.3KB bundle
 size.
 
 ## Overview
@@ -13,6 +13,7 @@ size.
 
 - **Built for React:** works with React 18+
 - **UX:** supports keyboard, mouse, touchpad and touchscreen navigation
+- **Zoom:** zoom is supported out of the box
 - **Performance:** preloads a fixed number of images without compromising
   performance or UX
 - **Responsive:** responsive images with automatic resolution switching are
@@ -269,14 +270,14 @@ An object providing custom render functions.
 ```tsx
 <Lightbox
   render={{
-    slide: ({ slide, rect, current }) => (
-      <CustomSlide {...{ slide, rect, current }} />
+    slide: ({ slide, rect, zoom, current }) => (
+      <CustomSlide {...{ slide, rect, zoom, current }} />
     ),
-    slideHeader: ({ slide, rect, current }) => (
-      <SlideHeader {...{ slide, rect, current }} />
+    slideHeader: ({ slide, rect, zoom, current }) => (
+      <SlideHeader {...{ slide, rect, zoom, current }} />
     ),
-    slideFooter: ({ slide, rect, current }) => (
-      <SlideFooter {...{ slide, rect, current }} />
+    slideFooter: ({ slide, rect, zoom, current }) => (
+      <SlideFooter {...{ slide, rect, zoom, current }} />
     ),
     controls: () => <CustomControls />,
     iconPrev: () => <IconPrev />,
@@ -287,15 +288,23 @@ An object providing custom render functions.
 />
 ```
 
-#### slide: ({ slide, rect, current }) => ReactNode
+#### slide: ({ slide, rect, zoom, current }) => ReactNode
 
 Render custom slide type, or override the default image slide implementation.
 
-#### slideHeader: ({ slide, rect, current }) => ReactNode
+Parameters:
+
+- `slide` - slide object (type: `Slide`)
+- `rect` - slide rect size (type: `Rect`)
+- `zoom` - current zoom level (type: `number`)
+- `current` - if `true`, the slide is the current slide in the viewport (type:
+  `boolean`)
+
+#### slideHeader: ({ slide, rect, zoom, current }) => ReactNode
 
 Render custom elements above each slide.
 
-#### slideFooter: ({ slide, rect, current }) => ReactNode
+#### slideFooter: ({ slide, rect, zoom, current }) => ReactNode
 
 Render custom elements below or over each slide. By default, the content is
 rendered right under the slide. Alternatively, you can use

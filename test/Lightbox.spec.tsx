@@ -1,5 +1,5 @@
 import { createContext, createElement } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
@@ -9,7 +9,12 @@ import {
   clickButtonPrev,
   expectCurrentSlideToBe,
   expectLightboxToBeClosed,
+  expectToBeZoomedIn,
+  expectToBeZoomedOut,
+  getCloseButton,
   getCurrentSlide,
+  getNextButton,
+  getPreviousButton,
   pointerSwipe,
   pointerZoom,
   querySelector,
@@ -18,8 +23,21 @@ import {
   slides,
   suppressConsoleErrors,
   wheelSwipe,
+  wheelZoom,
+  withFakeTimers,
 } from "./test-utils";
 import { makeUseContext } from "../src/utils";
+import { useZoom } from "../src/components/Zoom";
+
+declare module "../src/types" {
+  interface CustomSlide extends GenericSlide {
+    type: "custom-slide";
+  }
+
+  interface SlideTypes {
+    "custom-slide": CustomSlide;
+  }
+}
 
 async function testNavigation(
   prev: () => void | Promise<void>,
@@ -67,30 +85,34 @@ describe("Lightbox", () => {
     const user = userEvent.setup();
 
     await testNavigation(
-      () => pointerSwipe(user, getCurrentSlide(), 100, 0),
-      () => pointerSwipe(user, getCurrentSlide(), -100, 0),
+      () => pointerSwipe(user, getCurrentSlide(), 150, 0),
+      () => pointerSwipe(user, getCurrentSlide(), -150, 0),
       () => user.pointer({ keys: "[TouchA]", target: getCurrentSlide() }),
+    );
+
+    await testNavigation(
+      () => user.pointer({ keys: "[MouseLeft>][/MouseLeft]", target: getPreviousButton() }),
+      () => user.pointer({ keys: "[MouseLeft>][/MouseLeft]", target: getNextButton() }),
+      () => user.pointer({ keys: "[MouseLeft>][/MouseLeft]", target: getCloseButton() }),
     );
   });
 
   it("supports wheel navigation", async () => {
-    vi.useFakeTimers();
-
-    try {
+    await withFakeTimers(async () => {
       await testNavigation(
         () => wheelSwipe(-200, 0),
         () => wheelSwipe(200, 0),
       );
-    } finally {
-      vi.useRealTimers();
-    }
+    });
   });
 
   it("supports wheel cooldown", async () => {
     renderLightbox();
 
-    wheelSwipe(200, 0, 0);
-    wheelSwipe(200, 0, 800);
+    await withFakeTimers(async () => {
+      wheelSwipe(200, 0, 0);
+      wheelSwipe(200, 0, 800);
+    });
 
     expectCurrentSlideToBe(1);
   });
@@ -100,7 +122,7 @@ describe("Lightbox", () => {
 
     renderLightbox();
 
-    await pointerSwipe(user, getCurrentSlide(), 0, -100);
+    await pointerSwipe(user, getCurrentSlide(), 0, -120);
     await expectLightboxToBeClosed();
   });
 
@@ -109,7 +131,7 @@ describe("Lightbox", () => {
 
     renderLightbox();
 
-    await pointerSwipe(user, getCurrentSlide(), 0, 100);
+    await pointerSwipe(user, getCurrentSlide(), 0, 120);
     await expectLightboxToBeClosed();
   });
 
@@ -278,5 +300,123 @@ describe("Lightbox", () => {
     await user.keyboard("[Space][Enter]");
 
     expectCurrentSlideToBe(0);
+  });
+
+  it("supports wheel zoom", async () => {
+    renderLightbox();
+
+    wheelZoom(50, 0);
+    expectCurrentSlideToBe(0);
+    expectToBeZoomedOut();
+
+    wheelZoom(0, -50);
+    expectCurrentSlideToBe(0);
+    expectToBeZoomedIn();
+
+    await withFakeTimers(async () => {
+      wheelSwipe(50, 0, 0);
+    });
+
+    expectCurrentSlideToBe(0);
+    expectToBeZoomedIn();
+  });
+
+  it("supports keyboard zoom", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+
+    await user.keyboard("+");
+    expectToBeZoomedIn();
+
+    await user.keyboard("{ArrowLeft}{ArrowRight}{ArrowUp}{ArrowDown}");
+    expectCurrentSlideToBe(0);
+
+    await user.keyboard("-");
+    expectToBeZoomedOut();
+
+    await user.keyboard("{Meta>}={/Meta}");
+    expectToBeZoomedIn();
+
+    await user.keyboard("{Meta>}_{/Meta}");
+    expectToBeZoomedOut();
+
+    await user.keyboard("+++");
+    expectToBeZoomedIn();
+
+    await user.keyboard("{Meta>}0{/Meta}");
+    expectToBeZoomedOut();
+  });
+
+  it("supports pointer zoom", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+
+    const target = getCurrentSlide();
+
+    await user.pointer([
+      { keys: "[TouchA>]", target, coords: { x: 100, y: 100 } },
+      { keys: "[TouchB>]", target, coords: { x: 200, y: 200 } },
+      { pointerName: "TouchA", target, coords: { x: 50, y: 50 } },
+      { keys: "[/TouchA][/TouchB]", target },
+    ]);
+    expectToBeZoomedIn();
+
+    await user.pointer([
+      { keys: "[TouchA>]", target, coords: { x: 100, y: 100 } },
+      { pointerName: "TouchA", target, coords: { x: 150, y: 150 } },
+      { keys: "[/TouchA]", target },
+    ]);
+    expectToBeZoomedIn();
+
+    await user.pointer([
+      { keys: "[TouchA>]", target, coords: { x: 100, y: 100 } },
+      { keys: "[TouchB>]", target, coords: { x: 200, y: 200 } },
+      { pointerName: "TouchA", target, coords: { x: 150, y: 150 } },
+      { keys: "[/TouchA][/TouchB]", target },
+    ]);
+    expectToBeZoomedOut();
+  });
+
+  it("supports zoom on custom slides", () => {
+    let maxZoom: number | undefined;
+
+    const scenario = {
+      slides: [{ type: "custom-slide" as const }],
+      render: {
+        controls: () =>
+          createElement(() => {
+            maxZoom = useZoom().maxZoom;
+            return null;
+          }),
+      },
+    };
+
+    renderLightbox(scenario);
+    expect(maxZoom).toBe(1);
+
+    renderLightbox({
+      ...scenario,
+      zoom: { supports: ["custom-slide"] },
+    });
+    expect(maxZoom).toBe(8);
+  });
+
+  it("updates responsive image sizes when zoomed in", async () => {
+    renderLightbox({
+      slides: [
+        { ...slides[0], srcSet: [{ src: "srcset", width: 800, height: 1200 }] },
+        { ...slides[1], srcSet: [{ src: "srcset", width: 1200, height: 800 }] },
+      ],
+    });
+
+    expect(getCurrentSlide()!.querySelector("img")!.sizes).toBe("512px");
+
+    await withFakeTimers(async () => {
+      wheelZoom(0, -50);
+    });
+
+    expect(getCurrentSlide()!.querySelector("img")!.sizes).toBe("768px");
   });
 });

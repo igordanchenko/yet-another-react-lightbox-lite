@@ -169,5 +169,6 @@ body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
     $icon-size: 32px;
     width: globalVar(icon_size, $icon-size);
     height: globalVar(icon_size, $icon-size);
+    pointer-events: none;
   }
 }

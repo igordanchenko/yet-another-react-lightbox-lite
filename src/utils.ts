@@ -1,7 +1,7 @@
 import { Context, useContext } from "react";
 import { flushSync } from "react-dom";
 
-import { Callback, Label, Labels } from "./types";
+import { Callback, Label, Labels, Slide, SlideImage } from "./types";
 
 const cssPrefix = "yarll__";
 
@@ -37,4 +37,17 @@ export function makeUseContext<T>(context: Context<T | null>) {
     if (!ctx) throw new Error();
     return ctx;
   };
+}
+
+export function round(value: number, decimals = 0) {
+  const factor = 10 ** decimals;
+  return Math.round((value + Number.EPSILON) * factor) / factor;
+}
+
+export function scaleZoom(value: number, delta: number, factor = 100, clamp = 2) {
+  return value * Math.min(1 + Math.abs(delta / factor), clamp) ** Math.sign(delta);
+}
+
+export function isImageSlide(slide: Slide): slide is SlideImage {
+  return (slide.type === undefined || slide.type === "image") && typeof (slide as any).src === "string";
 }
