@@ -84,20 +84,21 @@ export default function useSensors() {
     };
 
     const onPointerDown = (event: PointerEvent) => {
-      const pointers = activePointers.current;
-
-      // ignore clicks on navigation buttons, toolbar, etc.
       if (
-        event.target instanceof Element &&
-        (event.target.classList.contains(cssClass("button")) ||
-          event.target.classList.contains(cssClass("icon")) ||
-          carouselRef.current?.parentElement?.querySelector(`.${cssClass("toolbar")}`)?.contains(event.target))
+        // ignore right button clicks (e.g., context menu)
+        (event.pointerType === "mouse" && event.buttons > 1) ||
+        // ignore clicks on navigation buttons, toolbar, etc.
+        (event.target instanceof Element &&
+          (event.target.classList.contains(cssClass("button")) ||
+            event.target.classList.contains(cssClass("icon")) ||
+            carouselRef.current?.parentElement?.querySelector(`.${cssClass("toolbar")}`)?.contains(event.target)))
       ) {
         return;
       }
 
       addPointer(event);
 
+      const pointers = activePointers.current;
       if (pointers.length === 2) {
         pinchZoomDistance.current = distance(pointers[0], pointers[1]);
       }
@@ -106,6 +107,8 @@ export default function useSensors() {
     const onPointerMove = (event: PointerEvent) => {
       const pointers = activePointers.current;
       const activePointer = pointers.find((pointer) => pointer.pointerId === event.pointerId);
+
+      if (!activePointer) return;
 
       if (pointers.length === 2 && pinchZoomDistance.current) {
         addPointer(event);
@@ -125,7 +128,7 @@ export default function useSensors() {
         return;
       }
 
-      if (zoom > 1 && activePointer) {
+      if (zoom > 1) {
         if (pointers.length === 1) {
           changeOffsets(event.clientX - activePointer.clientX, event.clientY - activePointer.clientY);
         }
@@ -138,7 +141,9 @@ export default function useSensors() {
       const pointers = activePointers.current;
       const activePointer = pointers.find((pointer) => pointer.pointerId === event.pointerId);
 
-      if (activePointer && pointers.length === 1 && zoom === 1) {
+      if (!activePointer) return;
+
+      if (pointers.length === 1 && zoom === 1) {
         const dx = event.clientX - activePointer.clientX;
         const dy = event.clientY - activePointer.clientY;
 
