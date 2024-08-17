@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
 import { cssClass, round } from "../utils";
@@ -29,16 +29,14 @@ export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
 
   const { styles } = useLightboxContext();
 
-  useEffect(() => {
-    if (zoom && zoom > scale) {
-      clearTimeout(persistScaleTimeout.current);
+  if (zoom > scale) {
+    clearTimeout(persistScaleTimeout.current);
 
-      persistScaleTimeout.current = setTimeout(() => {
-        persistScaleTimeout.current = undefined;
-        setScale(zoom);
-      }, 300);
-    }
-  }, [zoom, scale]);
+    persistScaleTimeout.current = setTimeout(() => {
+      persistScaleTimeout.current = undefined;
+      setScale(zoom);
+    }, 300);
+  }
 
   const srcSet = slide.srcSet
     ?.sort((a, b) => a.width - b.width)

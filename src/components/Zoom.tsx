@@ -63,14 +63,16 @@ export default function Zoom({ children }: PropsWithChildren) {
 
   const { index, slides, zoom: { supports } = {} } = useLightboxContext();
 
-  const slide = slides[index];
-  const maxZoom = isImageSlide(slide) || (supports || []).includes((slide as any).type) ? 8 : 1;
-
-  useLayoutEffect(() => {
+  const [prevIndex, setPrevIndex] = useState(index);
+  if (index !== prevIndex) {
     setZoom(1);
     setOffsetX(0);
     setOffsetY(0);
-  }, [index]);
+    setPrevIndex(index);
+  }
+
+  const slide = slides[index];
+  const maxZoom = isImageSlide(slide) || (supports || []).includes((slide as any).type) ? 8 : 1;
 
   useLayoutEffect(() => {
     const carouselHalfWidth = (rect?.width || 0) / 2;
@@ -141,16 +143,16 @@ export default function Zoom({ children }: PropsWithChildren) {
     [zoom, maxZoom, offsetX, offsetY, changeOffsets],
   );
 
+  const context = useMemo(
+    () => ({ rect, zoom, maxZoom, offsetX, offsetY, changeZoom, changeOffsets }),
+    [rect, zoom, maxZoom, offsetX, offsetY, changeZoom, changeOffsets],
+  );
+
+  const internalContext = useMemo(() => ({ carouselRef, setCarouselRef }), [setCarouselRef]);
+
   return (
-    <ZoomContext.Provider
-      value={useMemo(
-        () => ({ rect, zoom, maxZoom, offsetX, offsetY, changeZoom, changeOffsets }),
-        [rect, zoom, maxZoom, offsetX, offsetY, changeZoom, changeOffsets],
-      )}
-    >
-      <ZoomInternalContext.Provider value={useMemo(() => ({ carouselRef, setCarouselRef }), [setCarouselRef])}>
-        {children}
-      </ZoomInternalContext.Provider>
+    <ZoomContext.Provider value={context}>
+      <ZoomInternalContext.Provider value={internalContext}>{children}</ZoomInternalContext.Provider>
     </ZoomContext.Provider>
   );
 }
