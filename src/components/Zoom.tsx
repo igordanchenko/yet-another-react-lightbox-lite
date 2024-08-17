@@ -12,7 +12,7 @@ import {
 } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
-import { isImageSlide, makeUseContext } from "../utils";
+import { getChildren, isImageSlide, makeUseContext } from "../utils";
 import { Rect } from "../types";
 
 /** Zoom context */
@@ -79,8 +79,9 @@ export default function Zoom({ children }: PropsWithChildren) {
     const carouselHalfHeight = (rect?.height || 0) / 2;
 
     const [slideHalfWidth, slideHalfHeight] = Array.from(
-      Array.from(carouselRef.current?.children || []).find((node) => node instanceof HTMLElement && !node.hidden)
-        ?.children || [],
+      getChildren(
+        Array.from(getChildren(carouselRef.current)).find((node) => node instanceof HTMLElement && !node.hidden),
+      ),
     )
       .filter((node) => node instanceof HTMLElement)
       .map((node) => [

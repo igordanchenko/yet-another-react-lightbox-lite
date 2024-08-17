@@ -13,6 +13,7 @@ import {
   expectToBeZoomedOut,
   getCloseButton,
   getCurrentSlide,
+  getCurrentSlideImage,
   getNextButton,
   getPreviousButton,
   pointerSwipe,
@@ -412,12 +413,12 @@ describe("Lightbox", () => {
       ],
     });
 
-    expect(getCurrentSlide()!.querySelector("img")!.sizes).toBe("512px");
+    expect(getCurrentSlideImage().sizes).toBe("512px");
 
     await withFakeTimers(async () => {
       wheelZoom(0, -50);
     });
 
-    expect(getCurrentSlide()!.querySelector("img")!.sizes).toBe("768px");
+    expect(getCurrentSlideImage().sizes).toBe("768px");
   });
 });

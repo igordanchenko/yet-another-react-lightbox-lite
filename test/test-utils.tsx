@@ -7,33 +7,51 @@ import Lightbox, { LightboxProps } from "../src";
 
 export const slides = Array.from({ length: 3 }, (_, i) => ({ src: `http://localhost/image${i + 1}` }));
 
-export function querySelector(selector: string) {
-  return document.body.querySelector(selector);
+function expectToBeNotNull<T>(value: T | null): asserts value is T {
+  expect(value).not.toBeNull();
 }
 
-export function querySelectorAll(selector: string) {
-  return document.body.querySelectorAll(selector);
+export function querySelector<E extends Element = Element>(selector: string) {
+  return document.body.querySelector<E>(selector);
+}
+
+export function querySelectorAll<E extends Element = Element>(selector: string) {
+  return document.body.querySelectorAll<E>(selector);
+}
+
+function getSelector<E extends Element = Element>(selector: string) {
+  const element = querySelector<E>(selector);
+  expectToBeNotNull(element);
+  return element;
+}
+
+export function getController() {
+  return getSelector<HTMLDivElement>(".yarll__portal");
 }
 
 export function getCurrentSlide() {
-  return (querySelector(".yarll__slide:not([hidden])") as HTMLDivElement | null) ?? undefined;
+  return getSelector<HTMLDivElement>(".yarll__slide:not([hidden])");
 }
 
-export function getCurrentSlideSource() {
-  return (querySelector(".yarll__slide:not([hidden]) > img") as HTMLImageElement | null)?.src;
+export function getCurrentSlideImage() {
+  return getSelector<HTMLImageElement>(".yarll__slide_image");
+}
+
+function queryCurrentSlideSource() {
+  return querySelector<HTMLImageElement>(".yarll__slide:not([hidden]) .yarll__slide_image")?.src;
 }
 
 export function expectCurrentSlideToBe(index: number) {
-  expect(getCurrentSlideSource()).toBe(slides[index].src);
+  expect(queryCurrentSlideSource()).toBe(slides[index].src);
 }
 
 function getButton(name: string) {
-  return screen.getByRole("button", { name });
+  return screen.getByRole<HTMLButtonElement>("button", { name });
 }
 
-function clickButton(name: string) {
+function clickButton(button: HTMLButtonElement) {
   act(() => {
-    getButton(name).click();
+    button.click();
   });
 }
 
@@ -42,7 +60,7 @@ export function getPreviousButton() {
 }
 
 export function clickButtonPrev() {
-  clickButton("Previous");
+  clickButton(getPreviousButton());
 }
 
 export function getNextButton() {
@@ -50,7 +68,7 @@ export function getNextButton() {
 }
 
 export function clickButtonNext() {
-  clickButton("Next");
+  clickButton(getNextButton());
 }
 
 export function getCloseButton() {
@@ -58,23 +76,17 @@ export function getCloseButton() {
 }
 
 export function clickButtonClose() {
-  clickButton("Close");
+  clickButton(getCloseButton());
 }
 
-export function getController() {
-  const controller = querySelector(".yarll__portal");
-  expect(controller).not.toBeNull();
-  return controller!;
-}
-
-export async function pointerSwipe(user: UserEvent, target: Element | undefined, deltaX: number, deltaY: number) {
+export async function pointerSwipe(user: UserEvent, target: Element, deltaX: number, deltaY: number) {
   await user.pointer([
     { keys: "[TouchA>]", target, coords: { x: 0, y: 0 } },
     { keys: "[/TouchA]", target, coords: { x: deltaX, y: deltaY } },
   ]);
 }
 
-export async function pointerZoom(user: UserEvent, target: Element | undefined) {
+export async function pointerZoom(user: UserEvent, target: Element) {
   await user.pointer([
     { keys: "[TouchA>]", target, coords: { x: 0, y: 0 } },
     { keys: "[TouchB>]", target, coords: { x: 0, y: 0 } },
@@ -87,13 +99,13 @@ export function wheelSwipe(deltaX: number, deltaY: number, delay = 2_000) {
   act(() => {
     vi.setSystemTime(Date.now() + delay);
 
-    fireEvent.wheel(getCurrentSlide()!, { deltaX, deltaY });
+    fireEvent.wheel(getCurrentSlide(), { deltaX, deltaY });
   });
 }
 
 export function wheelZoom(deltaX: number, deltaY: number) {
   act(() => {
-    fireEvent.wheel(getCurrentSlide()!, { deltaX, deltaY, ctrlKey: true });
+    fireEvent.wheel(getCurrentSlide(), { deltaX, deltaY, ctrlKey: true });
   });
 }
 
@@ -111,11 +123,11 @@ export async function expectLightboxToBeClosed() {
     fireEvent.transitionEnd(getController());
   });
 
-  expect(getCurrentSlideSource()).toBeUndefined();
+  expect(queryCurrentSlideSource()).toBeUndefined();
 }
 
 function isCurrentSlideScaled() {
-  return getCurrentSlide()!.style.transform.indexOf("scale") >= 0;
+  return getCurrentSlide().style.transform.indexOf("scale") >= 0;
 }
 
 export function expectToBeZoomedIn() {

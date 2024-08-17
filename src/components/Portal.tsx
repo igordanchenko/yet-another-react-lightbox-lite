@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import useSensors from "./useSensors";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
-import { clsx, cssClass, cssVar } from "../utils";
+import { clsx, cssClass, cssVar, getChildren } from "../utils";
 import { Callback } from "../types";
 
 function setAttribute(element: Element, attribute: string, value: string) {
@@ -93,8 +93,7 @@ export default function Portal({ children }: PropsWithChildren) {
         });
 
         // mark portal siblings inert
-        /* c8 ignore next */
-        const elements = node.parentNode?.children ?? [];
+        const elements = getChildren(node.parentElement);
         for (let i = 0; i < elements.length; i += 1) {
           const element = elements[i];
           if (!["TEMPLATE", "SCRIPT", "STYLE"].includes(element.tagName) && element !== node) {
