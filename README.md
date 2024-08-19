@@ -26,9 +26,12 @@ size.
 
 [https://github.com/igordanchenko/yet-another-react-lightbox-lite](https://github.com/igordanchenko/yet-another-react-lightbox-lite)
 
-## Live Demo
+## Examples
 
-[https://stackblitz.com/edit/yet-another-react-lightbox-lite](https://stackblitz.com/edit/yet-another-react-lightbox-lite)
+- Live demo -
+  [https://stackblitz.com/edit/yet-another-react-lightbox-lite](https://stackblitz.com/edit/yet-another-react-lightbox-lite?file=src%2FApp.tsx)
+- Examples -
+  [https://stackblitz.com/edit/yet-another-react-lightbox-lite-examples](https://stackblitz.com/edit/yet-another-react-lightbox-lite-examples?file=src%2FApp.tsx)
 
 ## Changelog
 
