@@ -1,4 +1,4 @@
-import type React from "react";
+import { CSSProperties, Key, ReactNode } from "react";
 
 /** Lightbox props */
 export interface LightboxProps {
@@ -39,7 +39,7 @@ export type SlideTypeKey = keyof SlideTypes;
 /** Generic slide */
 export interface GenericSlide {
   /** slide key */
-  key?: React.Key;
+  key?: Key;
   /** slide type */
   type?: SlideTypeKey;
 }
@@ -113,7 +113,7 @@ export interface RenderSlideProps {
 /** Toolbar settings */
 export interface ToolbarSettings {
   /** custom toolbar buttons */
-  buttons?: React.ReactNode[];
+  buttons?: ReactNode[];
   /** if `true`, the toolbar is positioned statically above the carousel */
   fixed?: boolean;
 }
@@ -156,7 +156,7 @@ export interface SlotType {
 export type Slot = SlotType[keyof SlotType];
 
 /** Customization slot CSS properties */
-interface SlotCSSProperties extends React.CSSProperties {
+interface SlotCSSProperties extends CSSProperties {
   [key: `--yarll__${string}`]: string | number;
 }
 
@@ -167,7 +167,9 @@ export type SlotStyles = {
 
 /** Rect */
 export type Rect = {
+  /** rect width */
   width: number;
+  /** rect height */
   height: number;
 };
 
@@ -175,4 +177,4 @@ export type Rect = {
 export type Callback<T = void> = () => T;
 
 /** Render function */
-export type RenderFunction<T = void> = [T] extends [void] ? () => React.ReactNode : (props: T) => React.ReactNode;
+export type RenderFunction<T = void> = [T] extends [void] ? () => ReactNode : (props: T) => ReactNode;
