@@ -238,6 +238,27 @@ Usage example:
 />
 ```
 
+### carousel
+
+Type: `object`
+
+Carousel settings.
+
+- `preload` - the lightbox preloads `(2 * preload + 1)` slides (default: `2`)
+- `imageProps` - custom image slide attributes
+
+Usage example:
+
+```tsx
+<Lightbox
+  carousel={{
+    preload: 5,
+    imageProps: { crossOrigin: "anonymous" },
+  }}
+  // ...
+/>
+```
+
 ### controller
 
 Type: `object`

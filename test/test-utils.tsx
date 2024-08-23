@@ -34,7 +34,11 @@ export function getCurrentSlide() {
 }
 
 export function getCurrentSlideImage() {
-  return getSelector<HTMLImageElement>(".yarll__slide_image");
+  return getSelector<HTMLImageElement>(".yarll__slide:not([hidden]) .yarll__slide_image");
+}
+
+export function getSlidesCount() {
+  return querySelectorAll(".yarll__slide").length;
 }
 
 function queryCurrentSlideSource() {

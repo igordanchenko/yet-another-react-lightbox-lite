@@ -27,7 +27,7 @@ export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
   const [scale, setScale] = useState(1);
   const persistScaleTimeout = useRef<ReturnType<typeof setTimeout>>();
 
-  const { styles } = useLightboxContext();
+  const { carousel: { imageProps } = {}, styles } = useLightboxContext();
 
   if (zoom > scale) {
     clearTimeout(persistScaleTimeout.current);
@@ -59,6 +59,7 @@ export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
       height={height}
       src={slide.src}
       alt={slide.alt}
+      {...imageProps}
     />
   );
 }

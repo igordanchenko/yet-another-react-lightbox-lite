@@ -1,4 +1,4 @@
-import { CSSProperties, Dispatch, Key, ReactNode, SetStateAction } from "react";
+import { ComponentProps, CSSProperties, Dispatch, Key, ReactNode, SetStateAction } from "react";
 
 /** Lightbox props */
 export interface LightboxProps {
@@ -14,6 +14,8 @@ export interface LightboxProps {
   render?: Render;
   /** toolbar settings */
   toolbar?: ToolbarSettings;
+  /** carousel settings */
+  carousel?: CarouselSettings;
   /** controller settings */
   controller?: ControllerSettings;
   /** zoom settings */
@@ -116,6 +118,14 @@ export interface ToolbarSettings {
   buttons?: ReactNode[];
   /** if `true`, the toolbar is positioned statically above the carousel */
   fixed?: boolean;
+}
+
+/** Carousel settings */
+export interface CarouselSettings {
+  /** the lightbox preloads (2 * preload + 1) slides */
+  preload?: number;
+  /** custom image slide attributes */
+  imageProps?: ComponentProps<"img">;
 }
 
 /** Controller settings */

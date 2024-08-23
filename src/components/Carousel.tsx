@@ -5,15 +5,21 @@ import { cssClass, isImageSlide, round } from "../utils";
 import { SlideImage } from "../types";
 
 export default function Carousel() {
-  const { slides, index, styles, render: { slide: renderSlide, slideHeader, slideFooter } = {} } = useLightboxContext();
+  const {
+    slides,
+    index,
+    styles,
+    carousel: { preload = 2 } = {},
+    render: { slide: renderSlide, slideHeader, slideFooter } = {},
+  } = useLightboxContext();
   const { rect, zoom, offsetX, offsetY } = useZoom();
   const { setCarouselRef } = useZoomInternal();
 
   return (
     <div ref={setCarouselRef} style={styles?.carousel} className={cssClass("carousel")}>
       {rect &&
-        Array.from({ length: 5 }).map((_, i) => {
-          const slideIndex = index - 2 + i;
+        Array.from({ length: 2 * preload + 1 }).map((_, i) => {
+          const slideIndex = index - preload + i;
 
           if (slideIndex < 0 || slideIndex >= slides.length) return null;
 

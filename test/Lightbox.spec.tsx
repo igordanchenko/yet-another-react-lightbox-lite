@@ -16,6 +16,7 @@ import {
   getCurrentSlideImage,
   getNextButton,
   getPreviousButton,
+  getSlidesCount,
   pointerSwipe,
   pointerZoom,
   querySelector,
@@ -395,8 +396,9 @@ describe("Lightbox", () => {
       },
     };
 
-    renderLightbox(scenario);
+    const { unmount } = renderLightbox(scenario);
     expect(maxZoom).toBe(1);
+    unmount();
 
     renderLightbox({
       ...scenario,
@@ -420,5 +422,20 @@ describe("Lightbox", () => {
     });
 
     expect(getCurrentSlideImage().sizes).toBe("768px");
+  });
+
+  it("supports custom image attributes", () => {
+    renderLightbox({ carousel: { imageProps: { crossOrigin: "anonymous" } } });
+
+    expect(getCurrentSlideImage().getAttribute("crossOrigin")).toBe("anonymous");
+  });
+
+  it("supports custom preload setting", () => {
+    const { unmount } = renderLightbox();
+    expect(getSlidesCount()).toBe(3);
+    unmount();
+
+    renderLightbox({ carousel: { preload: 0 } });
+    expect(getSlidesCount()).toBe(1);
   });
 });
