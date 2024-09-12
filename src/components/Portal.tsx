@@ -13,7 +13,7 @@ function setAttribute(element: Element, attribute: string, value: string) {
   element.setAttribute(attribute, value);
 
   return () => {
-    if (previousValue) {
+    if (previousValue !== null) {
       element.setAttribute(attribute, previousValue);
     } else {
       element.removeAttribute(attribute);
@@ -97,7 +97,7 @@ export default function Portal({ children }: PropsWithChildren) {
         for (let i = 0; i < elements.length; i += 1) {
           const element = elements[i];
           if (!["TEMPLATE", "SCRIPT", "STYLE"].includes(element.tagName) && element !== node) {
-            cleanup.current.push(setAttribute(element, "inert", "true"));
+            cleanup.current.push(setAttribute(element, "inert", ""));
             cleanup.current.push(setAttribute(element, "aria-hidden", "true"));
           }
         }

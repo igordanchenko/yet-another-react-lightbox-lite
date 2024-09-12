@@ -279,13 +279,13 @@ describe("Lightbox", () => {
 
   it("respects portal siblings attributes", () => {
     const node = document.createElement("div");
-    node.setAttribute("inert", "true");
+    node.setAttribute("inert", "");
     node.setAttribute("aria-hidden", "true");
     document.body.appendChild(node);
 
     renderLightbox().unmount();
 
-    expect(node.getAttribute("inert")).toBe("true");
+    expect(node.getAttribute("inert")).toBe("");
     expect(node.getAttribute("aria-hidden")).toBe("true");
   });
 
