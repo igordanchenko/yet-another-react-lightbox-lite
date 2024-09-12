@@ -12,6 +12,7 @@ import {
   expectToBeZoomedIn,
   expectToBeZoomedOut,
   getCloseButton,
+  getController,
   getCurrentSlide,
   getCurrentSlideImage,
   getNextButton,
@@ -437,5 +438,21 @@ describe("Lightbox", () => {
 
     renderLightbox({ carousel: { preload: 0 } });
     expect(getSlidesCount()).toBe(1);
+  });
+
+  it("transfers focus from offscreen slides", () => {
+    const { getByTestId } = renderLightbox({
+      slides: [{ type: "custom-slide" }, ...slides],
+      render: {
+        slide: ({ slide }) => (slide.type === "custom-slide" ? <input data-testid="custom-slide-input" /> : undefined),
+      },
+    });
+
+    const target = getByTestId("custom-slide-input");
+    target.focus();
+    expect(document.activeElement).toBe(target);
+
+    clickButtonNext();
+    expect(document.activeElement).toBe(getController());
   });
 });
