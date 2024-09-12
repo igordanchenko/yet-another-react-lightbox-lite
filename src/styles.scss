@@ -100,8 +100,6 @@ body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
 
     &_fixed {
       position: static;
-      z-index: unset;
-
       align-self: flex-end;
       margin-inline-end: globalVar(toolbar_margin, $toolbar-margin);
       margin-block-start: globalVar(toolbar_margin, $toolbar-margin);
