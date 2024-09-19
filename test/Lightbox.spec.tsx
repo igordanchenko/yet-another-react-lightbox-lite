@@ -383,6 +383,21 @@ describe("Lightbox", () => {
     expectToBeZoomedOut();
   });
 
+  it("supports double-click zoom", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+
+    await user.dblClick(getController());
+    expectToBeZoomedIn();
+
+    for (let i = 0; i < 3; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await user.dblClick(getController());
+    }
+    expectToBeZoomedOut();
+  });
+
   it("supports zoom on custom slides", () => {
     let maxZoom: number | undefined;
 

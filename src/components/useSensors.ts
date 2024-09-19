@@ -26,7 +26,7 @@ export default function useSensors() {
   const activePointers = useRef<PointerEvent[]>([]);
   const pinchZoomDistance = useRef<number>();
 
-  const { zoom, changeZoom, changeOffsets } = useZoom();
+  const { zoom, maxZoom, changeZoom, changeOffsets } = useZoom();
   const { carouselRef } = useZoomInternal();
   const { prev, next, close } = useController();
 
@@ -222,6 +222,10 @@ export default function useSensors() {
       }
     };
 
+    const onDoubleClick = (event: MouseEvent) => {
+      changeZoom(zoom < maxZoom ? scaleZoom(zoom, 2, 1) : 1, event);
+    };
+
     return {
       onKeyDown,
       onPointerDown,
@@ -229,6 +233,7 @@ export default function useSensors() {
       onPointerUp,
       onPointerLeave: onPointerUp,
       onPointerCancel: onPointerUp,
+      onDoubleClick,
       onWheel,
     };
   }, [
@@ -236,6 +241,7 @@ export default function useSensors() {
     next,
     close,
     zoom,
+    maxZoom,
     changeZoom,
     changeOffsets,
     carouselRef,
