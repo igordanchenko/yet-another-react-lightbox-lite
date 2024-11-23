@@ -398,6 +398,15 @@ describe("Lightbox", () => {
     expectToBeZoomedOut();
   });
 
+  it("supports disabling zoom", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox({ zoom: { disabled: true } });
+
+    await user.dblClick(getController());
+    expectToBeZoomedOut();
+  });
+
   it("supports zoom on custom slides", () => {
     let maxZoom: number | undefined;
 

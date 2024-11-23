@@ -61,7 +61,7 @@ export default function Zoom({ children }: PropsWithChildren) {
   const observer = useRef<ResizeObserver>();
   const carouselRef = useRef<HTMLDivElement | null>(null);
 
-  const { index, slides, zoom: { supports } = {} } = useLightboxContext();
+  const { index, slides, zoom: { supports, disabled } = {} } = useLightboxContext();
 
   const [prevIndex, setPrevIndex] = useState(index);
   if (index !== prevIndex) {
@@ -72,7 +72,7 @@ export default function Zoom({ children }: PropsWithChildren) {
   }
 
   const slide = slides[index];
-  const maxZoom = isImageSlide(slide) || (supports || []).includes((slide as any).type) ? 8 : 1;
+  const maxZoom = (isImageSlide(slide) && !disabled) || (supports || []).includes((slide as any).type) ? 8 : 1;
 
   useLayoutEffect(() => {
     const carouselHalfWidth = (rect?.width || 0) / 2;

@@ -140,6 +140,8 @@ export interface ControllerSettings {
 
 /** Zoom settings */
 export interface ZoomSettings {
+  /** disable zoom on image slides */
+  disabled?: boolean;
   /** zoom-enabled custom slide types */
   supports?: SlideTypeKey[];
 }

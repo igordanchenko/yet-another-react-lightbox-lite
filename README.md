@@ -418,6 +418,24 @@ Type: `string`
 CSS class of the lightbox root element. You can use this class name to provide
 module-scoped style overrides.
 
+### zoom
+
+Type: `object`
+
+Zoom settings.
+
+- `disabled` - disable zoom on image slides
+- `supports` - zoom-enabled custom slide types
+
+Usage example:
+
+```tsx
+<Lightbox
+  zoom={{ supports: ["custom-slide-type"] }}
+  // ...
+/>
+```
+
 ## Custom Slide Attributes
 
 You can add custom slide attributes with the following module augmentation.
