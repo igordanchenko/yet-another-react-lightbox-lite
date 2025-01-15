@@ -26,11 +26,11 @@ export default function Controller({ setIndex, children }: ControllerProps) {
 
   const context = useMemo(() => {
     const prev = () => {
-      if (index > 0) transition(() => setIndex(index - 1));
+      transition(() => setIndex(index === 0 ? slides.length - 1 : index - 1));
     };
 
     const next = () => {
-      if (index < slides.length - 1) transition(() => setIndex(index + 1));
+      transition(() => setIndex(index === slides.length - 1 ? 0 : index + 1));
     };
 
     const close = () => {

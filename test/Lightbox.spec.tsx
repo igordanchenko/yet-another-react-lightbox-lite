@@ -52,6 +52,9 @@ async function testNavigation(
   expectCurrentSlideToBe(0);
 
   await prev();
+  expectCurrentSlideToBe(2);
+
+  await next();
   expectCurrentSlideToBe(0);
 
   await next();
@@ -61,6 +64,9 @@ async function testNavigation(
   expectCurrentSlideToBe(2);
 
   await next();
+  expectCurrentSlideToBe(0);
+
+  await prev();
   expectCurrentSlideToBe(2);
 
   await prev();

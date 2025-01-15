@@ -48,13 +48,31 @@ export default function Carousel() {
   const { setCarouselRef } = useZoomInternal();
   const { rect } = useZoom();
 
+  // we don't want to have index duplicates as hidden slides
+  const renderedSlideIndexes = new Set<number>();
+
   return (
     <div ref={setCarouselRef} style={styles?.carousel} className={cssClass("carousel")}>
       {rect &&
         Array.from({ length: 2 * preload + 1 }).map((_, i) => {
-          const slideIndex = index - preload + i;
+          let slideIndex = index - preload + i;
 
-          if (slideIndex < 0 || slideIndex >= slides.length) return null;
+          // cover length less than preload
+          if (slideIndex < 1 - slides.length || slideIndex > (slides.length - 1) * 2) {
+            return null;
+          }
+
+          if (slideIndex < 0) {
+            slideIndex += slides.length;
+          } else if (slideIndex >= slides.length) {
+            slideIndex -= slides.length;
+          }
+
+          if (renderedSlideIndexes.has(slideIndex)) {
+            return null;
+          }
+
+          renderedSlideIndexes.add(slideIndex);
 
           const slide = slides[slideIndex];
 
