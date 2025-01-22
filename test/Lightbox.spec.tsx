@@ -345,6 +345,12 @@ describe("Lightbox", () => {
     await user.keyboard("{Meta>}_{/Meta}");
     expectToBeZoomedOut();
 
+    await user.keyboard("{Control>}={/Control}");
+    expectToBeZoomedIn();
+
+    await user.keyboard("{Control>}_{/Control}");
+    expectToBeZoomedOut();
+
     await user.keyboard("+++");
     expectToBeZoomedIn();
 
