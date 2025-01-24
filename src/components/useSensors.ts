@@ -88,11 +88,15 @@ export default function useSensors() {
       if (
         // ignore right button clicks (e.g., context menu)
         (event.pointerType === "mouse" && event.buttons > 1) ||
-        // ignore clicks on navigation buttons, toolbar, etc.
+        // ignore clicks on navigation buttons, toolbar, user-selectable elements, etc.
         (event.target instanceof Element &&
           (event.target.classList.contains(cssClass("button")) ||
             event.target.classList.contains(cssClass("icon")) ||
-            carouselRef.current?.parentElement?.querySelector(`.${cssClass("toolbar")}`)?.contains(event.target)))
+            Array.from(
+              carouselRef.current?.parentElement?.querySelectorAll(
+                `.${cssClass("toolbar")}, .${cssClass("selectable")}`,
+              ) /* c8 ignore start */ || [] /* c8 ignore stop */,
+            ).find((element) => element.contains(event.target as Element))))
       ) {
         return;
       }

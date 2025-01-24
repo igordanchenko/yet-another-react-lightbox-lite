@@ -169,4 +169,9 @@ body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
     height: globalVar(icon_size, $icon-size);
     pointer-events: none;
   }
+
+  &_selectable {
+    user-select: text;
+    -webkit-user-select: text;
+  }
 }

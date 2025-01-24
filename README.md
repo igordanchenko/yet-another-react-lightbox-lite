@@ -566,6 +566,13 @@ fixed-positioned element container should not have its own border or padding
 styles. If that's the case, you can always add an extra wrapper that just
 defines the fixed position without visual styles.
 
+## Text Selection
+
+The lightbox is rendered with the `user-select: none` CSS style. If you'd like
+to make some of your custom elements user-selectable, use the `yarll_selectable`
+CSS class. This class sets the `user-select: text` style and turns off
+click-and-drag slide navigation, likely interfering with text selection UX.
+
 ## Hooks (experimental)
 
 The library exports the following experimental hooks that you may find helpful
