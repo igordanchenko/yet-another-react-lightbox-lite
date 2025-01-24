@@ -569,9 +569,10 @@ defines the fixed position without visual styles.
 ## Text Selection
 
 The lightbox is rendered with the `user-select: none` CSS style. If you'd like
-to make some of your custom elements user-selectable, use the `yarll_selectable`
-CSS class. This class sets the `user-select: text` style and turns off
-click-and-drag slide navigation, likely interfering with text selection UX.
+to make some of your custom elements user-selectable, use the
+`yarll__selectable` CSS class. This class sets the `user-select: text` style and
+turns off click-and-drag slide navigation, likely interfering with text
+selection UX.
 
 ## Hooks (experimental)
 
