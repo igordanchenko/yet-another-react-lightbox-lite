@@ -29,7 +29,7 @@ export default function Portal({ children }: PropsWithChildren) {
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
 
-  const onTransitionEnd = useRef<() => void>();
+  const onTransitionEnd = useRef<() => void>(undefined);
   const restoreFocus = useRef<HTMLElement | null>(null);
 
   const sensors = useSensors();

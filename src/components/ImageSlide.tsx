@@ -25,7 +25,7 @@ function getImageDimensions(slide: SlideImage, rect: Rect) {
 
 export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
   const [scale, setScale] = useState(1);
-  const persistScaleTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const persistScaleTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const { carousel: { imageProps } = {}, styles } = useLightboxContext();
 

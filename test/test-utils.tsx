@@ -147,7 +147,9 @@ export async function withFakeTimers(callback: () => Promise<void>) {
   try {
     await callback();
 
-    vi.runAllTimers();
+    await act(async () => {
+      vi.runAllTimers();
+    });
   } finally {
     vi.useRealTimers();
   }

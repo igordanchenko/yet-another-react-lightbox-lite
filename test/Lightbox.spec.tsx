@@ -207,12 +207,12 @@ describe("Lightbox", () => {
 
   it("supports view transitions", () => {
     document.startViewTransition = (callback) => {
-      callback();
+      callback?.();
 
       return {
-        ready: Promise.resolve(),
-        finished: Promise.resolve(),
-        updateCallbackDone: Promise.resolve(),
+        ready: Promise.resolve(undefined),
+        finished: Promise.resolve(undefined),
+        updateCallbackDone: Promise.resolve(undefined),
         skipTransition() {},
       };
     };

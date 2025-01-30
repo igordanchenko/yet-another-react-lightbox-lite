@@ -44,7 +44,7 @@ const ZoomContext = createContext<ZoomContextType | null>(null);
 export const useZoom = makeUseContext(ZoomContext);
 
 type ZoomInternalContextType = {
-  carouselRef: RefObject<HTMLDivElement>;
+  carouselRef: RefObject<HTMLDivElement | null>;
   setCarouselRef: RefCallback<HTMLDivElement>;
 };
 
@@ -58,7 +58,7 @@ export default function Zoom({ children }: PropsWithChildren) {
   const [offsetY, setOffsetY] = useState(0);
 
   const [rect, setRect] = useState<Rect>();
-  const observer = useRef<ResizeObserver>();
+  const observer = useRef<ResizeObserver>(undefined);
   const carouselRef = useRef<HTMLDivElement | null>(null);
 
   const { index, slides, zoom: { supports, disabled } = {} } = useLightboxContext();

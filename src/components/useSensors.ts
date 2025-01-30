@@ -24,7 +24,7 @@ export default function useSensors() {
   const wheelCooldownMomentum = useRef<number | null>(null);
 
   const activePointers = useRef<PointerEvent[]>([]);
-  const pinchZoomDistance = useRef<number>();
+  const pinchZoomDistance = useRef<number>(undefined);
 
   const { zoom, maxZoom, changeZoom, changeOffsets } = useZoom();
   const { carouselRef } = useZoomInternal();
