@@ -192,7 +192,7 @@ A callback to update current slide index state. This prop is required.
 
 ### labels
 
-Type: `{ [key: string]: string }`
+Type: `keyof Labels`
 
 Custom UI labels / translations.
 
