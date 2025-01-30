@@ -12,7 +12,6 @@ export default function Toolbar() {
 
   return (
     <div style={styles?.toolbar} className={clsx(cssClass("toolbar"), fixed && cssClass("toolbar_fixed"))}>
-      {/* eslint-disable-next-line react/no-array-index-key */}
       {buttons?.map((button, key) => (isValidElement(button) && !button.key ? cloneElement(button, { key }) : button))}
 
       <Button label="Close" icon={Close} renderIcon={iconClose} onClick={close} />

@@ -223,7 +223,7 @@ describe("Lightbox", () => {
     clickButtonNext();
     expectCurrentSlideToBe(1);
 
-    // @ts-ignore
+    // @ts-expect-error - expected error
     document.startViewTransition = undefined;
   });
 
@@ -257,6 +257,7 @@ describe("Lightbox", () => {
     renderLightbox({
       toolbar: {
         buttons: [
+          // eslint-disable-next-line react/jsx-key
           <button type="button" className="custom_toolbar_button1">
             Button 1
           </button>,
@@ -398,7 +399,6 @@ describe("Lightbox", () => {
     expectToBeZoomedIn();
 
     for (let i = 0; i < 3; i += 1) {
-      // eslint-disable-next-line no-await-in-loop
       await user.dblClick(getController());
     }
     expectToBeZoomedOut();

@@ -72,7 +72,10 @@ export default function Zoom({ children }: PropsWithChildren) {
   }
 
   const slide = slides[index];
-  const maxZoom = (isImageSlide(slide) && !disabled) || (supports || []).includes((slide as any).type) ? 8 : 1;
+  const maxZoom =
+    (isImageSlide(slide) && !disabled) || ((supports as string[] | undefined) || []).includes(slide.type as string)
+      ? 8
+      : 1;
 
   useLayoutEffect(() => {
     const carouselHalfWidth = (rect?.width || 0) / 2;

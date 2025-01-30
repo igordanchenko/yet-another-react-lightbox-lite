@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import dts from "rollup-plugin-dts";
 import typescript from "@rollup/plugin-typescript";
 

@@ -49,7 +49,8 @@ export function scaleZoom(value: number, delta: number, factor = 100, clamp = 2)
 }
 
 export function isImageSlide(slide: Slide): slide is SlideImage {
-  return (slide.type === undefined || slide.type === "image") && typeof (slide as any).src === "string";
+  // noinspection SuspiciousTypeOfGuard
+  return (slide.type === undefined || slide.type === "image") && typeof slide.src === "string";
 }
 
 export function getChildren(element: Element | null | undefined) {
