@@ -574,18 +574,17 @@ to make some of your custom elements user-selectable, use the
 turns off click-and-drag slide navigation, likely interfering with text
 selection UX.
 
-## Hooks (experimental)
+## Hooks
 
-The library exports the following experimental hooks that you may find helpful
-in customizing lightbox functionality. All experimental hooks are currently
-exported with the `unstable_` prefix.
+The library exports the following hooks that you may find helpful in customizing
+lightbox functionality.
 
 ### useZoom
 
 You can use the `useZoom` hook to build your custom zoom controls.
 
 ```tsx
-import { unstable_useZoom as useZoom } from "yet-another-react-lightbox-lite";
+import { useZoom } from "yet-another-react-lightbox-lite";
 ```
 
 The hook provides an object with the following props:
