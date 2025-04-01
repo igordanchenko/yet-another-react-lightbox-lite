@@ -413,6 +413,23 @@ describe("Lightbox", () => {
     expectToBeZoomedOut();
   });
 
+  it("does not zoom in on toolbar buttons double-click", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox({
+      toolbar: {
+        buttons: [
+          <button key="test" type="button" className="yarll__button">
+            Test
+          </button>,
+        ],
+      },
+    });
+
+    await user.dblClick(screen.getByRole("button", { name: "Test" }));
+    expectToBeZoomedOut();
+  });
+
   it("supports zoom on custom slides", () => {
     let maxZoom: number | undefined;
 

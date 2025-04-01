@@ -84,22 +84,21 @@ export default function useSensors() {
       activePointers.current.push(event);
     };
 
+    const shouldIgnoreEvent = (event: MouseEvent | PointerEvent) =>
+      // ignore right button clicks (e.g., context menu)
+      ("pointerType" in event && event.pointerType === "mouse" && event.buttons > 1) ||
+      // ignore clicks on navigation buttons, toolbar, user-selectable elements, etc.
+      (event.target instanceof Element &&
+        (event.target.classList.contains(cssClass("button")) ||
+          event.target.classList.contains(cssClass("icon")) ||
+          Array.from(
+            carouselRef.current?.parentElement?.querySelectorAll(
+              `.${cssClass("toolbar")}, .${cssClass("selectable")}`,
+            ) /* c8 ignore start */ || [] /* c8 ignore stop */,
+          ).find((element) => element.contains(event.target as Element)) !== undefined));
+
     const onPointerDown = (event: PointerEvent) => {
-      if (
-        // ignore right button clicks (e.g., context menu)
-        (event.pointerType === "mouse" && event.buttons > 1) ||
-        // ignore clicks on navigation buttons, toolbar, user-selectable elements, etc.
-        (event.target instanceof Element &&
-          (event.target.classList.contains(cssClass("button")) ||
-            event.target.classList.contains(cssClass("icon")) ||
-            Array.from(
-              carouselRef.current?.parentElement?.querySelectorAll(
-                `.${cssClass("toolbar")}, .${cssClass("selectable")}`,
-              ) /* c8 ignore start */ || [] /* c8 ignore stop */,
-            ).find((element) => element.contains(event.target as Element))))
-      ) {
-        return;
-      }
+      if (shouldIgnoreEvent(event)) return;
 
       addPointer(event);
 
@@ -228,6 +227,8 @@ export default function useSensors() {
     };
 
     const onDoubleClick = (event: MouseEvent) => {
+      if (shouldIgnoreEvent(event)) return;
+
       changeZoom(zoom < maxZoom ? scaleZoom(zoom, 2, 1) : 1, event);
     };
 
