@@ -1,5 +1,5 @@
 import { createContext, createElement } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
@@ -29,7 +29,7 @@ import {
   wheelZoom,
   withFakeTimers,
 } from "./test-utils";
-import { useZoom } from "../src/components";
+import { useZoom } from "../src";
 import { makeUseContext } from "../src/utils";
 
 declare module "../src/types" {
@@ -206,7 +206,9 @@ describe("Lightbox", () => {
   });
 
   it("supports view transitions", () => {
-    document.startViewTransition = (callback) => {
+    const startViewTransitionBackup = document.startViewTransition;
+
+    document.startViewTransition = vi.fn().mockImplementation((callback) => {
       callback?.();
 
       return {
@@ -214,8 +216,11 @@ describe("Lightbox", () => {
         finished: Promise.resolve(undefined),
         updateCallbackDone: Promise.resolve(undefined),
         skipTransition() {},
-      };
-    };
+        types: {
+          forEach() {},
+        },
+      } satisfies ViewTransition;
+    });
 
     renderLightbox();
     expectCurrentSlideToBe(0);
@@ -223,8 +228,9 @@ describe("Lightbox", () => {
     clickButtonNext();
     expectCurrentSlideToBe(1);
 
-    // @ts-expect-error - expected error
-    document.startViewTransition = undefined;
+    expect(document.startViewTransition).toHaveBeenCalled();
+
+    document.startViewTransition = startViewTransitionBackup;
   });
 
   it("supports custom styles", () => {
