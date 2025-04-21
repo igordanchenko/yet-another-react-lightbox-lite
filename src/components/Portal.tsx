@@ -120,7 +120,8 @@ export default function Portal({ children }: PropsWithChildren) {
         <div
           aria-modal
           role="dialog"
-          aria-roledescription="carousel"
+          aria-live="polite"
+          aria-roledescription="lightbox"
           tabIndex={-1}
           ref={handleRef}
           style={styles?.portal}
