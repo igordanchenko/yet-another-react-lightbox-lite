@@ -58,7 +58,7 @@ export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
       width={width}
       height={height}
       src={slide.src}
-      alt={slide.alt}
+      alt={slide.alt ?? ""}
       {...imageProps}
     />
   );

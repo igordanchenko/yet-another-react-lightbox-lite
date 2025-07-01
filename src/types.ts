@@ -74,9 +74,28 @@ export interface ImageSource {
 
 /** Custom UI labels / translations */
 export interface Labels {
+  /** `Previous` button title */
   Previous?: string;
+  /** `Next` button title */
   Next?: string;
+  /** `Close` button title */
   Close?: string;
+  /** Lightbox ARIA label */
+  Lightbox?: string;
+  /** Carousel ARIA role description */
+  Carousel?: string;
+  /** Slide ARIA role description */
+  Slide?: string;
+  /** Carousel ARIA label */
+  "Photo gallery"?: string;
+  /**
+   * Slide ARIA label
+   *
+   * The value is a template string supporting the following placeholders:
+   * - {index} - current slide index
+   * - {total} - total number of slides
+   */
+  "{index} of {total}"?: string;
 }
 
 /** Label key */
@@ -110,6 +129,8 @@ export interface RenderSlideProps {
   zoom: number;
   /** if `true`, the slide is the current slide in the viewport */
   current: boolean;
+  /** slide index */
+  slideIndex: number;
 }
 
 /** Toolbar settings */

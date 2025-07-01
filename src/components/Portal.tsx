@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import useSensors from "./useSensors";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
-import { clsx, cssClass, cssVar, getChildren } from "../utils";
+import { clsx, cssClass, cssVar, getChildren, translateLabel } from "../utils";
 import { Callback } from "../types";
 
 function setAttribute(element: Element, attribute: string, value: string) {
@@ -22,7 +22,7 @@ function setAttribute(element: Element, attribute: string, value: string) {
 }
 
 export default function Portal({ children }: PropsWithChildren) {
-  const { styles, className } = useLightboxContext();
+  const { labels, styles, className } = useLightboxContext();
 
   const cleanup = useRef<Callback[]>([]);
 
@@ -120,8 +120,7 @@ export default function Portal({ children }: PropsWithChildren) {
         <div
           aria-modal
           role="dialog"
-          aria-live="polite"
-          aria-roledescription="lightbox"
+          aria-label={translateLabel(labels, "Lightbox")}
           tabIndex={-1}
           ref={handleRef}
           style={styles?.portal}

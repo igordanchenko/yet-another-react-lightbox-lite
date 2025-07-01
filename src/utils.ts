@@ -31,6 +31,12 @@ export function translateLabel(labels: Labels | undefined, label: Label) {
   return labels?.[label] ?? label;
 }
 
+export function translateSlideCounter(labels: Labels | undefined, index: number, total: number) {
+  return translateLabel(labels, "{index} of {total}")
+    .replace(/\{index}/g, `${index}`)
+    .replace(/\{total}/g, `${total}`);
+}
+
 export function makeUseContext<T>(context: Context<T | null>) {
   return () => {
     const ctx = useContext(context);

@@ -12,7 +12,7 @@ export default function App() {
     <main className="centered">
       <Lightbox slides={slides} index={index} setIndex={setIndex} />
 
-      <button type="button" className="button" onClick={() => setIndex(0)}>
+      <button type="button" className="button" onClick={() => setIndex(0)} aria-haspopup="dialog">
         Open Lightbox
       </button>
     </main>
