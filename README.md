@@ -22,6 +22,8 @@ size.
 - **No bloat:** supports only essential lightbox features
 - **TypeScript:** type definitions come built-in in the package
 
+![Yet Another React Lightbox Lite | Example](https://images.yet-another-react-lightbox.com/example-lite.jpg)
+
 ## Documentation
 
 [https://github.com/igordanchenko/yet-another-react-lightbox-lite](https://github.com/igordanchenko/yet-another-react-lightbox-lite)
