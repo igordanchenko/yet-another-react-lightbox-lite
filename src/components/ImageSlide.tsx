@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
 import { cssClass, round } from "../utils";
@@ -25,18 +25,20 @@ function getImageDimensions(slide: SlideImage, rect: Rect) {
 
 export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
   const [scale, setScale] = useState(1);
-  const persistScaleTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const { carousel: { imageProps } = {}, styles } = useLightboxContext();
 
-  if (zoom > scale) {
-    clearTimeout(persistScaleTimeout.current);
+  useEffect(() => {
+    if (zoom <= scale) return;
 
-    persistScaleTimeout.current = setTimeout(() => {
-      persistScaleTimeout.current = undefined;
+    const timeoutId = setTimeout(() => {
       setScale(zoom);
     }, 300);
-  }
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [zoom, scale]);
 
   const srcSet = slide.srcSet
     ?.sort((a, b) => a.width - b.width)

@@ -125,7 +125,7 @@ export default function Portal({ children }: PropsWithChildren) {
           ref={handleRef}
           style={styles?.portal}
           className={clsx(cssClass("portal"), !visible && cssClass("portal_closed"), className)}
-          onTransitionEnd={onTransitionEnd.current}
+          onTransitionEnd={() => onTransitionEnd.current?.()}
           onFocus={(event) => {
             if (!restoreFocus.current) {
               restoreFocus.current = event.relatedTarget as HTMLElement | null;
