@@ -62,14 +62,12 @@ export default function Portal({ children }: PropsWithChildren) {
     const property = cssVar("scrollbar-width");
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
 
-    if (scrollbarWidth > 0) {
-      document.documentElement.style.setProperty(property, `${scrollbarWidth}px`);
-    }
+    if (scrollbarWidth === 0) return;
+
+    document.documentElement.style.setProperty(property, `${scrollbarWidth}px`);
 
     return () => {
-      if (scrollbarWidth > 0) {
-        document.documentElement.style.removeProperty(property);
-      }
+      document.documentElement.style.removeProperty(property);
     };
   }, []);
 

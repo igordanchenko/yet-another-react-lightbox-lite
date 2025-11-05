@@ -2,6 +2,16 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 
+declare global {
+  interface Window {
+    __TEST__: {
+      scrollbarWidth: number;
+    };
+  }
+}
+
+vi.stubGlobal("__TEST__", { scrollbarWidth: 0 });
+
 afterEach(() => {
   cleanup();
 });
@@ -19,10 +29,12 @@ function isCarousel(target: unknown) {
   return target instanceof Element && target.classList.contains("yarll__carousel");
 }
 
-Object.defineProperties(window.HTMLElement.prototype, {
+Object.defineProperties(HTMLElement.prototype, {
   clientWidth: {
     get() {
-      return isCarousel(this) ? window.innerWidth : 0;
+      return isCarousel(this) || this instanceof HTMLHtmlElement
+        ? Math.max(window.innerWidth - window.__TEST__.scrollbarWidth, 0)
+        : 0;
     },
   },
   clientHeight: {

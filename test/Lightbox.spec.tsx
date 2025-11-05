@@ -508,4 +508,14 @@ describe("Lightbox", () => {
     clickButtonNext();
     expect(document.activeElement).toBe(getController());
   });
+
+  it("detects scrollbar width", () => {
+    window.__TEST__.scrollbarWidth = 18;
+
+    renderLightbox();
+
+    expect(document.documentElement.style.getPropertyValue("--yarll__scrollbar-width")).toBe("18px");
+
+    window.__TEST__.scrollbarWidth = 0;
+  });
 });
