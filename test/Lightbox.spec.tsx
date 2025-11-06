@@ -9,6 +9,7 @@ import {
   clickButtonPrev,
   expectCurrentSlideToBe,
   expectLightboxToBeClosed,
+  expectLightboxToBeOpen,
   expectToBeZoomedIn,
   expectToBeZoomedOut,
   getCloseButton,
@@ -19,7 +20,6 @@ import {
   getPreviousButton,
   getSlidesCount,
   pointerSwipe,
-  pointerZoom,
   querySelector,
   querySelectorAll,
   renderLightbox,
@@ -110,6 +110,18 @@ describe("Lightbox", () => {
     });
   });
 
+  it("supports wheel navigation threshold", async () => {
+    renderLightbox();
+
+    await withFakeTimers(async () => {
+      wheelSwipe(10, 0, 0);
+      wheelSwipe(10, 0, 100);
+      wheelSwipe(10, 0, 200);
+    });
+
+    expectCurrentSlideToBe(0);
+  });
+
   it("supports wheel cooldown", async () => {
     renderLightbox();
 
@@ -125,6 +137,9 @@ describe("Lightbox", () => {
     const user = userEvent.setup();
 
     renderLightbox();
+
+    await pointerSwipe(user, getCurrentSlideImage(), 0, -10);
+    await expectLightboxToBeOpen();
 
     await pointerSwipe(user, getCurrentSlide(), 0, -120);
     await expectLightboxToBeClosed();
@@ -149,16 +164,6 @@ describe("Lightbox", () => {
     renderLightbox();
     await user.click(querySelector(".yarll__slide")!);
     await expectLightboxToBeClosed();
-  });
-
-  it("cancels multi-touch gestures", async () => {
-    const user = userEvent.setup();
-
-    renderLightbox();
-    expectCurrentSlideToBe(0);
-
-    await pointerZoom(user, getCurrentSlide());
-    expectCurrentSlideToBe(0);
   });
 
   it("supports render functions", () => {
@@ -196,13 +201,25 @@ describe("Lightbox", () => {
   it("supports responsive images", () => {
     renderLightbox({
       slides: [
-        { ...slides[0], srcSet: [{ src: "srcset", width: 800, height: 1200 }] },
-        { ...slides[1], srcSet: [{ src: "srcset", width: 1200, height: 800 }] },
+        {
+          ...slides[0],
+          srcSet: [
+            { src: "src1", width: 800, height: 1200 },
+            { src: "src2", width: 1600, height: 2400 },
+          ],
+        },
+        {
+          ...slides[1],
+          srcSet: [
+            { src: "src3", width: 1200, height: 800 },
+            { src: "src4", width: 600, height: 400 },
+          ],
+        },
       ],
     });
 
-    expect(querySelector('img[srcset="srcset 800w"]')).toBeInTheDocument();
-    expect(querySelector('img[srcset="srcset 1200w"]')).toBeInTheDocument();
+    expect(querySelector('img[srcset="src1 800w, src2 1600w"]')).toBeInTheDocument();
+    expect(querySelector('img[srcset="src4 600w, src3 1200w"]')).toBeInTheDocument();
   });
 
   it("supports view transitions", () => {
@@ -394,6 +411,48 @@ describe("Lightbox", () => {
       { keys: "[/TouchA][/TouchB]", target },
     ]);
     expectToBeZoomedOut();
+  });
+
+  it("ignores unsupported zoom gestures", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+
+    const target = getCurrentSlide();
+
+    await user.pointer([
+      { keys: "[TouchA>]", target, coords: { x: 100, y: 100 } },
+      { keys: "[TouchB>]", target, coords: { x: 200, y: 200 } },
+      { keys: "[TouchC>]", target, coords: { x: 300, y: 300 } },
+      { pointerName: "TouchA", target, coords: { x: 50, y: 50 } },
+      { keys: "[/TouchA][/TouchB][/TouchC]", target },
+    ]);
+    expectToBeZoomedOut();
+
+    await user.pointer([
+      { keys: "[TouchA>]", target, coords: { x: 100, y: 100 } },
+      { keys: "[TouchB>]", target, coords: { x: 200, y: 200 } },
+      { pointerName: "TouchA", target, coords: { x: 300, y: 300 } },
+      { keys: "[/TouchA][/TouchB]", target },
+    ]);
+    expectToBeZoomedOut();
+
+    await user.pointer([
+      { keys: "[TouchA>]", target, coords: { x: 100, y: 100 } },
+      { keys: "[TouchB>]", target, coords: { x: 200, y: 200 } },
+      { pointerName: "TouchA", target, coords: { x: 50, y: 50 } },
+      { keys: "[/TouchA][/TouchB]", target },
+    ]);
+    expectToBeZoomedIn();
+
+    await user.pointer([
+      { keys: "[TouchA>]", target, coords: { x: 50, y: 50 } },
+      { keys: "[TouchB>]", target, coords: { x: 200, y: 200 } },
+      { keys: "[TouchC>]", target, coords: { x: 300, y: 300 } },
+      { pointerName: "TouchA", target, coords: { x: 100, y: 100 } },
+      { keys: "[/TouchA][/TouchB][/TouchC]", target },
+    ]);
+    expectToBeZoomedIn();
   });
 
   it("supports double-click zoom", async () => {

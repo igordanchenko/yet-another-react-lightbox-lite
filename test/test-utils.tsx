@@ -90,15 +90,6 @@ export async function pointerSwipe(user: UserEvent, target: Element, deltaX: num
   ]);
 }
 
-export async function pointerZoom(user: UserEvent, target: Element) {
-  await user.pointer([
-    { keys: "[TouchA>]", target, coords: { x: 0, y: 0 } },
-    { keys: "[TouchB>]", target, coords: { x: 0, y: 0 } },
-    { keys: "[/TouchB]", target, coords: { x: 100, y: 100 } },
-    { keys: "[/TouchA]", target, coords: { x: -100, y: -100 } },
-  ]);
-}
-
 export function wheelSwipe(deltaX: number, deltaY: number, delay = 2_000) {
   act(() => {
     vi.setSystemTime(Date.now() + delay);
@@ -120,6 +111,10 @@ function LightboxTest(props: Omit<LightboxProps, "index" | "setIndex">) {
 
 export function renderLightbox(props?: Omit<Partial<LightboxProps>, "index" | "setIndex">) {
   return render(<LightboxTest slides={slides} {...props} />);
+}
+
+export async function expectLightboxToBeOpen() {
+  expectCurrentSlideToBe(0);
 }
 
 export async function expectLightboxToBeClosed() {

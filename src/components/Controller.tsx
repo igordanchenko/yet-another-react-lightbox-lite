@@ -35,7 +35,7 @@ export default function Controller({ setIndex, children }: ControllerProps) {
 
     const close = () => {
       Promise.all(exitHooks.current.map((hook) => hook()))
-        .catch(() => {})
+        .catch(/* v8 ignore next - @preserve */ () => {})
         .then(() => {
           exitHooks.current = [];
           setIndex(-1);

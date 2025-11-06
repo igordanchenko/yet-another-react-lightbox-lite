@@ -18,11 +18,21 @@ afterEach(() => {
 
 vi.stubGlobal(
   "ResizeObserver",
-  vi.fn((callback) => ({
-    observe: vi.fn(callback),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-  })),
+  class implements ResizeObserver {
+    callback: ResizeObserverCallback;
+
+    constructor(callback: ResizeObserverCallback) {
+      this.callback = callback;
+    }
+
+    observe() {
+      this.callback([], this);
+    }
+
+    unobserve() {}
+
+    disconnect() {}
+  },
 );
 
 function isCarousel(target: unknown) {

@@ -94,7 +94,7 @@ export default function useSensors() {
           Array.from(
             carouselRef.current?.parentElement?.querySelectorAll(
               `.${cssClass("toolbar")}, .${cssClass("selectable")}`,
-            ) /* c8 ignore start */ || [] /* c8 ignore stop */,
+            ) || [],
           ).find((element) => element.contains(event.target as Element)) !== undefined));
 
     const onPointerDown = (event: PointerEvent) => {
