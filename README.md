@@ -2,7 +2,7 @@
 
 Lightweight React lightbox component. This is a trimmed-down version of the
 [yet-another-react-lightbox](https://github.com/igordanchenko/yet-another-react-lightbox)
-that provides essential lightbox features and slick UX with just 4.6KB bundle
+that provides essential lightbox features and slick UX with just 4.7KB bundle
 size.
 
 ## Overview
