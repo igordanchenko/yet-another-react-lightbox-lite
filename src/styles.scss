@@ -20,7 +20,7 @@ body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
   overflow: hidden;
   padding-right: globalVar(scrollbar-width, 0px);
 
-  & .yarll_fixed {
+  & .yarll__fixed {
     padding-right: globalVar(scrollbar-width, 0px);
   }
 }
