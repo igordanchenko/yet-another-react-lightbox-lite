@@ -1,6 +1,6 @@
 import { createContext, createElement } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
 import {
@@ -164,6 +164,21 @@ describe("Lightbox", () => {
     renderLightbox();
     await user.click(querySelector(".yarll__slide")!);
     await expectLightboxToBeClosed();
+  });
+
+  it("closes via fallback timeout when transitionend doesn't fire", async () => {
+    await withFakeTimers(async () => {
+      renderLightbox();
+      await expectLightboxToBeOpen();
+
+      clickButtonClose();
+
+      await act(async () => {
+        vi.runAllTimers();
+      });
+
+      expect(querySelector(".yarll__portal")).toBeNull();
+    });
   });
 
   it("supports render functions", () => {

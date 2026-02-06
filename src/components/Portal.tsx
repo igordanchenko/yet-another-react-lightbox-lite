@@ -29,6 +29,7 @@ export default function Portal({ children }: PropsWithChildren) {
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
 
+  const portalRef = useRef<HTMLDivElement | null>(null);
   const onTransitionEnd = useRef<() => void>(undefined);
   const restoreFocus = useRef<HTMLElement | null>(null);
 
@@ -45,9 +46,25 @@ export default function Portal({ children }: PropsWithChildren) {
       addExitHook(
         () =>
           new Promise((resolve) => {
-            onTransitionEnd.current = () => {
+            // transitionDuration can be a comma-separated list (e.g., "0.3s, 0.5s"), pick the longest
+            const transitionDuration =
+              (portalRef.current &&
+                Math.max(...getComputedStyle(portalRef.current).transitionDuration.split(",").map(parseFloat)) *
+                  1_000) ||
+              0;
+
+            const done = () => {
               onTransitionEnd.current = undefined;
               resolve();
+            };
+
+            // fallback timeout in case the transitionend event doesn't fire
+            // (e.g., prefers-reduced-motion, custom styles, or browser quirks)
+            const timeout = setTimeout(done, transitionDuration + 100);
+
+            onTransitionEnd.current = () => {
+              clearTimeout(timeout);
+              done();
             };
 
             handleCleanup();
@@ -80,6 +97,8 @@ export default function Portal({ children }: PropsWithChildren) {
 
   const handleRef = useCallback(
     (node: HTMLDivElement | null) => {
+      portalRef.current = node;
+
       if (node) {
         // transfer focus and force layout reflow
         node.focus();

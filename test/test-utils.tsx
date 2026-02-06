@@ -122,7 +122,7 @@ export async function expectLightboxToBeClosed() {
     fireEvent.transitionEnd(getController());
   });
 
-  expect(queryCurrentSlideSource()).toBeUndefined();
+  expect(querySelector(".yarll__portal")).toBeNull();
 }
 
 function isCurrentSlideScaled() {
