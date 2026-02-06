@@ -46,7 +46,7 @@ export default function Controller({ setIndex, children }: ControllerProps) {
       exitHooks.current.push(hook);
 
       return () => {
-        exitHooks.current.splice(exitHooks.current.indexOf(hook), 1);
+        exitHooks.current = exitHooks.current.filter((h) => h !== hook);
       };
     };
 
