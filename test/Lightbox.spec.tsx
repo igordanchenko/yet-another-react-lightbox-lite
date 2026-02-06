@@ -558,6 +558,14 @@ describe("Lightbox", () => {
     expect(getCurrentSlideImage().getAttribute("crossOrigin")).toBe("anonymous");
   });
 
+  it("supports custom image attributes as a function of a slide", () => {
+    renderLightbox({
+      carousel: { imageProps: (slide) => ({ loading: slide.src === slides[0].src ? "eager" : "lazy" }) },
+    });
+
+    expect(getCurrentSlideImage().getAttribute("loading")).toBe("eager");
+  });
+
   it("supports custom preload setting", () => {
     const { unmount } = renderLightbox();
     expect(getSlidesCount()).toBe(3);

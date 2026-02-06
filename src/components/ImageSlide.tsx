@@ -26,7 +26,9 @@ function getImageDimensions(slide: SlideImage, rect: Rect) {
 export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
   const [scale, setScale] = useState(1);
 
-  const { carousel: { imageProps } = {}, styles } = useLightboxContext();
+  const { carousel: { imageProps: imagePropsParam } = {}, styles } = useLightboxContext();
+
+  const imageProps = typeof imagePropsParam === "function" ? imagePropsParam(slide) : imagePropsParam;
 
   useEffect(() => {
     if (zoom <= scale) return;
@@ -62,6 +64,7 @@ export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
       height={height}
       src={slide.src}
       alt={slide.alt ?? ""}
+      // intentionally spread last — escape hatch to override any attribute
       {...imageProps}
     />
   );

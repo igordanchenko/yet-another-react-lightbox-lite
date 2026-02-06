@@ -247,7 +247,8 @@ Type: `object`
 Carousel settings.
 
 - `preload` - the lightbox preloads `(2 * preload + 1)` slides (default: `2`)
-- `imageProps` - custom image slide attributes
+- `imageProps` - custom image slide attributes (an object or a function
+  receiving the current slide and returning an object)
 
 Usage example:
 
@@ -256,6 +257,17 @@ Usage example:
   carousel={{
     preload: 5,
     imageProps: { crossOrigin: "anonymous" },
+  }}
+  // ...
+/>
+```
+
+You can also use a function to provide per-slide attributes:
+
+```tsx
+<Lightbox
+  carousel={{
+    imageProps: (slide) => ({ lang: slide.lang }),
   }}
   // ...
 />

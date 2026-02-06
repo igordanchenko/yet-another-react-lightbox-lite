@@ -146,7 +146,7 @@ export interface CarouselSettings {
   /** the lightbox preloads (2 * preload + 1) slides */
   preload?: number;
   /** custom image slide attributes */
-  imageProps?: ComponentProps<"img">;
+  imageProps?: ComponentProps<"img"> | ((slide: SlideImage) => ComponentProps<"img">);
 }
 
 /** Controller settings */
