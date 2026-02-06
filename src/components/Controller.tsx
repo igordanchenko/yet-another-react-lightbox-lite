@@ -38,7 +38,7 @@ export default function Controller({ setIndex, children }: ControllerProps) {
         .catch(/* v8 ignore next - @preserve */ () => {})
         .then(() => {
           exitHooks.current = [];
-          setIndex(-1);
+          setIndex(undefined);
         });
     };
 
