@@ -11,7 +11,7 @@ $button-focus-outline: globalVar(button_focus_outline, 6px double black);
 $button-focus-box-shadow: globalVar(button_focus_box_shadow, 0 0 0 4px white);
 $toolbar-margin: 8px;
 
-body:has(> .yarll__portal) {
+html:has(body > .yarll__portal) {
   overscroll-behavior: none;
 }
 
