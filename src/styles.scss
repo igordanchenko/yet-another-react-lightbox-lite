@@ -116,7 +116,7 @@ body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
     padding: globalVar(button_padding, 8px);
     cursor: pointer;
     appearance: none;
-    color: globalVar(button_color, $button-color);
+    color: $button-color;
     background-color: globalVar(button_background_color, transparent);
     filter: globalVar(button_filter, drop-shadow(2px 2px 2px rgba($color-black, 0.8)));
 
@@ -158,7 +158,7 @@ body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
 
     &:disabled {
       cursor: default;
-      color: globalVar(button_color_disabled, $button-color-disabled);
+      color: $button-color-disabled;
     }
   }
 
