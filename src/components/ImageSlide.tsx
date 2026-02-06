@@ -41,7 +41,8 @@ export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
   }, [zoom, scale]);
 
   const srcSet = slide.srcSet
-    ?.sort((a, b) => a.width - b.width)
+    ?.slice()
+    .sort((a, b) => a.width - b.width)
     .map((image) => `${image.src} ${image.width}w`)
     .join(", ");
 
