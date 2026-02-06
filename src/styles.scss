@@ -50,6 +50,10 @@ body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
     opacity: 1;
     transition: globalVar(fade_transition, opacity 0.3s ease);
 
+    @media (prefers-reduced-motion: reduce) {
+      transition-duration: 0s;
+    }
+
     &_closed {
       opacity: 0;
     }
