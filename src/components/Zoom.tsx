@@ -79,10 +79,8 @@ export default function Zoom({ children }: PropsWithChildren) {
     const carouselHalfWidth = (rect?.width || 0) / 2;
     const carouselHalfHeight = (rect?.height || 0) / 2;
 
-    const [slideHalfWidth, slideHalfHeight] = Array.from(
-      getChildren(
-        Array.from(getChildren(carouselRef.current)).find((node) => node instanceof HTMLElement && !node.hidden),
-      ),
+    const [slideHalfWidth, slideHalfHeight] = getChildren(
+      getChildren(carouselRef.current).find((node) => node instanceof HTMLElement && !node.hidden),
     )
       .filter((node) => node instanceof HTMLElement)
       .map((node) => [

@@ -60,5 +60,5 @@ export function isImageSlide(slide: Slide): slide is SlideImage {
 }
 
 export function getChildren(element: Element | null | undefined) {
-  return element?.children || [];
+  return Array.from(element?.children || []);
 }
