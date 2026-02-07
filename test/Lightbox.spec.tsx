@@ -181,6 +181,16 @@ describe("Lightbox", () => {
     });
   });
 
+  it("ignores double close", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+    await expectLightboxToBeOpen();
+
+    await user.keyboard("{Esc}{Esc}");
+    await expectLightboxToBeClosed();
+  });
+
   it("supports render functions", () => {
     renderLightbox({
       render: {

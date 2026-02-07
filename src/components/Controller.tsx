@@ -23,6 +23,7 @@ export default function Controller({ setIndex, children }: ControllerProps) {
   const { slides, index } = useLightboxContext();
 
   const exitHooks = useRef<ExitHook[]>([]);
+  const closing = useRef(false);
 
   const context = useMemo(() => {
     const prev = () => {
@@ -34,10 +35,14 @@ export default function Controller({ setIndex, children }: ControllerProps) {
     };
 
     const close = () => {
+      if (closing.current) return;
+      closing.current = true;
+
       Promise.all(exitHooks.current.map((hook) => hook()))
         .catch(/* v8 ignore next - @preserve */ () => {})
         .then(() => {
           exitHooks.current = [];
+          closing.current = false;
           setIndex(undefined);
         });
     };
