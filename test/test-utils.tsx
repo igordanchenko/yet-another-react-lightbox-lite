@@ -114,7 +114,7 @@ export function renderLightbox(props?: Omit<Partial<LightboxProps>, "index" | "s
 }
 
 export async function expectLightboxToBeOpen() {
-  expectCurrentSlideToBe(0);
+  expect(querySelector(".yarll__portal")).not.toBeNull();
 }
 
 export async function expectLightboxToBeClosed() {

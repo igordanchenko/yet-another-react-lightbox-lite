@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
+import { act, cleanup, fireEvent } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 
 declare global {
@@ -16,13 +16,30 @@ afterEach(() => {
   cleanup();
 });
 
+vi.stubGlobal("resizeTo", (width: number, height: number) => {
+  act(() => {
+    window.innerWidth = width;
+    window.innerHeight = height;
+
+    fireEvent(window, new Event("resize"));
+  });
+});
+
 vi.stubGlobal(
   "ResizeObserver",
-  class implements ResizeObserver {
-    callback: ResizeObserverCallback;
+  class {
+    readonly callback: ResizeObserverCallback;
+    readonly listener: () => void;
 
     constructor(callback: ResizeObserverCallback) {
       this.callback = callback;
+      this.listener = () => {
+        act(() => {
+          this.callback([], this);
+        });
+      };
+
+      window.addEventListener("resize", this.listener);
     }
 
     observe() {
@@ -31,7 +48,9 @@ vi.stubGlobal(
 
     unobserve() {}
 
-    disconnect() {}
+    disconnect() {
+      window.removeEventListener("resize", this.listener);
+    }
   },
 );
 

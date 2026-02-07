@@ -29,7 +29,7 @@ import {
   wheelZoom,
   withFakeTimers,
 } from "./test-utils";
-import { useZoom } from "../src";
+import Lightbox, { useZoom } from "../src";
 import { makeUseContext } from "../src/utils";
 
 declare module "../src/types" {
@@ -166,6 +166,36 @@ describe("Lightbox", () => {
     await expectLightboxToBeClosed();
   });
 
+  it("does not close on pull-up when closeOnPullUp is false", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox({ controller: { closeOnPullUp: false } });
+
+    await pointerSwipe(user, getCurrentSlide(), 0, -120);
+    await expectLightboxToBeOpen();
+  });
+
+  it("does not close on pull-down when closeOnPullDown is false", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox({ controller: { closeOnPullDown: false } });
+
+    await pointerSwipe(user, getCurrentSlide(), 0, 120);
+    await expectLightboxToBeOpen();
+  });
+
+  it("does not close on backdrop click when closeOnBackdropClick is false", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox({ controller: { closeOnBackdropClick: false } });
+
+    await user.click(querySelector(".yarll__portal")!);
+    await expectLightboxToBeOpen();
+
+    await user.click(querySelector(".yarll__slide")!);
+    await expectLightboxToBeOpen();
+  });
+
   it("closes via fallback timeout when transitionend doesn't fire", async () => {
     await withFakeTimers(async () => {
       renderLightbox();
@@ -211,6 +241,13 @@ describe("Lightbox", () => {
     expect(screen.getAllByText("icon prev").length).toBe(1);
     expect(screen.getAllByText("icon next").length).toBe(1);
     expect(screen.getAllByText("icon close").length).toBe(1);
+  });
+
+  it("hides navigation buttons for a single slide", () => {
+    renderLightbox({ slides: [slides[0]] });
+
+    expect(screen.queryByRole("button", { name: "Previous" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Next" })).toBeNull();
   });
 
   it("supports custom labels", () => {
@@ -325,6 +362,25 @@ describe("Lightbox", () => {
     renderLightbox({ toolbar: { fixed: true } });
 
     expect(querySelector(".yarll__toolbar_fixed")).toBeInTheDocument();
+  });
+
+  it("cleans up on forced unmount without close", () => {
+    const button = document.createElement("button");
+    document.body.appendChild(button);
+    button.focus();
+
+    const { unmount } = renderLightbox();
+
+    expect(button.hasAttribute("inert")).toBe(true);
+    expect(button.getAttribute("aria-hidden")).toBe("true");
+
+    unmount();
+
+    expect(button.hasAttribute("inert")).toBe(false);
+    expect(button.hasAttribute("aria-hidden")).toBe(false);
+    expect(document.activeElement).toBe(button);
+
+    button.remove();
   });
 
   it("respects portal siblings attributes", () => {
@@ -568,6 +624,13 @@ describe("Lightbox", () => {
     expect(getCurrentSlideImage().getAttribute("crossOrigin")).toBe("anonymous");
   });
 
+  it("supports overriding built-in image attributes", () => {
+    renderLightbox({ carousel: { imageProps: { alt: "Custom alt", draggable: true } } });
+
+    expect(getCurrentSlideImage().alt).toBe("Custom alt");
+    expect(getCurrentSlideImage().draggable).toBe(true);
+  });
+
   it("supports custom image attributes as a function of a slide", () => {
     renderLightbox({
       carousel: { imageProps: (slide) => ({ loading: slide.src === slides[0].src ? "eager" : "lazy" }) },
@@ -601,12 +664,56 @@ describe("Lightbox", () => {
     expect(document.activeElement).toBe(getController());
   });
 
-  it("detects scrollbar width", () => {
-    window.__TEST__.scrollbarWidth = 18;
+  it("handles slides array mutation while open", () => {
+    const { rerender } = renderLightbox();
+    expectCurrentSlideToBe(0);
+
+    clickButtonNext();
+    expectCurrentSlideToBe(1);
+
+    const newSlides = [{ src: "http://localhost/imageA" }, { src: "http://localhost/imageB" }];
+
+    rerender(<Lightbox index={1} setIndex={vi.fn()} slides={newSlides} />);
+
+    expect(querySelector<HTMLImageElement>(".yarll__slide:not([hidden]) .yarll__slide_image")?.src).toBe(
+      newSlides[1].src,
+    );
+
+    rerender(<Lightbox index={1} setIndex={vi.fn()} slides={[newSlides[0]]} />);
+
+    expect(querySelector(".yarll__portal")).toBeNull();
+  });
+
+  it("clamps offsets on window resize while zoomed in", async () => {
+    const user = userEvent.setup();
 
     renderLightbox();
 
+    await user.keyboard("+++");
+    expectToBeZoomedIn();
+
+    await user.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}{ArrowDown}{ArrowDown}{ArrowDown}");
+
+    const transformBefore = getCurrentSlide().style.transform;
+    expect(transformBefore).toContain("scale");
+
+    window.resizeTo(50, 50);
+
+    const transformAfter = getCurrentSlide().style.transform;
+    expect(transformAfter).toContain("scale");
+    expect(transformAfter).not.toBe(transformBefore);
+  });
+
+  it("detects scrollbar width", () => {
+    window.__TEST__.scrollbarWidth = 18;
+
+    const { unmount } = renderLightbox();
+
     expect(document.documentElement.style.getPropertyValue("--yarll__scrollbar-width")).toBe("18px");
+
+    unmount();
+
+    expect(document.documentElement.style.getPropertyValue("--yarll__scrollbar-width")).toBe("");
 
     window.__TEST__.scrollbarWidth = 0;
   });
