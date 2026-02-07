@@ -14,7 +14,7 @@ export function cssVar(name: string) {
 }
 
 export function clsx(...classes: (string | boolean | undefined)[]) {
-  return [...classes].filter(Boolean).join(" ");
+  return classes.filter(Boolean).join(" ");
 }
 
 export function transition(callback: Callback) {
