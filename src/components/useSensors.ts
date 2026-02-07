@@ -79,7 +79,6 @@ export default function useSensors() {
     };
 
     const addPointer = (event: PointerEvent) => {
-      event.persist();
       removePointer(event);
       activePointers.current.push(event);
     };
@@ -205,7 +204,6 @@ export default function useSensors() {
         wheelCooldownMomentum.current = null;
       }
 
-      event.persist();
       wheelEvents.current = wheelEvents.current.filter((e) => e.timeStamp > event.timeStamp - 3_000);
       wheelEvents.current.push(event);
 
