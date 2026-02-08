@@ -40,6 +40,7 @@ export function translateSlideCounter(labels: Labels | undefined, index: number,
 export function makeUseContext<T>(context: Context<T | null>) {
   return () => {
     const ctx = useContext(context);
+    // intentionally no message — stack trace is sufficient for internal use
     if (!ctx) throw new Error();
     return ctx;
   };

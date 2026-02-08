@@ -89,8 +89,7 @@ export default function Portal({ children }: PropsWithChildren) {
   }, []);
 
   useEffect(() => {
-    // TODO: false-positive lint?
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- false-positive lint
     setMounted(true);
     return () => setMounted(false);
   }, []);

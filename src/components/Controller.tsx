@@ -39,6 +39,7 @@ export default function Controller({ setIndex, children }: ControllerProps) {
       closing.current = true;
 
       Promise.all(exitHooks.current.map((hook) => hook()))
+        // intentionally swallow errors — a faulty exit hook should not prevent closing
         .catch(/* v8 ignore next - @preserve */ () => {})
         .then(() => {
           exitHooks.current = [];
