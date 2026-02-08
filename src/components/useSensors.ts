@@ -3,6 +3,7 @@ import { KeyboardEvent, MouseEvent, PointerEvent, useMemo, useRef, WheelEvent } 
 import { useZoom, useZoomInternal } from "./Zoom";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
+import useEventCallback from "./useEventCallback";
 import { cssClass, scaleZoom } from "../utils";
 
 const WHEEL_ZOOM_FACTOR = 100;
@@ -37,200 +38,201 @@ export default function useSensors() {
     ...useLightboxContext().controller,
   };
 
-  return useMemo(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const { key, metaKey, ctrlKey } = event;
-      const meta = metaKey || ctrlKey;
+  const addPointer = (event: PointerEvent) => {
+    removePointer(event);
+    activePointers.current.push(event);
+  };
 
-      const preventDefault = () => event.preventDefault();
+  const removePointer = (event: PointerEvent) => {
+    const pointers = activePointers.current;
+    pointers.splice(0, pointers.length, ...pointers.filter((pointer) => pointer.pointerId !== event.pointerId));
+  };
 
-      const handleChangeZoom = (newZoom: number) => {
+  // intentionally querying the DOM each time — this only runs on pointerDown/doubleClick
+  // (not on every pointer move), and the selectable elements can change per slide
+  const shouldIgnoreEvent = (event: MouseEvent | PointerEvent) =>
+    // ignore right button clicks (e.g., context menu)
+    ("pointerType" in event && event.pointerType === "mouse" && event.buttons > 1) ||
+    // ignore clicks on navigation buttons, toolbar, user-selectable elements, etc.
+    (event.target instanceof Element &&
+      (event.target.classList.contains(cssClass("button")) ||
+        event.target.classList.contains(cssClass("icon")) ||
+        Array.from(
+          carouselRef.current?.parentElement?.querySelectorAll(`.${cssClass("toolbar")}, .${cssClass("selectable")}`) ||
+            [],
+        ).find((element) => element.contains(event.target as Element)) !== undefined));
+
+  const onKeyDown = useEventCallback((event: KeyboardEvent) => {
+    const { key, metaKey, ctrlKey } = event;
+    const meta = metaKey || ctrlKey;
+
+    const preventDefault = () => event.preventDefault();
+
+    const handleChangeZoom = (newZoom: number) => {
+      preventDefault();
+      changeZoom(newZoom);
+    };
+
+    if (key === "+" || (meta && key === "=")) handleChangeZoom(zoom * KEYBOARD_ZOOM_FACTOR);
+    if (key === "-" || (meta && key === "_")) handleChangeZoom(zoom / KEYBOARD_ZOOM_FACTOR);
+    if (meta && key === "0") handleChangeZoom(1);
+
+    if (key === "Escape") close();
+
+    if (zoom > 1) {
+      const move = (deltaX: number, deltaY: number) => {
         preventDefault();
-        changeZoom(newZoom);
+        changeOffsets(deltaX, deltaY);
       };
 
-      if (key === "+" || (meta && key === "=")) handleChangeZoom(zoom * KEYBOARD_ZOOM_FACTOR);
-      if (key === "-" || (meta && key === "_")) handleChangeZoom(zoom / KEYBOARD_ZOOM_FACTOR);
-      if (meta && key === "0") handleChangeZoom(1);
+      if (key === "ArrowUp") move(0, KEYBOARD_MOVE_DISTANCE);
+      if (key === "ArrowDown") move(0, -KEYBOARD_MOVE_DISTANCE);
+      if (key === "ArrowLeft") move(KEYBOARD_MOVE_DISTANCE, 0);
+      if (key === "ArrowRight") move(-KEYBOARD_MOVE_DISTANCE, 0);
 
-      if (key === "Escape") close();
+      return;
+    }
 
-      if (zoom > 1) {
-        const move = (deltaX: number, deltaY: number) => {
-          preventDefault();
-          changeOffsets(deltaX, deltaY);
-        };
+    if (key === "ArrowLeft") prev();
+    if (key === "ArrowRight") next();
+  });
 
-        if (key === "ArrowUp") move(0, KEYBOARD_MOVE_DISTANCE);
-        if (key === "ArrowDown") move(0, -KEYBOARD_MOVE_DISTANCE);
-        if (key === "ArrowLeft") move(KEYBOARD_MOVE_DISTANCE, 0);
-        if (key === "ArrowRight") move(-KEYBOARD_MOVE_DISTANCE, 0);
+  const onPointerDown = useEventCallback((event: PointerEvent) => {
+    if (shouldIgnoreEvent(event)) return;
 
-        return;
-      }
+    addPointer(event);
 
-      if (key === "ArrowLeft") prev();
-      if (key === "ArrowRight") next();
-    };
+    const pointers = activePointers.current;
+    if (pointers.length === 2) {
+      pinchZoomDistance.current = distance(pointers[0], pointers[1]);
+    }
+  });
 
-    const removePointer = (event: PointerEvent) => {
-      const pointers = activePointers.current;
-      pointers.splice(0, pointers.length, ...pointers.filter((pointer) => pointer.pointerId !== event.pointerId));
-    };
+  const onPointerMove = useEventCallback((event: PointerEvent) => {
+    const pointers = activePointers.current;
+    const activePointer = pointers.find((pointer) => pointer.pointerId === event.pointerId);
 
-    const addPointer = (event: PointerEvent) => {
-      removePointer(event);
-      activePointers.current.push(event);
-    };
+    if (!activePointer) return;
 
-    const shouldIgnoreEvent = (event: MouseEvent | PointerEvent) =>
-      // ignore right button clicks (e.g., context menu)
-      ("pointerType" in event && event.pointerType === "mouse" && event.buttons > 1) ||
-      // ignore clicks on navigation buttons, toolbar, user-selectable elements, etc.
-      (event.target instanceof Element &&
-        (event.target.classList.contains(cssClass("button")) ||
-          event.target.classList.contains(cssClass("icon")) ||
-          Array.from(
-            carouselRef.current?.parentElement?.querySelectorAll(
-              `.${cssClass("toolbar")}, .${cssClass("selectable")}`,
-            ) || [],
-          ).find((element) => element.contains(event.target as Element)) !== undefined));
-
-    const onPointerDown = (event: PointerEvent) => {
-      if (shouldIgnoreEvent(event)) return;
-
+    if (pointers.length === 2 && pinchZoomDistance.current) {
       addPointer(event);
 
-      const pointers = activePointers.current;
-      if (pointers.length === 2) {
-        pinchZoomDistance.current = distance(pointers[0], pointers[1]);
-      }
-    };
+      const currentDistance = distance(pointers[0], pointers[1]);
+      const delta = currentDistance - pinchZoomDistance.current;
 
-    const onPointerMove = (event: PointerEvent) => {
-      const pointers = activePointers.current;
-      const activePointer = pointers.find((pointer) => pointer.pointerId === event.pointerId);
+      if (Math.abs(delta) > 0) {
+        changeZoom(scaleZoom(zoom, delta, PINCH_ZOOM_DISTANCE_FACTOR), {
+          clientX: (pointers[0].clientX + pointers[1].clientX) / 2,
+          clientY: (pointers[0].clientY + pointers[1].clientY) / 2,
+        });
 
-      if (!activePointer) return;
-
-      if (pointers.length === 2 && pinchZoomDistance.current) {
-        addPointer(event);
-
-        const currentDistance = distance(pointers[0], pointers[1]);
-        const delta = currentDistance - pinchZoomDistance.current;
-
-        if (Math.abs(delta) > 0) {
-          changeZoom(scaleZoom(zoom, delta, PINCH_ZOOM_DISTANCE_FACTOR), {
-            clientX: (pointers[0].clientX + pointers[1].clientX) / 2,
-            clientY: (pointers[0].clientY + pointers[1].clientY) / 2,
-          });
-
-          pinchZoomDistance.current = currentDistance;
-        }
-
-        return;
+        pinchZoomDistance.current = currentDistance;
       }
 
-      if (zoom > 1) {
-        if (pointers.length === 1) {
-          changeOffsets(event.clientX - activePointer.clientX, event.clientY - activePointer.clientY);
-        }
+      return;
+    }
 
-        addPointer(event);
-      }
-    };
-
-    const onPointerUp = (event: PointerEvent) => {
-      const pointers = activePointers.current;
-      const activePointer = pointers.find((pointer) => pointer.pointerId === event.pointerId);
-
-      if (!activePointer) return;
-
-      if (pointers.length === 1 && zoom === 1) {
-        const dx = event.clientX - activePointer.clientX;
-        const dy = event.clientY - activePointer.clientY;
-
-        const deltaX = Math.abs(dx);
-        const deltaY = Math.abs(dy);
-
-        if (deltaX > POINTER_SWIPE_DISTANCE && deltaX > PREVAILING_DIRECTION_FACTOR * deltaY) {
-          if (dx > 0) {
-            prev();
-          } else {
-            next();
-          }
-        } else if (
-          (deltaY > POINTER_SWIPE_DISTANCE &&
-            deltaY > PREVAILING_DIRECTION_FACTOR * deltaX &&
-            ((closeOnPullUp && dy < 0) || (closeOnPullDown && dy > 0))) ||
-          (closeOnBackdropClick &&
-            activePointer.target instanceof Element &&
-            Array.from(activePointer.target.classList).some((className) =>
-              [cssClass("slide"), cssClass("portal")].includes(className),
-            ))
-        ) {
-          close();
-        }
+    if (zoom > 1) {
+      if (pointers.length === 1) {
+        changeOffsets(event.clientX - activePointer.clientX, event.clientY - activePointer.clientY);
       }
 
-      removePointer(event);
-    };
+      addPointer(event);
+    }
+  });
 
-    const onWheel = (event: WheelEvent) => {
-      if (event.ctrlKey) {
-        if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
-          changeZoom(scaleZoom(zoom, -event.deltaY, WHEEL_ZOOM_FACTOR), event);
-        }
-        return;
-      }
+  const onPointerUp = useEventCallback((event: PointerEvent) => {
+    const pointers = activePointers.current;
+    const activePointer = pointers.find((pointer) => pointer.pointerId === event.pointerId);
 
-      if (zoom > 1) {
-        changeOffsets(-event.deltaX, -event.deltaY);
-        return;
-      }
+    if (!activePointer) return;
 
-      if (wheelCooldown.current && wheelCooldownMomentum.current) {
-        if (
-          event.deltaX * wheelCooldownMomentum.current > 0 &&
-          (event.timeStamp <= wheelCooldown.current + WHEEL_SWIPE_COOLDOWN_TIME / 2 ||
-            (event.timeStamp <= wheelCooldown.current + WHEEL_SWIPE_COOLDOWN_TIME &&
-              Math.abs(event.deltaX) < PREVAILING_DIRECTION_FACTOR * Math.abs(wheelCooldownMomentum.current)))
-        ) {
-          wheelCooldownMomentum.current = event.deltaX;
-          return;
-        }
+    if (pointers.length === 1 && zoom === 1) {
+      const dx = event.clientX - activePointer.clientX;
+      const dy = event.clientY - activePointer.clientY;
 
-        wheelCooldown.current = null;
-        wheelCooldownMomentum.current = null;
-      }
-
-      wheelEvents.current = wheelEvents.current.filter((e) => e.timeStamp > event.timeStamp - 3_000);
-      wheelEvents.current.push(event);
-
-      const dx = wheelEvents.current.map((e) => e.deltaX).reduce((a, b) => a + b, 0);
       const deltaX = Math.abs(dx);
-      const deltaY = Math.abs(wheelEvents.current.map((e) => e.deltaY).reduce((a, b) => a + b, 0));
+      const deltaY = Math.abs(dy);
 
-      if (deltaX > WHEEL_SWIPE_DISTANCE && deltaX > PREVAILING_DIRECTION_FACTOR * deltaY) {
-        if (dx < 0) {
+      if (deltaX > POINTER_SWIPE_DISTANCE && deltaX > PREVAILING_DIRECTION_FACTOR * deltaY) {
+        if (dx > 0) {
           prev();
         } else {
           next();
         }
-
-        wheelEvents.current = [];
-        wheelCooldown.current = event.timeStamp;
-        wheelCooldownMomentum.current = event.deltaX;
+      } else if (
+        (deltaY > POINTER_SWIPE_DISTANCE &&
+          deltaY > PREVAILING_DIRECTION_FACTOR * deltaX &&
+          ((closeOnPullUp && dy < 0) || (closeOnPullDown && dy > 0))) ||
+        (closeOnBackdropClick &&
+          activePointer.target instanceof Element &&
+          Array.from(activePointer.target.classList).some((className) =>
+            [cssClass("slide"), cssClass("portal")].includes(className),
+          ))
+      ) {
+        close();
       }
-    };
+    }
 
-    const onDoubleClick = (event: MouseEvent) => {
-      if (shouldIgnoreEvent(event)) return;
+    removePointer(event);
+  });
 
-      changeZoom(zoom < maxZoom ? scaleZoom(zoom, 2, 1) : 1, event);
-    };
+  const onWheel = useEventCallback((event: WheelEvent) => {
+    if (event.ctrlKey) {
+      if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
+        changeZoom(scaleZoom(zoom, -event.deltaY, WHEEL_ZOOM_FACTOR), event);
+      }
+      return;
+    }
 
-    return {
+    if (zoom > 1) {
+      changeOffsets(-event.deltaX, -event.deltaY);
+      return;
+    }
+
+    if (wheelCooldown.current && wheelCooldownMomentum.current) {
+      if (
+        event.deltaX * wheelCooldownMomentum.current > 0 &&
+        (event.timeStamp <= wheelCooldown.current + WHEEL_SWIPE_COOLDOWN_TIME / 2 ||
+          (event.timeStamp <= wheelCooldown.current + WHEEL_SWIPE_COOLDOWN_TIME &&
+            Math.abs(event.deltaX) < PREVAILING_DIRECTION_FACTOR * Math.abs(wheelCooldownMomentum.current)))
+      ) {
+        wheelCooldownMomentum.current = event.deltaX;
+        return;
+      }
+
+      wheelCooldown.current = null;
+      wheelCooldownMomentum.current = null;
+    }
+
+    wheelEvents.current = wheelEvents.current.filter((e) => e.timeStamp > event.timeStamp - 3_000);
+    wheelEvents.current.push(event);
+
+    const dx = wheelEvents.current.map((e) => e.deltaX).reduce((a, b) => a + b, 0);
+    const deltaX = Math.abs(dx);
+    const deltaY = Math.abs(wheelEvents.current.map((e) => e.deltaY).reduce((a, b) => a + b, 0));
+
+    if (deltaX > WHEEL_SWIPE_DISTANCE && deltaX > PREVAILING_DIRECTION_FACTOR * deltaY) {
+      if (dx < 0) {
+        prev();
+      } else {
+        next();
+      }
+
+      wheelEvents.current = [];
+      wheelCooldown.current = event.timeStamp;
+      wheelCooldownMomentum.current = event.deltaX;
+    }
+  });
+
+  const onDoubleClick = useEventCallback((event: MouseEvent) => {
+    if (shouldIgnoreEvent(event)) return;
+
+    changeZoom(zoom < maxZoom ? scaleZoom(zoom, 2, 1) : 1, event);
+  });
+
+  return useMemo(
+    () => ({
       onKeyDown,
       onPointerDown,
       onPointerMove,
@@ -239,18 +241,7 @@ export default function useSensors() {
       onPointerCancel: onPointerUp,
       onDoubleClick,
       onWheel,
-    };
-  }, [
-    prev,
-    next,
-    close,
-    zoom,
-    maxZoom,
-    changeZoom,
-    changeOffsets,
-    carouselRef,
-    closeOnPullUp,
-    closeOnPullDown,
-    closeOnBackdropClick,
-  ]);
+    }),
+    [onKeyDown, onPointerDown, onPointerMove, onPointerUp, onDoubleClick, onWheel],
+  );
 }
