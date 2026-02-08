@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useMemo, useRef } from "react";
+import { createContext, PropsWithChildren, useCallback, useMemo, useRef } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
 import { makeUseContext, transition } from "../utils";
@@ -25,13 +25,25 @@ export default function Controller({ setIndex, children }: ControllerProps) {
   const exitHooks = useRef<ExitHook[]>([]);
   const closing = useRef(false);
 
+  const addExitHook = useCallback((hook: ExitHook) => {
+    exitHooks.current.push(hook);
+
+    return () => {
+      exitHooks.current = exitHooks.current.filter((h) => h !== hook);
+    };
+  }, []);
+
   const context = useMemo(() => {
     const prev = () => {
-      if (index > 0) transition(() => setIndex(index - 1));
+      if (index > 0) {
+        transition(() => setIndex(index - 1));
+      }
     };
 
     const next = () => {
-      if (index < slides.length - 1) transition(() => setIndex(index + 1));
+      if (index < slides.length - 1) {
+        transition(() => setIndex(index + 1));
+      }
     };
 
     const close = () => {
@@ -48,16 +60,8 @@ export default function Controller({ setIndex, children }: ControllerProps) {
         });
     };
 
-    const addExitHook = (hook: ExitHook) => {
-      exitHooks.current.push(hook);
-
-      return () => {
-        exitHooks.current = exitHooks.current.filter((h) => h !== hook);
-      };
-    };
-
     return { prev, next, close, addExitHook };
-  }, [slides.length, index, setIndex]);
+  }, [slides.length, index, setIndex, addExitHook]);
 
   return <ControllerContext.Provider value={context}>{children}</ControllerContext.Provider>;
 }
