@@ -124,35 +124,29 @@ export default function Zoom({ children }: PropsWithChildren) {
     }
   }, []);
 
-  const changeOffsets = useCallback(
-    (dx: number, dy: number) => {
-      clampOffsets(offsetX + dx, offsetY + dy, zoom);
-    },
-    [offsetX, offsetY, zoom, clampOffsets],
-  );
+  const changeOffsets = useEventCallback((dx: number, dy: number) => {
+    clampOffsets(offsetX + dx, offsetY + dy, zoom);
+  });
 
-  const changeZoom = useCallback(
-    (targetZoom: number, event?: Pick<MouseEvent, "clientX" | "clientY">) => {
-      const newZoom = Math.min(Math.max(targetZoom, 1), maxZoom);
+  const changeZoom = useEventCallback((targetZoom: number, event?: Pick<MouseEvent, "clientX" | "clientY">) => {
+    const newZoom = Math.min(Math.max(targetZoom, 1), maxZoom);
 
-      setZoom(newZoom);
+    setZoom(newZoom);
 
-      let newOffsetX = offsetX;
-      let newOffsetY = offsetY;
+    let newOffsetX = offsetX;
+    let newOffsetY = offsetY;
 
-      if (event && carouselRef.current) {
-        const { clientX, clientY } = event;
-        const { left, top, width, height } = carouselRef.current.getBoundingClientRect();
-        const zoomDelta = newZoom / zoom - 1;
+    if (event && carouselRef.current) {
+      const { clientX, clientY } = event;
+      const { left, top, width, height } = carouselRef.current.getBoundingClientRect();
+      const zoomDelta = newZoom / zoom - 1;
 
-        newOffsetX += (left + width / 2 + offsetX - clientX) * zoomDelta;
-        newOffsetY += (top + height / 2 + offsetY - clientY) * zoomDelta;
-      }
+      newOffsetX += (left + width / 2 + offsetX - clientX) * zoomDelta;
+      newOffsetY += (top + height / 2 + offsetY - clientY) * zoomDelta;
+    }
 
-      clampOffsets(newOffsetX, newOffsetY, newZoom);
-    },
-    [zoom, maxZoom, offsetX, offsetY, clampOffsets],
-  );
+    clampOffsets(newOffsetX, newOffsetY, newZoom);
+  });
 
   const context = useMemo(
     () => ({ rect, zoom, maxZoom, offsetX, offsetY, changeZoom, changeOffsets }),
