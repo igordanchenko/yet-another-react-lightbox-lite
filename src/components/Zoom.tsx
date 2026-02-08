@@ -12,6 +12,7 @@ import {
 } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
+import useEventCallback from "./useEventCallback";
 import { getChildren, isImageSlide, makeUseContext } from "../utils";
 import { Rect } from "../types";
 
@@ -60,6 +61,7 @@ export default function Zoom({ children }: PropsWithChildren) {
   const [rect, setRect] = useState<Rect>();
   const observer = useRef<ResizeObserver>(undefined);
   const carouselRef = useRef<HTMLDivElement | null>(null);
+  const slideDimensionsRef = useRef([0, 0]);
 
   const { index, slides, zoom: { supports, disabled } = {} } = useLightboxContext();
 
@@ -75,11 +77,22 @@ export default function Zoom({ children }: PropsWithChildren) {
   const maxZoom =
     (isImageSlide(slide) && !disabled) || (slide.type !== undefined && supports?.includes(slide.type)) ? 8 : 1;
 
-  useLayoutEffect(() => {
-    const carouselHalfWidth = (rect?.width || 0) / 2;
-    const carouselHalfHeight = (rect?.height || 0) / 2;
+  const carouselHalfWidth = (rect?.width || 0) / 2;
+  const carouselHalfHeight = (rect?.height || 0) / 2;
 
-    const [slideHalfWidth, slideHalfHeight] = getChildren(
+  const clampOffsets = useEventCallback((x: number = offsetX, y: number = offsetY, currentZoom: number = zoom) => {
+    const [slideHalfWidth, slideHalfHeight] = slideDimensionsRef.current;
+
+    const maxOffsetX = Math.max(slideHalfWidth * currentZoom - carouselHalfWidth, 0);
+    const maxOffsetY = Math.max(slideHalfHeight * currentZoom - carouselHalfHeight, 0);
+
+    setOffsetX(Math.min(maxOffsetX, Math.max(-maxOffsetX, x)));
+    setOffsetY(Math.min(maxOffsetY, Math.max(-maxOffsetY, y)));
+  });
+
+  // Cache slide dimensions on resize or slide change — the only time DOM reads are needed
+  useLayoutEffect(() => {
+    slideDimensionsRef.current = getChildren(
       getChildren(carouselRef.current).find((node) => node instanceof HTMLElement && !node.hidden),
     )
       .filter((node) => node instanceof HTMLElement)
@@ -92,12 +105,8 @@ export default function Zoom({ children }: PropsWithChildren) {
         [0, 0],
       );
 
-    const maxOffsetX = Math.max(slideHalfWidth * zoom - carouselHalfWidth, 0);
-    const maxOffsetY = Math.max(slideHalfHeight * zoom - carouselHalfHeight, 0);
-
-    setOffsetX(Math.min(maxOffsetX, Math.max(-maxOffsetX, offsetX)));
-    setOffsetY(Math.min(maxOffsetY, Math.max(-maxOffsetY, offsetY)));
-  }, [zoom, rect, offsetX, offsetY]);
+    clampOffsets();
+  }, [carouselHalfWidth, carouselHalfHeight, index, clampOffsets]); // clampOffsets is stable
 
   const setCarouselRef = useCallback((node: HTMLDivElement | null) => {
     carouselRef.current = node;
@@ -117,10 +126,9 @@ export default function Zoom({ children }: PropsWithChildren) {
 
   const changeOffsets = useCallback(
     (dx: number, dy: number) => {
-      setOffsetX(offsetX + dx);
-      setOffsetY(offsetY + dy);
+      clampOffsets(offsetX + dx, offsetY + dy, zoom);
     },
-    [offsetX, offsetY],
+    [offsetX, offsetY, zoom, clampOffsets],
   );
 
   const changeZoom = useCallback(
@@ -129,18 +137,21 @@ export default function Zoom({ children }: PropsWithChildren) {
 
       setZoom(newZoom);
 
+      let newOffsetX = offsetX;
+      let newOffsetY = offsetY;
+
       if (event && carouselRef.current) {
         const { clientX, clientY } = event;
         const { left, top, width, height } = carouselRef.current.getBoundingClientRect();
         const zoomDelta = newZoom / zoom - 1;
 
-        changeOffsets(
-          (left + width / 2 + offsetX - clientX) * zoomDelta,
-          (top + height / 2 + offsetY - clientY) * zoomDelta,
-        );
+        newOffsetX += (left + width / 2 + offsetX - clientX) * zoomDelta;
+        newOffsetY += (top + height / 2 + offsetY - clientY) * zoomDelta;
       }
+
+      clampOffsets(newOffsetX, newOffsetY, newZoom);
     },
-    [zoom, maxZoom, offsetX, offsetY, changeOffsets],
+    [zoom, maxZoom, offsetX, offsetY, clampOffsets],
   );
 
   const context = useMemo(
