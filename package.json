@@ -45,6 +45,7 @@
     "dev": "vite --config dev/vite.config.ts",
     "dev:build": "vite build --config dev/vite.config.ts",
     "dev:preview": "vite preview --config dev/vite.config.ts",
+    "size": "esbuild dist/index.js --bundle --minify --external:'react*' | gzip | wc -c",
     "ci": "npm-run-all build test lint"
   },
   "peerDependencies": {
@@ -77,6 +78,7 @@
     "@vitest/ui": "^4",
     "autoprefixer": "^10",
     "cssnano": "^7",
+    "esbuild": "^0.27",
     "eslint": "^9",
     "eslint-config-prettier": "^10",
     "eslint-plugin-jsx-a11y": "^6",
