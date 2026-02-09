@@ -41,7 +41,6 @@ body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
     user-select: none;
     touch-action: none;
     overscroll-behavior: none;
-    -webkit-user-select: none;
     -webkit-touch-callout: none;
 
     color: globalVar(color, $color-white);
@@ -176,6 +175,5 @@ body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
 
   &_selectable {
     user-select: text;
-    -webkit-user-select: text;
   }
 }
