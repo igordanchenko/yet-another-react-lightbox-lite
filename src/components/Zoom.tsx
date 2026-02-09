@@ -3,7 +3,6 @@ import {
   MouseEvent,
   PropsWithChildren,
   RefCallback,
-  RefObject,
   useCallback,
   useLayoutEffect,
   useMemo,
@@ -45,7 +44,6 @@ const ZoomContext = createContext<ZoomContextType | null>(null);
 export const useZoom = makeUseContext(ZoomContext);
 
 type ZoomInternalContextType = {
-  carouselRef: RefObject<HTMLDivElement | null>;
   setCarouselRef: RefCallback<HTMLDivElement>;
 };
 
@@ -153,7 +151,7 @@ export default function Zoom({ children }: PropsWithChildren) {
     [rect, zoom, maxZoom, offsetX, offsetY, changeZoom, changeOffsets],
   );
 
-  const internalContext = useMemo(() => ({ carouselRef, setCarouselRef }), [setCarouselRef]);
+  const internalContext = useMemo(() => ({ setCarouselRef }), [setCarouselRef]);
 
   return (
     <ZoomContext.Provider value={context}>

@@ -215,7 +215,8 @@ Type: `object`
 
 Toolbar settings.
 
-- `buttons` - custom toolbar buttons (type: `ReactNode[]`)
+- `buttons` - custom toolbar buttons (type: `ReactNode[]`). Each button should
+  have a unique `key` attribute.
 - `fixed` - if `true`, the toolbar is positioned statically above the carousel
 
 Usage example:
@@ -226,6 +227,7 @@ Usage example:
     fixed: true,
     buttons: [
       <button
+        key="custom-button"
         type="button"
         className="yarll__button"
         onClick={() => {

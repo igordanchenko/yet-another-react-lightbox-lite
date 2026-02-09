@@ -342,8 +342,7 @@ describe("Lightbox", () => {
     renderLightbox({
       toolbar: {
         buttons: [
-          // eslint-disable-next-line react/jsx-key
-          <button type="button" className="custom_toolbar_button1">
+          <button key="button1" type="button" className="custom_toolbar_button1">
             Button 1
           </button>,
           <button key="button2" type="button" className="custom_toolbar_button2">

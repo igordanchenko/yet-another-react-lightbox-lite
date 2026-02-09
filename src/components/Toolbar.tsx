@@ -1,5 +1,3 @@
-import { cloneElement, isValidElement } from "react";
-
 import Button from "./Button";
 import { Close } from "./icons";
 import { useController } from "./Controller";
@@ -12,8 +10,7 @@ export default function Toolbar() {
 
   return (
     <div style={styles?.toolbar} className={clsx(cssClass("toolbar"), fixed && cssClass("toolbar_fixed"))}>
-      {buttons?.map((button, key) => (isValidElement(button) && !button.key ? cloneElement(button, { key }) : button))}
-
+      {buttons}
       <Button label="Close" icon={Close} renderIcon={iconClose} onClick={close} />
     </div>
   );

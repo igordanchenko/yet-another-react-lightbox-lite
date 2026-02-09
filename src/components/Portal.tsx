@@ -79,19 +79,17 @@ export default function Portal({ children }: PropsWithChildren) {
     const property = cssVar("scrollbar-width");
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
 
-    if (scrollbarWidth === 0) return;
+    if (scrollbarWidth > 0) {
+      document.documentElement.style.setProperty(property, `${scrollbarWidth}px`);
+    }
 
-    document.documentElement.style.setProperty(property, `${scrollbarWidth}px`);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- false-positive lint
+    setMounted(true);
 
     return () => {
       document.documentElement.style.removeProperty(property);
+      setMounted(false);
     };
-  }, []);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- false-positive lint
-    setMounted(true);
-    return () => setMounted(false);
   }, []);
 
   const handleRef = useCallback(

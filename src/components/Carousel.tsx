@@ -79,7 +79,7 @@ export default function Carousel() {
 
           return (
             <CarouselSlide
-              key={slide.key ?? [`${slideIndex}`, isImageSlide(slide) && slide.src].filter(Boolean).join("|")}
+              key={slide.key ?? (isImageSlide(slide) ? `${slideIndex}|${slide.src}` : `${slideIndex}`)}
               rect={rect}
               slide={slide}
               slideIndex={slideIndex}

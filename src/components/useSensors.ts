@@ -1,6 +1,6 @@
 import { KeyboardEvent, MouseEvent, PointerEvent, useMemo, useRef, WheelEvent } from "react";
 
-import { useZoom, useZoomInternal } from "./Zoom";
+import { useZoom } from "./Zoom";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
 import useEventCallback from "./useEventCallback";
@@ -9,6 +9,7 @@ import { cssClass, scaleZoom } from "../utils";
 const WHEEL_ZOOM_FACTOR = 100;
 const WHEEL_SWIPE_DISTANCE = 100;
 const WHEEL_SWIPE_COOLDOWN_TIME = 1_000;
+const WHEEL_EVENT_HISTORY_WINDOW = 3_000;
 const POINTER_SWIPE_DISTANCE = 100;
 const KEYBOARD_ZOOM_FACTOR = 8 ** (1 / 4);
 const KEYBOARD_MOVE_DISTANCE = 50;
@@ -16,7 +17,7 @@ const PINCH_ZOOM_DISTANCE_FACTOR = 100;
 const PREVAILING_DIRECTION_FACTOR = 1.2;
 
 function distance(pointerA: MouseEvent, pointerB: MouseEvent) {
-  return ((pointerA.clientX - pointerB.clientX) ** 2 + (pointerA.clientY - pointerB.clientY) ** 2) ** 0.5;
+  return Math.hypot(pointerA.clientX - pointerB.clientX, pointerA.clientY - pointerB.clientY);
 }
 
 export default function useSensors() {
@@ -28,7 +29,6 @@ export default function useSensors() {
   const pinchZoomDistance = useRef<number>(undefined);
 
   const { zoom, maxZoom, changeZoom, changeOffsets } = useZoom();
-  const { carouselRef } = useZoomInternal();
   const { prev, next, close } = useController();
 
   const { closeOnPullUp, closeOnPullDown, closeOnBackdropClick } = {
@@ -44,8 +44,7 @@ export default function useSensors() {
   };
 
   const removePointer = (event: PointerEvent) => {
-    const pointers = activePointers.current;
-    pointers.splice(0, pointers.length, ...pointers.filter((pointer) => pointer.pointerId !== event.pointerId));
+    activePointers.current = activePointers.current.filter((pointer) => pointer.pointerId !== event.pointerId);
   };
 
   // intentionally querying the DOM each time — this only runs on pointerDown/doubleClick
@@ -55,12 +54,9 @@ export default function useSensors() {
     ("pointerType" in event && event.pointerType === "mouse" && event.buttons > 1) ||
     // ignore clicks on navigation buttons, toolbar, user-selectable elements, etc.
     (event.target instanceof Element &&
-      (event.target.classList.contains(cssClass("button")) ||
-        event.target.classList.contains(cssClass("icon")) ||
-        Array.from(
-          carouselRef.current?.parentElement?.querySelectorAll(`.${cssClass("toolbar")}, .${cssClass("selectable")}`) ||
-            [],
-        ).find((element) => element.contains(event.target as Element)) !== undefined));
+      event.target.closest(
+        `.${cssClass("button")}, .${cssClass("icon")}, .${cssClass("toolbar")}, .${cssClass("selectable")}`,
+      ) !== null);
 
   const onKeyDown = useEventCallback((event: KeyboardEvent) => {
     const { key, metaKey, ctrlKey } = event;
@@ -102,28 +98,26 @@ export default function useSensors() {
 
     addPointer(event);
 
-    const pointers = activePointers.current;
-    if (pointers.length === 2) {
-      pinchZoomDistance.current = distance(pointers[0], pointers[1]);
+    if (activePointers.current.length === 2) {
+      pinchZoomDistance.current = distance(activePointers.current[0], activePointers.current[1]);
     }
   });
 
   const onPointerMove = useEventCallback((event: PointerEvent) => {
-    const pointers = activePointers.current;
-    const activePointer = pointers.find((pointer) => pointer.pointerId === event.pointerId);
+    const activePointer = activePointers.current.find((pointer) => pointer.pointerId === event.pointerId);
 
     if (!activePointer) return;
 
-    if (pointers.length === 2 && pinchZoomDistance.current) {
+    if (activePointers.current.length === 2 && pinchZoomDistance.current) {
       addPointer(event);
 
-      const currentDistance = distance(pointers[0], pointers[1]);
+      const currentDistance = distance(activePointers.current[0], activePointers.current[1]);
       const delta = currentDistance - pinchZoomDistance.current;
 
       if (Math.abs(delta) > 0) {
         changeZoom(scaleZoom(zoom, delta, PINCH_ZOOM_DISTANCE_FACTOR), {
-          clientX: (pointers[0].clientX + pointers[1].clientX) / 2,
-          clientY: (pointers[0].clientY + pointers[1].clientY) / 2,
+          clientX: (activePointers.current[0].clientX + activePointers.current[1].clientX) / 2,
+          clientY: (activePointers.current[0].clientY + activePointers.current[1].clientY) / 2,
         });
 
         pinchZoomDistance.current = currentDistance;
@@ -133,7 +127,7 @@ export default function useSensors() {
     }
 
     if (zoom > 1) {
-      if (pointers.length === 1) {
+      if (activePointers.current.length === 1) {
         changeOffsets(event.clientX - activePointer.clientX, event.clientY - activePointer.clientY);
       }
 
@@ -142,12 +136,11 @@ export default function useSensors() {
   });
 
   const onPointerUp = useEventCallback((event: PointerEvent) => {
-    const pointers = activePointers.current;
-    const activePointer = pointers.find((pointer) => pointer.pointerId === event.pointerId);
+    const activePointer = activePointers.current.find((pointer) => pointer.pointerId === event.pointerId);
 
     if (!activePointer) return;
 
-    if (pointers.length === 1 && zoom === 1) {
+    if (activePointers.current.length === 1 && zoom === 1) {
       const dx = event.clientX - activePointer.clientX;
       const dy = event.clientY - activePointer.clientY;
 
@@ -166,9 +159,8 @@ export default function useSensors() {
           ((closeOnPullUp && dy < 0) || (closeOnPullDown && dy > 0))) ||
         (closeOnBackdropClick &&
           activePointer.target instanceof Element &&
-          Array.from(activePointer.target.classList).some((className) =>
-            [cssClass("slide"), cssClass("portal")].includes(className),
-          ))
+          (activePointer.target.classList.contains(cssClass("slide")) ||
+            activePointer.target.classList.contains(cssClass("portal"))))
       ) {
         close();
       }
@@ -205,7 +197,7 @@ export default function useSensors() {
       wheelCooldownMomentum.current = null;
     }
 
-    wheelEvents.current = wheelEvents.current.filter((e) => e.timeStamp > event.timeStamp - 3_000);
+    wheelEvents.current = wheelEvents.current.filter((e) => e.timeStamp > event.timeStamp - WHEEL_EVENT_HISTORY_WINDOW);
     wheelEvents.current.push(event);
 
     const dx = wheelEvents.current.map((e) => e.deltaX).reduce((a, b) => a + b, 0);
