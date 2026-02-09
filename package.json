@@ -12,10 +12,7 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./styles.css": {
-      "types": "./dist/styles.css.d.ts",
-      "default": "./dist/styles.css"
-    }
+    "./styles.css": "./dist/styles.css"
   },
   "files": [
     "dist"
@@ -38,10 +35,9 @@
     "clean": "rimraf dist",
     "touch": "mkdirp dist",
     "start": "npm-run-all clean touch --parallel \"build:* -- -w\"",
-    "build": "npm-run-all clean touch build:scss build:css build:dts build:js",
+    "build": "npm-run-all clean touch build:scss build:css build:js",
     "build:scss": "sass src --no-source-map",
     "build:css": "postcss src/*.css --base src -d dist -u autoprefixer cssnano --no-map",
-    "build:dts": "ncp src/styles.css.d.ts dist/styles.css.d.ts",
     "build:js": "rollup -c",
     "lint": "eslint",
     "test": "vitest run",
@@ -91,7 +87,6 @@
     "jsdom": "^28",
     "lint-staged": "^16",
     "mkdirp": "^3",
-    "ncp": "^2",
     "npm-run-all": "^4",
     "postcss": "^8",
     "postcss-cli": "^11",
