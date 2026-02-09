@@ -2,7 +2,7 @@
 
 Lightweight React lightbox component. This is a trimmed-down version of the
 [yet-another-react-lightbox](https://github.com/igordanchenko/yet-another-react-lightbox)
-that provides essential lightbox features and slick UX with just 4.7KB bundle
+that provides essential lightbox features and slick UX with around 5KB bundle
 size.
 
 ## Overview
@@ -12,7 +12,7 @@ size.
 [![License MIT](https://img.shields.io/npm/l/yet-another-react-lightbox-lite.svg?color=blue)](https://github.com/igordanchenko/yet-another-react-lightbox-lite/blob/main/LICENSE)
 
 - **Built for React:** works with React 18+
-- **UX:** supports keyboard, mouse, touchpad and touchscreen navigation
+- **UX:** supports keyboard, mouse, touchpad, and touchscreen navigation
 - **Zoom:** zoom is supported out of the box
 - **Performance:** preloads a fixed number of images without compromising
   performance or UX
@@ -20,7 +20,7 @@ size.
   supported out of the box
 - **Customization:** customize any UI element or add your own custom slides
 - **No bloat:** supports only essential lightbox features
-- **TypeScript:** type definitions come built-in in the package
+- **TypeScript:** type definitions come built-in with the package
 
 ![Yet Another React Lightbox Lite | Example](https://images.yet-another-react-lightbox.com/example-lite.jpg)
 
@@ -91,6 +91,8 @@ To utilize responsive images with automatic resolution switching, provide
   slides={[
     {
       src: "/image1x3840.jpg",
+      width: 3840,
+      height: 2560,
       srcSet: [
         { src: "/image1x320.jpg", width: 320, height: 213 },
         { src: "/image1x640.jpg", width: 640, height: 427 },
@@ -112,7 +114,15 @@ advantage of the
 [next/image](https://nextjs.org/docs/pages/api-reference/components/image)
 component. The `next/image` component provides a more efficient way to handle
 images in your Next.js project. You can replace the standard `<img>` element
-with `next/image` with the following `render.slide` render function.
+with `next/image` using the following `render.slide` render function.
+
+```tsx
+declare module "yet-another-react-lightbox-lite" {
+  interface SlideImage {
+    blurDataURL?: string;
+  }
+}
+```
 
 ```tsx
 <Lightbox
@@ -140,7 +150,7 @@ with `next/image` with the following `render.slide` render function.
           height={height}
           loading="eager"
           draggable={false}
-          blurDataURL={(slide as any).blurDataURL}
+          blurDataURL={slide.blurDataURL}
           style={{
             minWidth: 0,
             minHeight: 0,
@@ -158,7 +168,7 @@ with `next/image` with the following `render.slide` render function.
 
 ## API
 
-Yet Another React Lightbox Lite comes with CSS stylesheet that needs to be
+Yet Another React Lightbox Lite comes with a CSS stylesheet that needs to be
 imported in your app.
 
 ```tsx
@@ -179,6 +189,10 @@ Image slide props:
 
 - `src` - image source (required)
 - `alt` - image `alt` attribute
+- `width` - image width in pixels
+- `height` - image height in pixels
+- `srcSet` - alternative images for responsive resolution switching (see
+  [Responsive Images](#responsive-images))
 
 ### index
 
@@ -194,7 +208,7 @@ A callback to update current slide index state. This prop is required.
 
 ### labels
 
-Type: `keyof Labels`
+Type: `object`
 
 Custom UI labels / translations.
 
@@ -234,7 +248,7 @@ Usage example:
           // ...
         }}
       >
-        <ButtonIcon />
+        Download
       </button>,
     ],
   }}
@@ -269,7 +283,7 @@ You can also use a function to provide per-slide attributes:
 ```tsx
 <Lightbox
   carousel={{
-    imageProps: (slide) => ({ lang: slide.lang }),
+    imageProps: (slide) => ({ "data-alt": slide.alt }),
   }}
   // ...
 />
@@ -351,7 +365,7 @@ rendered right under the slide. Alternatively, you can use
 `position: "absolute"` to position the extra elements relative to the slide.
 
 For example, you can use the `slideFooter` render function to add slides
-descriptions.
+descriptions (see [Custom Slide Attributes](#custom-slide-attributes)).
 
 ```tsx
 <Lightbox
@@ -369,11 +383,24 @@ descriptions.
 Render custom controls or additional elements in the lightbox (use absolute
 positioning).
 
-For example, you can use the `render.controls` render function to implement
+For example, you can use the `render.controls` render function to implement a
 slides counter.
 
 ```tsx
+const slides = [
+  { src: "/image1.jpg" },
+  { src: "/image2.jpg" },
+  { src: "/image3.jpg" },
+];
+
+const [index, setIndex] = useState<number>();
+
+// ...
+
 <Lightbox
+  slides={slides}
+  index={index}
+  setIndex={setIndex}
   render={{
     controls: () =>
       index !== undefined && (
@@ -382,8 +409,7 @@ slides counter.
         </div>
       ),
   }}
-  // ...
-/>
+/>;
 ```
 
 #### iconPrev: () => ReactNode
@@ -400,7 +426,7 @@ Render custom `Close` icon.
 
 ### styles
 
-Type: `{ [key in Slot]?: SlotCSSProperties }`
+Type: `object`
 
 Customization slots styles allow you to specify custom CSS styles or override
 `--yarll__*` CSS variables by passing your custom styles through to the
@@ -455,6 +481,8 @@ Usage example:
 ## Custom Slide Attributes
 
 You can add custom slide attributes with the following module augmentation.
+Augmenting `GenericSlide` extends all slide types, including custom ones. To
+extend only image slides, augment `SlideImage` instead.
 
 ```tsx
 declare module "yet-another-react-lightbox-lite" {
@@ -464,12 +492,20 @@ declare module "yet-another-react-lightbox-lite" {
 }
 ```
 
+```tsx
+declare module "yet-another-react-lightbox-lite" {
+  interface SlideImage {
+    blurDataURL?: string;
+  }
+}
+```
+
 ## Custom Slides
 
 You can add custom slide types through module augmentation and render them with
-the `render.slide` render function.
+the `render.slide` function.
 
-Here is an example demonstrating video slides implementation.
+Here is an example demonstrating video slide support.
 
 ```tsx
 declare module "yet-another-react-lightbox-lite" {
@@ -579,16 +615,16 @@ layout shift of some fixed-positioned page elements when the lightbox opens. To
 address this, you can assign the `yarll__fixed` CSS class to your
 fixed-positioned elements to keep them in place. Please note that the
 fixed-positioned element container should not have its own border or padding
-styles. If that's the case, you can always add an extra wrapper that just
-defines the fixed position without visual styles.
+styles. If it does, you can always add an extra wrapper that just defines the
+fixed position without visual styles.
 
 ## Text Selection
 
 The lightbox is rendered with the `user-select: none` CSS style. If you'd like
 to make some of your custom elements user-selectable, use the
 `yarll__selectable` CSS class. This class sets the `user-select: text` style and
-turns off click-and-drag slide navigation, likely interfering with text
-selection UX.
+turns off click-and-drag slide navigation, which would likely interfere with
+text selection UX.
 
 ## Hooks
 
@@ -613,6 +649,42 @@ The hook provides an object with the following props:
 - `offsetY` - vertical slide position offset
 - `changeZoom` - change zoom level
 - `changeOffsets` - change position offsets
+
+Usage example:
+
+```tsx
+function ZoomControls() {
+  const { zoom, maxZoom, changeZoom } = useZoom();
+
+  return (
+    <div style={{ position: "absolute", bottom: 16, left: 16 }}>
+      <button
+        type="button"
+        disabled={zoom >= maxZoom}
+        onClick={() => changeZoom(zoom * 2)}
+      >
+        Zoom In
+      </button>
+      <button
+        type="button"
+        disabled={zoom <= 1}
+        onClick={() => changeZoom(zoom / 2)}
+      >
+        Zoom Out
+      </button>
+    </div>
+  );
+}
+```
+
+```tsx
+<Lightbox
+  render={{
+    controls: () => <ZoomControls />,
+  }}
+  // ...
+/>
+```
 
 ## License
 
