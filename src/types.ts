@@ -3,7 +3,7 @@ import { ComponentProps, CSSProperties, Dispatch, Key, ReactNode, SetStateAction
 /** Lightbox props */
 export interface LightboxProps {
   /** slides to display in the lightbox */
-  slides: Slide[];
+  slides: readonly Slide[];
   /** slide index */
   index: number | undefined;
   /** slide index change callback */
@@ -59,7 +59,7 @@ export interface SlideImage extends GenericSlide {
   /** image 'alt' attribute */
   alt?: string;
   /** alternative images to be passed to the 'srcSet' */
-  srcSet?: ImageSource[];
+  srcSet?: readonly ImageSource[];
 }
 
 /** Image source */
@@ -136,7 +136,7 @@ export interface RenderSlideProps {
 /** Toolbar settings */
 export interface ToolbarSettings {
   /** custom toolbar buttons */
-  buttons?: ReactNode[];
+  buttons?: readonly ReactNode[];
   /** if `true`, the toolbar is positioned statically above the carousel */
   fixed?: boolean;
 }
@@ -164,7 +164,7 @@ export interface ZoomSettings {
   /** disable zoom on image slides */
   disabled?: boolean;
   /** zoom-enabled custom slide types */
-  supports?: SlideTypeKey[];
+  supports?: readonly SlideTypeKey[];
 }
 
 /** Customization slots */
