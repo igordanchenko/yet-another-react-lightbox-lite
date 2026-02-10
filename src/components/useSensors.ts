@@ -1,4 +1,5 @@
-import { KeyboardEvent, MouseEvent, PointerEvent, useMemo, useRef, WheelEvent } from "react";
+import type { KeyboardEvent, MouseEvent, PointerEvent, WheelEvent } from "react";
+import { useMemo, useRef } from "react";
 
 import { useZoom } from "./Zoom";
 import { useController } from "./Controller";
@@ -15,6 +16,10 @@ const KEYBOARD_ZOOM_FACTOR = 8 ** (1 / 4);
 const KEYBOARD_MOVE_DISTANCE = 50;
 const PINCH_ZOOM_DISTANCE_FACTOR = 100;
 const PREVAILING_DIRECTION_FACTOR = 1.2;
+
+function hasTwoPointers(pointers: PointerEvent[]): pointers is [PointerEvent, PointerEvent] {
+  return pointers.length === 2;
+}
 
 function distance(pointerA: MouseEvent, pointerB: MouseEvent) {
   return Math.hypot(pointerA.clientX - pointerB.clientX, pointerA.clientY - pointerB.clientY);
@@ -98,7 +103,7 @@ export default function useSensors() {
 
     addPointer(event);
 
-    if (activePointers.current.length === 2) {
+    if (hasTwoPointers(activePointers.current)) {
       pinchZoomDistance.current = distance(activePointers.current[0], activePointers.current[1]);
     }
   });
@@ -108,7 +113,7 @@ export default function useSensors() {
 
     if (!activePointer) return;
 
-    if (activePointers.current.length === 2 && pinchZoomDistance.current) {
+    if (hasTwoPointers(activePointers.current) && pinchZoomDistance.current) {
       addPointer(event);
 
       const currentDistance = distance(activePointers.current[0], activePointers.current[1]);

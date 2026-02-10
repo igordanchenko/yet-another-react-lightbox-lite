@@ -1,11 +1,11 @@
-import { PropsWithChildren, useCallback, useEffect, useRef, useState } from "react";
+import { type PropsWithChildren, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import useSensors from "./useSensors";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
 import { clsx, cssClass, cssVar, getChildren, translateLabel } from "../utils";
-import { Callback } from "../types";
+import type { Callback } from "../types";
 
 function setAttribute(element: Element, attribute: string, value: string) {
   const previousValue = element.getAttribute(attribute);
@@ -109,9 +109,7 @@ export default function Portal({ children }: PropsWithChildren) {
         });
 
         // mark portal siblings inert
-        const elements = getChildren(node.parentElement);
-        for (let i = 0; i < elements.length; i += 1) {
-          const element = elements[i];
+        for (const element of getChildren(node.parentElement)) {
           if (!["TEMPLATE", "SCRIPT", "STYLE"].includes(element.tagName) && element !== node) {
             cleanup.current.push(setAttribute(element, "inert", ""));
             cleanup.current.push(setAttribute(element, "aria-hidden", "true"));

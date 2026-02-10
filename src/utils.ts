@@ -1,7 +1,7 @@
-import { Context, useContext } from "react";
+import { type Context, useContext } from "react";
 import { flushSync } from "react-dom";
 
-import { Callback, Label, Labels, Slide, SlideImage } from "./types";
+import type { Callback, Label, Labels, Slide, SlideImage } from "./types";
 
 const cssPrefix = "yarll__";
 

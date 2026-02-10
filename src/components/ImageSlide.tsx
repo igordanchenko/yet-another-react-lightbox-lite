@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
 import { cssClass, round } from "../utils";
-import { Rect, SlideImage } from "../types";
+import type { Rect, SlideImage } from "../types";
 
 type ImageSlideProps = {
   slide: SlideImage;

@@ -295,9 +295,7 @@ describe("Lightbox", () => {
         finished: Promise.resolve(undefined),
         updateCallbackDone: Promise.resolve(undefined),
         skipTransition() {},
-        types: {
-          forEach() {},
-        },
+        types: new Set() as ViewTransitionTypeSet,
       } satisfies ViewTransition;
     });
 
@@ -670,7 +668,7 @@ describe("Lightbox", () => {
     clickButtonNext();
     expectCurrentSlideToBe(1);
 
-    const newSlides = [{ src: "http://localhost/imageA" }, { src: "http://localhost/imageB" }];
+    const newSlides = [{ src: "http://localhost/imageA" }, { src: "http://localhost/imageB" }] as const;
 
     rerender(<Lightbox index={1} setIndex={vi.fn()} slides={newSlides} />);
 

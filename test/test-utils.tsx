@@ -1,14 +1,18 @@
 import { useState } from "react";
 import { expect, vi } from "vitest";
-import { UserEvent } from "@testing-library/user-event";
+import type { UserEvent } from "@testing-library/user-event";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 
-import Lightbox, { LightboxProps } from "../src";
+import Lightbox, { type LightboxProps } from "../src";
 
-export const slides = Array.from({ length: 3 }, (_, i) => ({ src: `http://localhost/image${i + 1}` }));
+export const slides: [{ src: string }, { src: string }, { src: string }] = [
+  { src: "http://localhost/image1" },
+  { src: "http://localhost/image2" },
+  { src: "http://localhost/image3" },
+];
 
-function expectToBeNotNull<T>(value: T | null): asserts value is T {
-  expect(value).not.toBeNull();
+function expectToBeDefined<T>(value: T): asserts value is NonNullable<T> {
+  expect(value).not.toBeNullable();
 }
 
 export function querySelector<E extends Element = Element>(selector: string) {
@@ -21,7 +25,7 @@ export function querySelectorAll<E extends Element = Element>(selector: string) 
 
 function getSelector<E extends Element = Element>(selector: string) {
   const element = querySelector<E>(selector);
-  expectToBeNotNull(element);
+  expectToBeDefined(element);
   return element;
 }
 
@@ -46,7 +50,9 @@ function queryCurrentSlideSource() {
 }
 
 export function expectCurrentSlideToBe(index: number) {
-  expect(queryCurrentSlideSource()).toBe(slides[index].src);
+  const slide = slides[index];
+  expectToBeDefined(slide);
+  expect(queryCurrentSlideSource()).toBe(slide.src);
 }
 
 function getButton(name: string) {

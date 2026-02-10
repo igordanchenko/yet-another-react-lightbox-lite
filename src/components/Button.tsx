@@ -1,8 +1,8 @@
-import { ComponentProps, ElementType } from "react";
+import type { ComponentProps, ElementType } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
 import { clsx, cssClass, translateLabel } from "../utils";
-import { Label, RenderFunction } from "../types";
+import type { Label, RenderFunction } from "../types";
 
 type ButtonProps = Pick<ComponentProps<"button">, "onClick" | "disabled" | "className"> & {
   label: Label;

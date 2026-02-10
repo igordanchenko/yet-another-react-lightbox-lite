@@ -1,4 +1,4 @@
-import { ReactNode, SVGProps } from "react";
+import type { ReactNode, SVGProps } from "react";
 
 export default function createIcon(name: string, glyph: ReactNode) {
   const icon = (props: SVGProps<SVGSVGElement>) => (

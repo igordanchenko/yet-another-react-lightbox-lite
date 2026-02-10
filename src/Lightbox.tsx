@@ -1,5 +1,5 @@
 import { Carousel, Controller, LightboxContext, Navigation, Portal, Toolbar, Zoom } from "./components";
-import { LightboxProps } from "./types";
+import type { LightboxProps } from "./types";
 
 /** Lightbox component */
 export default function Lightbox({ slides, index, setIndex, ...rest }: LightboxProps) {

@@ -1,19 +1,10 @@
-import {
-  createContext,
-  MouseEvent,
-  PropsWithChildren,
-  RefCallback,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import type { MouseEvent, PropsWithChildren, RefCallback } from "react";
+import { createContext, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
 import useEventCallback from "./useEventCallback";
 import { getChildren, isImageSlide, makeUseContext } from "../utils";
-import { Rect } from "../types";
+import type { Rect } from "../types";
 
 /** Zoom context */
 type ZoomContextType = {
@@ -59,7 +50,7 @@ export default function Zoom({ children }: PropsWithChildren) {
   const [rect, setRect] = useState<Rect>();
   const observer = useRef<ResizeObserver>(undefined);
   const carouselRef = useRef<HTMLDivElement | null>(null);
-  const slideDimensionsRef = useRef([0, 0]);
+  const slideDimensionsRef = useRef<readonly [number, number]>([0, 0]);
 
   const { index, slides, zoom: { supports, disabled } = {} } = useLightboxContext();
 
@@ -73,7 +64,9 @@ export default function Zoom({ children }: PropsWithChildren) {
 
   const slide = slides[index];
   const maxZoom =
-    (isImageSlide(slide) && !disabled) || (slide.type !== undefined && supports?.includes(slide.type)) ? 8 : 1;
+    slide && ((isImageSlide(slide) && !disabled) || (slide.type !== undefined && supports?.includes(slide.type)))
+      ? 8
+      : 1;
 
   const carouselHalfWidth = (rect?.width || 0) / 2;
   const carouselHalfHeight = (rect?.height || 0) / 2;
@@ -94,12 +87,15 @@ export default function Zoom({ children }: PropsWithChildren) {
       getChildren(carouselRef.current).find((node) => node instanceof HTMLElement && !node.hidden),
     )
       .filter((node) => node instanceof HTMLElement)
-      .map((node) => [
-        Math.max(carouselHalfWidth - node.offsetLeft, node.offsetLeft + node.offsetWidth - carouselHalfWidth),
-        Math.max(carouselHalfHeight - node.offsetTop, node.offsetTop + node.offsetHeight - carouselHalfHeight),
-      ])
+      .map(
+        (node) =>
+          [
+            Math.max(carouselHalfWidth - node.offsetLeft, node.offsetLeft + node.offsetWidth - carouselHalfWidth),
+            Math.max(carouselHalfHeight - node.offsetTop, node.offsetTop + node.offsetHeight - carouselHalfHeight),
+          ] as const,
+      )
       .reduce(
-        ([maxWidth, maxHeight], [width, height]) => [Math.max(width, maxWidth), Math.max(height, maxHeight)],
+        ([maxWidth, maxHeight], [width, height]) => [Math.max(width, maxWidth), Math.max(height, maxHeight)] as const,
         [0, 0],
       );
 

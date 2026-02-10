@@ -4,11 +4,15 @@
     "noEmit": true,
     "target": "ES2020",
     "module": "ESNext",
-    "jsx": "react-jsx",
-    "lib": ["ES2020", "dom"],
     "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": [],
     "skipLibCheck": true,
-    "isolatedModules": true,
-    "forceConsistentCasingInFileNames": true
-  }
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "noUncheckedIndexedAccess": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "exclude": ["dev", "dist"]
 }

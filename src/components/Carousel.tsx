@@ -4,7 +4,7 @@ import ImageSlide from "./ImageSlide";
 import { useZoom, useZoomInternal } from "./Zoom";
 import { useLightboxContext } from "./LightboxContext";
 import { cssClass, isImageSlide, round, translateLabel, translateSlideCounter } from "../utils";
-import { RenderSlideProps, SlideImage } from "../types";
+import type { RenderSlideProps, SlideImage } from "../types";
 
 function CarouselSlide({
   slide,
@@ -72,10 +72,9 @@ export default function Carousel() {
       {rect &&
         Array.from({ length: 2 * preload + 1 }).map((_, i) => {
           const slideIndex = index - preload + i;
-
-          if (slideIndex < 0 || slideIndex >= slides.length) return null;
-
           const slide = slides[slideIndex];
+
+          if (!slide) return null;
 
           return (
             <CarouselSlide

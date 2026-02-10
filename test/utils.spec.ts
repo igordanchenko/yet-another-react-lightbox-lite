@@ -20,7 +20,7 @@ describe("scaleZoom", (test) => {
     [3, -50, 2],
     [3, -100, 1.5],
     [3, -200, 1.5],
-  ])("scaleZoom(%i, %i) -> %i", ([value, delta, expected], { expect }) => {
+  ] as const)("scaleZoom(%i, %i) -> %i", ([value, delta, expected], { expect }) => {
     expect(scaleZoom(value, delta)).toBe(expected);
   });
 
@@ -33,7 +33,7 @@ describe("scaleZoom", (test) => {
     [3, -100, 100, 3, 1.5],
     [3, -200, 100, 3, 1],
     [3, -300, 100, 3, 1],
-  ])("scaleZoom(%i, %i, %i, %i) -> %i", ([value, delta, factor, clamp, expected], { expect }) => {
+  ] as const)("scaleZoom(%i, %i, %i, %i) -> %i", ([value, delta, factor, clamp, expected], { expect }) => {
     expect(scaleZoom(value, delta, factor, clamp)).toBe(expected);
   });
 });

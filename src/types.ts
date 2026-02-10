@@ -1,4 +1,4 @@
-import { ComponentProps, CSSProperties, Dispatch, Key, ReactNode, SetStateAction } from "react";
+import type { ComponentProps, CSSProperties, Dispatch, Key, ReactNode, SetStateAction } from "react";
 
 /** Lightbox props */
 export interface LightboxProps {

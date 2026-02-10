@@ -1,8 +1,8 @@
-import { createContext, PropsWithChildren, useCallback, useMemo, useRef } from "react";
+import { createContext, type PropsWithChildren, useCallback, useMemo, useRef } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
 import { makeUseContext, transition } from "../utils";
-import { Callback, LightboxProps } from "../types";
+import type { Callback, LightboxProps } from "../types";
 
 type ControllerProps = PropsWithChildren & Pick<LightboxProps, "setIndex">;
 
