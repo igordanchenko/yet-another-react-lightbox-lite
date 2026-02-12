@@ -110,11 +110,11 @@ export default function Zoom({ children }: PropsWithChildren) {
 
     const updateRect = () => setRect(node ? { width: node.clientWidth, height: node.clientHeight } : undefined);
 
+    updateRect();
+
     if (node && typeof ResizeObserver !== "undefined") {
       observer.current = new ResizeObserver(updateRect);
       observer.current.observe(node);
-    } else {
-      updateRect();
     }
   }, []);
 
