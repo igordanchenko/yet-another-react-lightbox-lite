@@ -70,6 +70,12 @@ async function testNavigation(
   await expectLightboxToBeClosed();
 }
 
+// Pointer events on .yarll__slide and .yarll__portal trigger backdrop close,
+// so zoom and gesture tests must target the slide image element instead.
+//
+// The portal exit animation has a fallback timeout that resolves without
+// transitionEnd (which never fires in jsdom). expectLightboxToBeClosed
+// handles the portal already being unmounted before transitionEnd is fired.
 describe("Lightbox", () => {
   it("supports mouse navigation", async () => {
     await testNavigation(clickButtonPrev, clickButtonNext, clickButtonClose);
@@ -171,7 +177,7 @@ describe("Lightbox", () => {
 
     renderLightbox({ controller: { closeOnPullUp: false } });
 
-    await pointerSwipe(user, getCurrentSlide(), 0, -120);
+    await pointerSwipe(user, getCurrentSlideImage(), 0, -120);
     await expectLightboxToBeOpen();
   });
 
@@ -180,7 +186,7 @@ describe("Lightbox", () => {
 
     renderLightbox({ controller: { closeOnPullDown: false } });
 
-    await pointerSwipe(user, getCurrentSlide(), 0, 120);
+    await pointerSwipe(user, getCurrentSlideImage(), 0, 120);
     await expectLightboxToBeOpen();
   });
 
@@ -465,7 +471,7 @@ describe("Lightbox", () => {
 
     renderLightbox();
 
-    const target = getCurrentSlide();
+    const target = getCurrentSlideImage();
 
     await user.pointer([
       { keys: "[TouchA>]", target, coords: { x: 100, y: 100 } },
@@ -496,7 +502,7 @@ describe("Lightbox", () => {
 
     renderLightbox();
 
-    const target = getCurrentSlide();
+    const target = getCurrentSlideImage();
 
     await user.pointer([
       { keys: "[TouchA>]", target, coords: { x: 100, y: 100 } },
@@ -538,11 +544,11 @@ describe("Lightbox", () => {
 
     renderLightbox();
 
-    await user.dblClick(getController());
+    await user.dblClick(getCurrentSlideImage());
     expectToBeZoomedIn();
 
     for (let i = 0; i < 3; i += 1) {
-      await user.dblClick(getController());
+      await user.dblClick(getCurrentSlideImage());
     }
     expectToBeZoomedOut();
   });
@@ -552,7 +558,7 @@ describe("Lightbox", () => {
 
     renderLightbox({ zoom: { disabled: true } });
 
-    await user.dblClick(getController());
+    await user.dblClick(getCurrentSlideImage());
     expectToBeZoomedOut();
   });
 

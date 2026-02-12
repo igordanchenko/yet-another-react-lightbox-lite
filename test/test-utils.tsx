@@ -124,9 +124,12 @@ export async function expectLightboxToBeOpen() {
 }
 
 export async function expectLightboxToBeClosed() {
-  await act(async () => {
-    fireEvent.transitionEnd(getController());
-  });
+  const controller = querySelector(".yarll__portal");
+  if (controller) {
+    await act(async () => {
+      fireEvent.transitionEnd(controller);
+    });
+  }
 
   expect(querySelector(".yarll__portal")).toBeNull();
 }
