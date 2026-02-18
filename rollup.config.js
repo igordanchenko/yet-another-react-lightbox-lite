@@ -4,6 +4,7 @@ import typescript from "@rollup/plugin-typescript";
 export default [
   [
     typescript({
+      noEmitOnError: true,
       include: ["src/**/*"],
       compilerOptions: { removeComments: true },
     }),
