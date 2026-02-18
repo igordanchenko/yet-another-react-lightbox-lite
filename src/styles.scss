@@ -13,6 +13,13 @@ $toolbar-margin: 8px;
 
 html:has(body > .yarll__portal) {
   overscroll-behavior: none;
+
+  @media (prefers-reduced-motion: reduce) {
+    &::view-transition-old(*),
+    &::view-transition-new(*) {
+      animation-duration: 0s;
+    }
+  }
 }
 
 body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
