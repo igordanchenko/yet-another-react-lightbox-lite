@@ -94,8 +94,15 @@ export default function useSensors() {
       return;
     }
 
-    if (key === "ArrowLeft") prev();
-    if (key === "ArrowRight") next();
+    if (key === "ArrowLeft") {
+      preventDefault();
+      prev();
+    }
+
+    if (key === "ArrowRight") {
+      preventDefault();
+      next();
+    }
   });
 
   const onPointerDown = useEventCallback((event: PointerEvent) => {
