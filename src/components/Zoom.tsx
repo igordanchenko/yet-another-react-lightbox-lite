@@ -50,6 +50,7 @@ export default function Zoom({ children }: PropsWithChildren) {
   const [rect, setRect] = useState<Rect>();
   const observer = useRef<ResizeObserver>(undefined);
   const carouselRef = useRef<HTMLDivElement | null>(null);
+  const carouselRectRef = useRef<DOMRectReadOnly>(undefined);
   const slideDimensionsRef = useRef<readonly [number, number]>([0, 0]);
 
   const { index, slides, zoom: { supports, disabled } = {} } = useLightboxContext();
@@ -108,7 +109,10 @@ export default function Zoom({ children }: PropsWithChildren) {
     observer.current?.disconnect();
     observer.current = undefined;
 
-    const updateRect = () => setRect(node ? { width: node.clientWidth, height: node.clientHeight } : undefined);
+    const updateRect = () => {
+      carouselRectRef.current = node?.getBoundingClientRect();
+      setRect(node ? { width: node.clientWidth, height: node.clientHeight } : undefined);
+    };
 
     updateRect();
 
@@ -130,9 +134,9 @@ export default function Zoom({ children }: PropsWithChildren) {
     let newOffsetX = offsetX;
     let newOffsetY = offsetY;
 
-    if (event && carouselRef.current) {
+    if (event && carouselRectRef.current) {
       const { clientX, clientY } = event;
-      const { left, top, width, height } = carouselRef.current.getBoundingClientRect();
+      const { left, top, width, height } = carouselRectRef.current;
       const zoomDelta = newZoom / zoom - 1;
 
       newOffsetX += (left + width / 2 + offsetX - clientX) * zoomDelta;
