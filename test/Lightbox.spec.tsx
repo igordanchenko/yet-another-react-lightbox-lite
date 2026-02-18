@@ -13,7 +13,7 @@ import {
   expectToBeZoomedIn,
   expectToBeZoomedOut,
   getCloseButton,
-  getController,
+  getPortal,
   getCurrentSlide,
   getCurrentSlideImage,
   getNextButton,
@@ -22,6 +22,7 @@ import {
   pointerSwipe,
   querySelector,
   querySelectorAll,
+  queryPortal,
   renderLightbox,
   slides,
   suppressConsoleErrors,
@@ -164,11 +165,11 @@ describe("Lightbox", () => {
     const user = userEvent.setup();
 
     renderLightbox();
-    await user.click(querySelector(".yarll__portal")!);
+    await user.click(getPortal());
     await expectLightboxToBeClosed();
 
     renderLightbox();
-    await user.click(querySelector(".yarll__slide")!);
+    await user.click(getCurrentSlide());
     await expectLightboxToBeClosed();
   });
 
@@ -195,10 +196,10 @@ describe("Lightbox", () => {
 
     renderLightbox({ controller: { closeOnBackdropClick: false } });
 
-    await user.click(querySelector(".yarll__portal")!);
+    await user.click(getPortal());
     await expectLightboxToBeOpen();
 
-    await user.click(querySelector(".yarll__slide")!);
+    await user.click(getCurrentSlide());
     await expectLightboxToBeOpen();
   });
 
@@ -213,7 +214,7 @@ describe("Lightbox", () => {
         vi.runAllTimers();
       });
 
-      expect(querySelector(".yarll__portal")).toBeNull();
+      expect(queryPortal()).toBeNull();
     });
   });
 
@@ -664,7 +665,7 @@ describe("Lightbox", () => {
     expect(document.activeElement).toBe(target);
 
     clickButtonNext();
-    expect(document.activeElement).toBe(getController());
+    expect(document.activeElement).toBe(getPortal());
   });
 
   it("handles slides array mutation while open", () => {
@@ -684,7 +685,7 @@ describe("Lightbox", () => {
 
     rerender(<Lightbox index={1} setIndex={vi.fn()} slides={[newSlides[0]]} />);
 
-    expect(querySelector(".yarll__portal")).toBeNull();
+    expect(queryPortal()).toBeNull();
   });
 
   it("clamps offsets on window resize while zoomed in", async () => {

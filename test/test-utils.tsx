@@ -29,7 +29,11 @@ function getSelector<E extends Element = Element>(selector: string) {
   return element;
 }
 
-export function getController() {
+export function queryPortal() {
+  return querySelector<HTMLDivElement>(".yarll__portal");
+}
+
+export function getPortal() {
   return getSelector<HTMLDivElement>(".yarll__portal");
 }
 
@@ -120,18 +124,18 @@ export function renderLightbox(props?: Omit<Partial<LightboxProps>, "index" | "s
 }
 
 export async function expectLightboxToBeOpen() {
-  expect(querySelector(".yarll__portal")).not.toBeNull();
+  expect(queryPortal()).not.toBeNull();
 }
 
 export async function expectLightboxToBeClosed() {
-  const controller = querySelector(".yarll__portal");
+  const controller = queryPortal();
   if (controller) {
     await act(async () => {
       fireEvent.transitionEnd(controller);
     });
   }
 
-  expect(querySelector(".yarll__portal")).toBeNull();
+  expect(queryPortal()).toBeNull();
 }
 
 function isCurrentSlideScaled() {
