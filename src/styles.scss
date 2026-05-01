@@ -53,6 +53,12 @@ body:has(> .yarll__portal:not(.yarll__no_scroll_lock)) {
     color: globalVar(color, $color-white);
     background-color: globalVar(backdrop_color, $color-black);
 
+    // Some modal libraries (e.g., Radix UI, Chakra UI) set `pointer-events: none` on <body>
+    // while their dialog is open, as part of their outside-click handling. The lightbox
+    // portals to <body>, so without this override, the lightbox UI inherits `none` and
+    // becomes non-interactive when opened from inside such a dialog.
+    pointer-events: auto;
+
     opacity: 1;
     transition: globalVar(fade_transition, opacity 0.3s ease);
 
