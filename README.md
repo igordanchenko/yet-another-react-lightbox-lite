@@ -301,12 +301,15 @@ Controller settings.
   (default: `true`)
 - `closeOnBackdropClick` - if `true`, close the lightbox when the backdrop is
   clicked (default: `true`)
+- `closeOnEscape` - if `true`, close the lightbox on Escape key press (default:
+  `true`)
 
 Usage example:
 
 ```tsx
 <Lightbox
   controller={{
+    closeOnEscape: false,
     closeOnPullUp: false,
     closeOnPullDown: false,
     closeOnBackdropClick: false,

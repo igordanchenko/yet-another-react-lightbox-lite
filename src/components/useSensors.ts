@@ -36,7 +36,8 @@ export default function useSensors() {
   const { zoom, maxZoom, changeZoom, changeOffsets } = useZoom();
   const { prev, next, close } = useController();
 
-  const { closeOnPullUp, closeOnPullDown, closeOnBackdropClick } = {
+  const { closeOnPullUp, closeOnPullDown, closeOnBackdropClick, closeOnEscape } = {
+    closeOnEscape: true,
     closeOnPullUp: true,
     closeOnPullDown: true,
     closeOnBackdropClick: true,
@@ -78,7 +79,7 @@ export default function useSensors() {
     if (key === "-" || (meta && key === "_")) handleChangeZoom(zoom / KEYBOARD_ZOOM_FACTOR);
     if (meta && key === "0") handleChangeZoom(1);
 
-    if (key === "Escape") {
+    if (key === "Escape" && closeOnEscape) {
       // Prevent parent modals (e.g. Radix UI, MUI) from also acting on this keystroke —
       // without this, pressing Escape inside the lightbox would close both the lightbox
       // and the surrounding dialog.

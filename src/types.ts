@@ -151,6 +151,8 @@ export interface CarouselSettings {
 
 /** Controller settings */
 export interface ControllerSettings {
+  /** if `true`, close the lightbox on Escape key press (default: `true`) */
+  closeOnEscape?: boolean;
   /** if `true`, close the lightbox on pull-up gesture (default: `true`) */
   closeOnPullUp?: boolean;
   /** if `true`, close the lightbox on pull-down gesture (default: `true`) */

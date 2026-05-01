@@ -203,6 +203,15 @@ describe("Lightbox", () => {
     await expectLightboxToBeOpen();
   });
 
+  it("does not close on Escape when closeOnEscape is false", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox({ controller: { closeOnEscape: false } });
+
+    await user.keyboard("{Esc}");
+    await expectLightboxToBeOpen();
+  });
+
   it("closes via fallback timeout when transitionend doesn't fire", async () => {
     await withFakeTimers(async () => {
       renderLightbox();
