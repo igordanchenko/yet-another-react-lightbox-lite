@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import Lightbox from "../src";
-import "../src/styles.scss";
+import "../src/styles.css";
 
 import slides from "./slides";
 

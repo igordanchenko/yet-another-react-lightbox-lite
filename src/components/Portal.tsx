@@ -76,7 +76,7 @@ export default function Portal({ children }: PropsWithChildren) {
   );
 
   useEffect(() => {
-    const property = cssVar("scrollbar-width");
+    const property = cssVar("scrollbar_width");
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
 
     if (scrollbarWidth > 0) {

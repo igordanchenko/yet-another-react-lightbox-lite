@@ -64,7 +64,7 @@ describe("cssClass", () => {
 
 describe("cssVar", () => {
   it("adds the --yarll__ prefix", () => {
-    expect(cssVar("color")).toBe("--yarll__color");
+    expect(cssVar("foreground_color")).toBe("--yarll__foreground_color");
   });
 });
 

@@ -12,7 +12,7 @@ image support. Bundle size should be kept as small as possible. React 18+, Node
 
 ## Commands
 
-- **Build:** `npm run build` (clean → sass → postcss → rollup)
+- **Build:** `npm run build` (clean → lightningcss → rollup)
 - **Dev server:** `npm run dev` (Vite dev server from `dev/` directory)
 - **Test:** `npm run test` (Vitest, 100% coverage required)
 - **Test with UI**: `npm run test:ui`
@@ -49,8 +49,8 @@ all types.
 
 ## Build Pipeline
 
-SCSS → CSS (sass) → optimized CSS (postcss + autoprefixer + cssnano) → `dist/`
-TypeScript → ESM JS + `.d.ts` (rollup) → `dist/`
+CSS → minified CSS (lightningcss-build) → `dist/` TypeScript → ESM JS +
+`.d.ts`(rollup) → `dist/`
 
 React/ReactDOM are external peer dependencies.
 

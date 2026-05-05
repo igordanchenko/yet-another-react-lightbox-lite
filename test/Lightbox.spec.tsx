@@ -722,11 +722,11 @@ describe("Lightbox", () => {
 
     const { unmount } = renderLightbox();
 
-    expect(document.documentElement.style.getPropertyValue("--yarll__scrollbar-width")).toBe("18px");
+    expect(document.documentElement.style.getPropertyValue("--yarll__scrollbar_width")).toBe("18px");
 
     unmount();
 
-    expect(document.documentElement.style.getPropertyValue("--yarll__scrollbar-width")).toBe("");
+    expect(document.documentElement.style.getPropertyValue("--yarll__scrollbar_width")).toBe("");
 
     window.__TEST__.scrollbarWidth = 0;
   });

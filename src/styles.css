@@ -1,0 +1,175 @@
+html:has(.yarll__portal) {
+  overscroll-behavior: none;
+
+  @media (prefers-reduced-motion: reduce) {
+    &::view-transition-old(*),
+    &::view-transition-new(*) {
+      animation-duration: 0s;
+    }
+  }
+}
+
+body:has(.yarll__portal:not(.yarll__no_scroll_lock)) {
+  height: 100%;
+  overflow: hidden;
+  padding-right: var(--yarll__scrollbar_width, 0px);
+
+  & .yarll__fixed {
+    padding-right: var(--yarll__scrollbar_width, 0px);
+  }
+}
+
+.yarll__portal {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  inset: 0;
+  position: fixed;
+  overflow: hidden;
+  z-index: var(--yarll__portal_zindex, 9999);
+
+  outline: none;
+  user-select: none;
+  touch-action: none;
+  overscroll-behavior: none;
+  -webkit-touch-callout: none;
+
+  color: var(--yarll__foreground_color, #fff);
+  background-color: var(--yarll__backdrop_color, #000);
+
+  opacity: 1;
+  transition: opacity var(--yarll__fade_duration, 0.3s) var(--yarll__fade_easing, ease);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: 0s;
+  }
+
+  &,
+  & *,
+  & *::before,
+  & *::after {
+    box-sizing: border-box;
+  }
+}
+
+.yarll__portal_closed {
+  opacity: 0;
+}
+
+.yarll__carousel {
+  flex: 1;
+  align-self: stretch;
+  position: relative;
+  margin: var(--yarll__carousel_margin, 16px);
+}
+
+.yarll__slide {
+  inset: 0;
+  position: absolute;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.yarll__slide_image {
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.yarll__toolbar {
+  position: absolute;
+  top: var(--yarll__toolbar_margin, 8px);
+  right: var(--yarll__toolbar_margin, 8px);
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+}
+
+.yarll__toolbar_fixed {
+  position: static;
+  align-self: flex-end;
+  margin-inline-end: var(--yarll__toolbar_margin, 8px);
+  margin-block-start: var(--yarll__toolbar_margin, 8px);
+
+  & + .yarll__carousel {
+    margin-block-start: var(--yarll__toolbar_margin, 8px);
+  }
+}
+
+.yarll__button {
+  border: 0;
+  margin: 0;
+  padding: var(--yarll__button_padding, 8px);
+  cursor: pointer;
+  appearance: none;
+  font: inherit;
+  color: var(--yarll__button_color, rgb(255 255 255 / 0.8));
+  background-color: var(--yarll__button_background_color, transparent);
+  filter: var(--yarll__button_filter, drop-shadow(2px 2px 2px rgb(0 0 0 / 0.8)));
+
+  &:focus-visible {
+    color: var(--yarll__button_color_active, #fff);
+    outline: var(--yarll__button_focus_outline, 6px double black);
+    box-shadow: var(--yarll__button_focus_box_shadow, 0 0 0 4px white);
+  }
+
+  @supports not selector(:focus-visible) {
+    &:focus {
+      color: var(--yarll__button_color_active, #fff);
+      outline: var(--yarll__button_focus_outline, 6px double black);
+      box-shadow: var(--yarll__button_focus_box_shadow, 0 0 0 4px white);
+    }
+  }
+
+  @media (hover: hover) {
+    &:hover,
+    &:focus:hover,
+    &:focus-visible:hover {
+      color: var(--yarll__button_color_active, #fff);
+    }
+  }
+
+  &:disabled {
+    cursor: default;
+    color: var(--yarll__button_color_disabled, rgb(255 255 255 / 0.4));
+  }
+}
+
+.yarll__button_prev,
+.yarll__button_next {
+  position: absolute;
+  padding: var(--yarll__navigation_button_padding, 24px 8px);
+}
+
+.yarll__button_prev {
+  left: var(--yarll__navigation_button_offset, 8px);
+}
+
+.yarll__button_next {
+  right: var(--yarll__navigation_button_offset, 8px);
+}
+
+.yarll__icon {
+  display: block;
+  fill: currentColor;
+  width: var(--yarll__icon_size, 32px);
+  height: var(--yarll__icon_size, 32px);
+  pointer-events: none;
+}
+
+.yarll__selectable {
+  user-select: text;
+}

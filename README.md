@@ -456,6 +456,45 @@ Usage example:
 />
 ```
 
+#### CSS Custom Properties
+
+The stylesheet exposes the following custom properties for theming. Override
+them via the `styles` prop shown above, globally via `:root`, or scoped via
+`className`.
+
+**Portal**
+
+- `--yarll__foreground_color` — foreground color, inherited by descendants
+- `--yarll__backdrop_color` — backdrop color
+- `--yarll__portal_zindex` — portal `z-index`
+- `--yarll__fade_duration` — lightbox open/close duration
+- `--yarll__fade_easing` — lightbox open/close timing function
+
+**Layout**
+
+- `--yarll__carousel_margin` — margin around the carousel
+- `--yarll__toolbar_margin` — toolbar offset from portal edges
+
+**Buttons** (toolbar icon buttons; inherited by navigation buttons)
+
+- `--yarll__button_padding` — button padding
+- `--yarll__button_color` — idle foreground color
+- `--yarll__button_color_active` — hover / focus foreground color
+- `--yarll__button_color_disabled` — disabled foreground color
+- `--yarll__button_background_color` — background color
+- `--yarll__button_filter` — button shadow effect (`filter`)
+- `--yarll__button_focus_outline` — focus-visible `outline`
+- `--yarll__button_focus_box_shadow` — focus-visible `box-shadow`
+
+**Navigation Buttons** (Previous / Next)
+
+- `--yarll__navigation_button_padding` — padding (larger hit area)
+- `--yarll__navigation_button_offset` — horizontal offset from the portal edge
+
+**Icons**
+
+- `--yarll__icon_size` — icon width and height
+
 ### className
 
 Type: `string`
