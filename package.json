@@ -28,7 +28,7 @@
     "url": "git+https://github.com/igordanchenko/yet-another-react-lightbox-lite.git"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
     "prepare": "husky",

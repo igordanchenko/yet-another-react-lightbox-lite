@@ -8,7 +8,7 @@ code in this repository.
 Yet Another React Lightbox Lite — a lightweight React lightbox component with
 keyboard, mouse, touchpad, and touchscreen navigation, zoom, and responsive
 image support. Bundle size should be kept as small as possible. React 18+, Node
-18+.
+22+.
 
 ## Commands
 

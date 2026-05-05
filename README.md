@@ -42,7 +42,7 @@ size.
 ## Requirements
 
 - React 18+
-- Node 18+
+- Node 22+
 - modern ESM-compatible bundler
 
 ## Installation
