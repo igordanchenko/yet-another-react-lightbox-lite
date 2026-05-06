@@ -1,37 +1,23 @@
-import { createContext, type PropsWithChildren, useCallback, useMemo, useRef } from "react";
+import { createContext, type PropsWithChildren, useMemo } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
 import { makeUseContext, transition } from "../utils";
 import type { Callback, LightboxProps } from "../types";
 
-type ControllerProps = PropsWithChildren & Pick<LightboxProps, "setIndex">;
-
-type ExitHook = Callback<Promise<void> | void>;
+type ControllerProps = PropsWithChildren & Pick<LightboxProps, "setIndex"> & Pick<ControllerContextType, "close">;
 
 type ControllerContextType = {
-  close: Callback;
   prev: Callback;
   next: Callback;
-  addExitHook: (hook: ExitHook) => Callback;
+  close: Callback;
 };
 
 const ControllerContext = createContext<ControllerContextType | null>(null);
 
 export const useController = makeUseContext(ControllerContext);
 
-export default function Controller({ setIndex, children }: ControllerProps) {
+export default function Controller({ setIndex, close, children }: ControllerProps) {
   const { slides, index } = useLightboxContext();
-
-  const exitHooks = useRef<ExitHook[]>([]);
-  const closing = useRef(false);
-
-  const addExitHook = useCallback((hook: ExitHook) => {
-    exitHooks.current.push(hook);
-
-    return () => {
-      exitHooks.current = exitHooks.current.filter((h) => h !== hook);
-    };
-  }, []);
 
   const context = useMemo(() => {
     const prev = () => {
@@ -46,22 +32,8 @@ export default function Controller({ setIndex, children }: ControllerProps) {
       }
     };
 
-    const close = () => {
-      if (closing.current) return;
-      closing.current = true;
-
-      Promise.all(exitHooks.current.map((hook) => hook()))
-        // intentionally swallow errors — a faulty exit hook should not prevent closing
-        .catch(/* v8 ignore next - @preserve */ () => {})
-        .then(() => {
-          exitHooks.current = [];
-          closing.current = false;
-          setIndex(undefined);
-        });
-    };
-
-    return { prev, next, close, addExitHook };
-  }, [slides.length, index, setIndex, addExitHook]);
+    return { prev, next, close };
+  }, [slides.length, index, setIndex, close]);
 
   return <ControllerContext.Provider value={context}>{children}</ControllerContext.Provider>;
 }

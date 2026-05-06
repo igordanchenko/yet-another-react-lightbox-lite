@@ -42,6 +42,10 @@ body:has(.yarll__portal:not(.yarll__no_scroll_lock)) {
   opacity: 1;
   transition: opacity var(--yarll__fade_duration, 0.3s) var(--yarll__fade_easing, ease);
 
+  @starting-style {
+    opacity: 0;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     transition-duration: 0s;
   }

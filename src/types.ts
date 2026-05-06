@@ -213,3 +213,6 @@ export type Callback<T = void> = () => T;
 
 /** Render function */
 export type RenderFunction<T = void> = [T] extends [void] ? () => ReactNode : (props: T) => ReactNode;
+
+/** Lightbox lifecycle phase */
+export type LightboxPhase = "open" | "closing" | "closed";

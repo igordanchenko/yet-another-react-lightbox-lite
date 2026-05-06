@@ -2,10 +2,14 @@ import { type PropsWithChildren, useCallback, useEffect, useRef, useState } from
 import { createPortal } from "react-dom";
 
 import useSensors from "./useSensors";
-import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
 import { clsx, cssClass, cssVar, getChildren, translateLabel } from "../utils";
-import type { Callback } from "../types";
+import type { Callback, LightboxPhase } from "../types";
+
+type PortalProps = PropsWithChildren & {
+  phase: LightboxPhase;
+  onClosed: Callback;
+};
 
 function setAttribute(element: Element, attribute: string, value: string) {
   const previousValue = element.getAttribute(attribute);
@@ -21,59 +25,21 @@ function setAttribute(element: Element, attribute: string, value: string) {
   };
 }
 
-export default function Portal({ children }: PropsWithChildren) {
+export default function Portal({ phase, onClosed, children }: PortalProps) {
   const { labels, styles, className } = useLightboxContext();
 
-  const cleanup = useRef<Callback[]>([]);
-
   const [mounted, setMounted] = useState(false);
-  const [visible, setVisible] = useState(false);
 
+  const cleanup = useRef<Callback[]>([]);
   const portalRef = useRef<HTMLDivElement | null>(null);
-  const onTransitionEnd = useRef<() => void>(undefined);
   const restoreFocus = useRef<HTMLElement | null>(null);
 
   const sensors = useSensors();
-  const { addExitHook } = useController();
 
   const handleCleanup = useCallback(() => {
     cleanup.current.forEach((cleaner) => cleaner());
     cleanup.current = [];
   }, []);
-
-  useEffect(
-    () =>
-      addExitHook(
-        () =>
-          new Promise((resolve) => {
-            // transitionDuration can be a comma-separated list (e.g., "0.3s, 0.5s"), pick the longest
-            const transitionDuration =
-              (portalRef.current &&
-                Math.max(...getComputedStyle(portalRef.current).transitionDuration.split(",").map(parseFloat)) *
-                  1_000) ||
-              0;
-
-            const done = () => {
-              onTransitionEnd.current = undefined;
-              resolve();
-            };
-
-            // fallback timeout in case the transitionend event doesn't fire
-            // (e.g., prefers-reduced-motion, custom styles, or browser quirks)
-            const timeout = setTimeout(done, transitionDuration + 100);
-
-            onTransitionEnd.current = () => {
-              clearTimeout(timeout);
-              done();
-            };
-
-            handleCleanup();
-
-            setVisible(false);
-          }),
-      ),
-    [addExitHook, handleCleanup],
-  );
 
   useEffect(() => {
     const property = cssVar("scrollbar_width");
@@ -87,10 +53,32 @@ export default function Portal({ children }: PropsWithChildren) {
     setMounted(true);
 
     return () => {
+      // Tied to the component's mount lifecycle rather than the closing-phase cleanup:
+      // the scrollbar-width compensation must stay applied through the fade-out so the
+      // body padding doesn't snap away mid-transition. It's only safe to remove once
+      // the portal has fully unmounted.
       document.documentElement.style.removeProperty(property);
       setMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    if (phase !== "closing") return undefined;
+
+    // Restore inert/aria-hidden/focus immediately on closing so they take effect
+    // before the fade-out completes, then wait for the transition before unmounting.
+    handleCleanup();
+
+    // transitionDuration can be a comma-separated list (e.g., "0.3s, 0.5s"), pick the longest
+    const duration =
+      (portalRef.current &&
+        Math.max(...getComputedStyle(portalRef.current).transitionDuration.split(",").map(parseFloat)) * 1_000) ||
+      0;
+
+    const timeout = setTimeout(onClosed, duration);
+
+    return () => clearTimeout(timeout);
+  }, [phase, handleCleanup, onClosed]);
 
   const handleRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -120,8 +108,6 @@ export default function Portal({ children }: PropsWithChildren) {
           restoreFocus.current?.focus?.();
           restoreFocus.current = null;
         });
-
-        setVisible(true);
       } else {
         handleCleanup();
       }
@@ -138,8 +124,7 @@ export default function Portal({ children }: PropsWithChildren) {
           tabIndex={-1}
           ref={handleRef}
           style={styles?.portal}
-          className={clsx(cssClass("portal"), !visible && cssClass("portal_closed"), className)}
-          onTransitionEnd={(event) => event.target === portalRef.current && onTransitionEnd.current?.()}
+          className={clsx(cssClass("portal"), phase !== "open" && cssClass("portal_closed"), className)}
           onFocus={(event) => {
             if (!restoreFocus.current) {
               restoreFocus.current = event.relatedTarget as HTMLElement | null;

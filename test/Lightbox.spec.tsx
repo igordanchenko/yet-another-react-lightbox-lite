@@ -71,12 +71,6 @@ async function testNavigation(
   await expectLightboxToBeClosed();
 }
 
-// Pointer events on .yarll__slide and .yarll__portal trigger backdrop close,
-// so zoom and gesture tests must target the slide image element instead.
-//
-// The portal exit animation has a fallback timeout that resolves without
-// transitionEnd (which never fires in jsdom). expectLightboxToBeClosed
-// handles the portal already being unmounted before transitionEnd is fired.
 describe("Lightbox", () => {
   it("supports mouse navigation", async () => {
     await testNavigation(clickButtonPrev, clickButtonNext, clickButtonClose);
@@ -212,7 +206,7 @@ describe("Lightbox", () => {
     await expectLightboxToBeOpen();
   });
 
-  it("closes via fallback timeout when transitionend doesn't fire", async () => {
+  it("unmounts after the exit transition completes", async () => {
     await withFakeTimers(async () => {
       renderLightbox();
       await expectLightboxToBeOpen();
@@ -235,6 +229,15 @@ describe("Lightbox", () => {
 
     await user.keyboard("{Esc}{Esc}");
     await expectLightboxToBeClosed();
+  });
+
+  it("opens when index transitions from undefined to a valid value", () => {
+    const setIndex = vi.fn();
+    const { rerender } = render(<Lightbox slides={slides} index={undefined} setIndex={setIndex} />);
+    expect(queryPortal()).toBeNull();
+
+    rerender(<Lightbox slides={slides} index={0} setIndex={setIndex} />);
+    expect(queryPortal()).not.toBeNull();
   });
 
   it("supports render functions", () => {

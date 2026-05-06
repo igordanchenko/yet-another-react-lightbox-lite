@@ -41,6 +41,9 @@ export function getCurrentSlide() {
   return getSelector<HTMLDivElement>(".yarll__slide:not([hidden])");
 }
 
+// Pointer events on `.yarll__slide` and `.yarll__portal` are treated as backdrop
+// interactions, so gesture tests that must NOT trigger backdrop-close should target
+// the inner image element instead of the slide container.
 export function getCurrentSlideImage() {
   return getSelector<HTMLImageElement>(".yarll__slide:not([hidden]) .yarll__slide_image");
 }
@@ -128,10 +131,15 @@ export async function expectLightboxToBeOpen() {
 }
 
 export async function expectLightboxToBeClosed() {
-  const controller = queryPortal();
-  if (controller) {
+  if (queryPortal()) {
     await act(async () => {
-      fireEvent.transitionEnd(controller);
+      if (vi.isFakeTimers()) {
+        vi.runAllTimers();
+      } else {
+        // jsdom resolves transitionDuration to 0s, so the exit setTimeout
+        // fires on the next macrotask — wait one tick.
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
     });
   }
 
