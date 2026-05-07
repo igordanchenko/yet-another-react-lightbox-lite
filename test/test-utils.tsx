@@ -38,14 +38,14 @@ export function getPortal() {
 }
 
 export function getCurrentSlide() {
-  return getSelector<HTMLDivElement>(".yarll__slide:not([hidden])");
+  return getSelector<HTMLDivElement>(".yarll__slide_current");
 }
 
 // Pointer events on `.yarll__slide` and `.yarll__portal` are treated as backdrop
 // interactions, so gesture tests that must NOT trigger backdrop-close should target
 // the inner image element instead of the slide container.
 export function getCurrentSlideImage() {
-  return getSelector<HTMLImageElement>(".yarll__slide:not([hidden]) .yarll__slide_image");
+  return getSelector<HTMLImageElement>(".yarll__slide_current .yarll__slide_image");
 }
 
 export function getSlidesCount() {
@@ -53,7 +53,7 @@ export function getSlidesCount() {
 }
 
 function queryCurrentSlideSource() {
-  return querySelector<HTMLImageElement>(".yarll__slide:not([hidden]) .yarll__slide_image")?.src;
+  return querySelector<HTMLImageElement>(".yarll__slide_current .yarll__slide_image")?.src;
 }
 
 export function expectCurrentSlideToBe(index: number) {

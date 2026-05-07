@@ -36,8 +36,7 @@ Context** for state:
 
 - `src/Lightbox.tsx` — entry component, assembles the tree
 - `src/types.ts` — all TypeScript interfaces
-- `src/utils.ts` — shared helpers (context factory, view transitions, slide
-  utils)
+- `src/utils.ts` — shared helpers (context factory, slide utils)
 - `src/components/useSensors.ts` — unified event handling for
   touch/mouse/wheel/keyboard
 - `src/components/Carousel.tsx` — slide container with configurable preloading

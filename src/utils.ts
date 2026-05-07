@@ -1,7 +1,6 @@
 import { type Context, useContext } from "react";
-import { flushSync } from "react-dom";
 
-import type { Callback, Label, Labels, Slide, SlideImage } from "./types";
+import type { Label, Labels, Slide, SlideImage } from "./types";
 
 const cssPrefix = "yarll__";
 
@@ -15,16 +14,6 @@ export function cssVar(name: string) {
 
 export function clsx(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(" ");
-}
-
-export function transition(callback: Callback) {
-  if (document.startViewTransition) {
-    document.startViewTransition(() => {
-      flushSync(callback);
-    });
-  } else {
-    callback();
-  }
 }
 
 export function translateLabel(labels: Labels | undefined, label: Label) {

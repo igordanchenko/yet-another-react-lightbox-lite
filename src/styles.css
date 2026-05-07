@@ -1,12 +1,5 @@
 html:has(.yarll__portal) {
   overscroll-behavior: none;
-
-  @media (prefers-reduced-motion: reduce) {
-    &::view-transition-old(*),
-    &::view-transition-new(*) {
-      animation-duration: 0s;
-    }
-  }
 }
 
 body:has(.yarll__portal:not(.yarll__no_scroll_lock)) {
@@ -78,9 +71,19 @@ body:has(.yarll__portal:not(.yarll__no_scroll_lock)) {
   justify-content: center;
   align-items: center;
 
-  &[hidden] {
-    display: none;
+  opacity: 0;
+  pointer-events: none;
+
+  transition: opacity var(--yarll__fade_duration, 0.3s) var(--yarll__fade_easing, ease);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: 0s;
   }
+}
+
+.yarll__slide_current {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .yarll__slide_image {

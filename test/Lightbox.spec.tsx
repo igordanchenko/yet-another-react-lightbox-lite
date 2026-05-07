@@ -303,32 +303,6 @@ describe("Lightbox", () => {
     expect(querySelector('img[srcset="src4 600w, src3 1200w"]')).toBeInTheDocument();
   });
 
-  it("supports view transitions", () => {
-    const startViewTransitionBackup = document.startViewTransition;
-
-    document.startViewTransition = vi.fn().mockImplementation((callback) => {
-      callback?.();
-
-      return {
-        ready: Promise.resolve(undefined),
-        finished: Promise.resolve(undefined),
-        updateCallbackDone: Promise.resolve(undefined),
-        skipTransition() {},
-        types: new Set() as ViewTransitionTypeSet,
-      } satisfies ViewTransition;
-    });
-
-    renderLightbox();
-    expectCurrentSlideToBe(0);
-
-    clickButtonNext();
-    expectCurrentSlideToBe(1);
-
-    expect(document.startViewTransition).toHaveBeenCalled();
-
-    document.startViewTransition = startViewTransitionBackup;
-  });
-
   it("supports custom styles", () => {
     renderLightbox({
       styles: {
@@ -691,9 +665,7 @@ describe("Lightbox", () => {
 
     rerender(<Lightbox index={1} setIndex={vi.fn()} slides={newSlides} />);
 
-    expect(querySelector<HTMLImageElement>(".yarll__slide:not([hidden]) .yarll__slide_image")?.src).toBe(
-      newSlides[1].src,
-    );
+    expect(querySelector<HTMLImageElement>(".yarll__slide_current .yarll__slide_image")?.src).toBe(newSlides[1].src);
 
     rerender(<Lightbox index={1} setIndex={vi.fn()} slides={[newSlides[0]]} />);
 

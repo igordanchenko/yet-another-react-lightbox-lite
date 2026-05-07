@@ -3,7 +3,7 @@ import { createContext, useCallback, useLayoutEffect, useMemo, useRef, useState 
 
 import { useLightboxContext } from "./LightboxContext";
 import useEventCallback from "./useEventCallback";
-import { getChildren, isImageSlide, makeUseContext } from "../utils";
+import { cssClass, getChildren, isImageSlide, makeUseContext } from "../utils";
 import type { Rect } from "../types";
 
 /** Zoom context */
@@ -85,7 +85,9 @@ export default function Zoom({ children }: PropsWithChildren) {
   // Cache slide dimensions on resize or slide change — the only time DOM reads are needed
   useLayoutEffect(() => {
     slideDimensionsRef.current = getChildren(
-      getChildren(carouselRef.current).find((node) => node instanceof HTMLElement && !node.hidden),
+      getChildren(carouselRef.current).find(
+        (node) => node instanceof HTMLElement && node.classList.contains(cssClass("slide_current")),
+      ),
     )
       .filter((node) => node instanceof HTMLElement)
       .map(

@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import ImageSlide from "./ImageSlide";
 import { useZoom, useZoomInternal } from "./Zoom";
 import { useLightboxContext } from "./LightboxContext";
-import { cssClass, isImageSlide, round, translateLabel, translateSlideCounter } from "../utils";
+import { clsx, cssClass, isImageSlide, round, translateLabel, translateSlideCounter } from "../utils";
 import type { RenderSlideProps, SlideImage } from "../types";
 
 function CarouselSlide({
@@ -23,8 +23,18 @@ function CarouselSlide({
   } = useLightboxContext();
 
   useEffect(() => {
-    if (!current && ref.current?.contains(document.activeElement)) {
-      ref.current.closest<HTMLElement>('[tabindex="-1"]')?.focus();
+    if (!current) {
+      // `inert` cannot be set as a JSX prop in a way that works on both React 18 and 19:
+      // React 18 strips `inert={true}`; React 19 treats `inert=""` as falsy. Set imperatively.
+      ref.current?.setAttribute("inert", "");
+
+      // If focus was inside the slide we just made inert, the browser would drop it to <body>
+      // and break the focus trap. Lift it to the Portal (the nearest `tabindex="-1"` ancestor).
+      if (ref.current?.contains(document.activeElement)) {
+        ref.current.closest<HTMLElement>('[tabindex="-1"]')?.focus();
+      }
+    } else {
+      ref.current?.removeAttribute("inert");
     }
   }, [current]);
 
@@ -36,8 +46,7 @@ function CarouselSlide({
       role="group"
       aria-label={translateSlideCounter(labels, slideIndex + 1, slides.length)}
       aria-roledescription={translateLabel(labels, "Slide")}
-      className={cssClass("slide")}
-      hidden={!current}
+      className={clsx(cssClass("slide"), current && cssClass("slide_current"))}
       style={{
         transform:
           current && zoom > 1

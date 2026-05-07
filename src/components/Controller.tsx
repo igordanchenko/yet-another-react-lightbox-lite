@@ -1,7 +1,7 @@
 import { createContext, type PropsWithChildren, useMemo } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
-import { makeUseContext, transition } from "../utils";
+import { makeUseContext } from "../utils";
 import type { Callback, LightboxProps } from "../types";
 
 type ControllerProps = PropsWithChildren & Pick<LightboxProps, "setIndex"> & Pick<ControllerContextType, "close">;
@@ -22,13 +22,13 @@ export default function Controller({ setIndex, close, children }: ControllerProp
   const context = useMemo(() => {
     const prev = () => {
       if (index > 0) {
-        transition(() => setIndex(index - 1));
+        setIndex(index - 1);
       }
     };
 
     const next = () => {
       if (index < slides.length - 1) {
-        transition(() => setIndex(index + 1));
+        setIndex(index + 1);
       }
     };
 
