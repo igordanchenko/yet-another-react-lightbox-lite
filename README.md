@@ -265,6 +265,8 @@ Carousel settings.
 - `preload` - the lightbox preloads `(2 * preload + 1)` slides (default: `2`)
 - `imageProps` - custom image slide attributes (an object or a function
   receiving the current slide and returning an object)
+- `transition` - slide transition effect, `"fade"` (default), `"slide"`, or
+  `"none"` (see [Slide Transitions](#slide-transitions))
 
 Usage example:
 
@@ -467,8 +469,13 @@ them via the `styles` prop shown above, globally via `:root`, or scoped via
 - `--yarll__foreground_color` — foreground color, inherited by descendants
 - `--yarll__backdrop_color` — backdrop color
 - `--yarll__portal_zindex` — portal `z-index`
-- `--yarll__fade_duration` — lightbox open/close duration
-- `--yarll__fade_easing` — lightbox open/close timing function
+
+**Transitions**
+
+- `--yarll__fade_duration` — `"fade"` preset + lightbox open/close duration
+- `--yarll__fade_easing` — `"fade"` preset + lightbox open/close timing function
+- `--yarll__slide_duration` — `"slide"` preset duration
+- `--yarll__slide_easing` — `"slide"` preset timing function
 
 **Layout**
 
@@ -659,6 +666,95 @@ fixed-positioned elements to keep them in place. Please note that the
 fixed-positioned element container should not have its own border or padding
 styles. If it does, you can always add an extra wrapper that just defines the
 fixed position without visual styles.
+
+## Slide Transitions
+
+Three transition effects are built in:
+
+- `"fade"` (default) — cross-fade between slides
+- `"slide"` — horizontal slide
+- `"none"` — instant swap, no animation
+
+Select one via the `carousel.transition` setting:
+
+```tsx
+<Lightbox carousel={{ transition: "slide" }} />
+```
+
+Each preset exposes its own duration / easing CSS variables:
+
+- `"fade"` (and the lightbox enter/exit fade) — `--yarll__fade_duration`
+  (default `0.3s`) and `--yarll__fade_easing` (default `ease`)
+- `"slide"` — `--yarll__slide_duration` (default `0.5s`) and
+  `--yarll__slide_easing` (default `ease-in-out`)
+
+Set them on `.yarll__portal` to retune globally, or scope them to the carousel
+to retune slide navigation alone — either via `styles.carousel`:
+
+```tsx
+<Lightbox
+  styles={{
+    carousel: {
+      "--yarll__slide_duration": "1s",
+      "--yarll__slide_easing": "ease-in-out",
+    },
+  }}
+/>
+```
+
+…or in your stylesheet:
+
+```css
+.yarll__carousel {
+  --yarll__slide_duration: 1s;
+  --yarll__slide_easing: ease-in-out;
+}
+```
+
+### Custom Transitions
+
+`carousel.transition` accepts any string in addition to the three built-in
+presets. The library applies a `yarll__transition_<name>` class to the carousel
+element, so to register a custom effect, choose a name and write the matching
+`.yarll__transition_<name>` CSS rules. For example, a zoom effect where the
+incoming slide grows in from a smaller scale:
+
+```tsx
+<Lightbox carousel={{ transition: "zoom" }} />
+```
+
+```css
+.yarll__transition_zoom .yarll__slide {
+  transform: scale(0.85);
+  transition: transform var(--yarll__fade_duration, 0.3s)
+    var(--yarll__fade_easing, ease);
+}
+
+.yarll__transition_zoom .yarll__slide_current {
+  transform: scale(1);
+}
+```
+
+For direction-aware effects, every preloaded slide also carries a `data-offset`
+attribute equal to `slideIndex - currentIndex` — negative for slides before the
+current one, `0` for the current slide, and positive for those after it. Since
+the `[data-offset^="-"]` prefix selector matches any negative value, the three
+rules below cleanly target the slides on either side of the current one
+regardless of the `carousel.preload` value:
+
+```css
+.yarll__slide {
+  /* default — slides after the current one (positive offset) */
+}
+
+.yarll__slide[data-offset^="-"] {
+  /* slides before the current one (negative offset) */
+}
+
+.yarll__slide_current {
+  /* the current slide */
+}
+```
 
 ## Text Selection
 

@@ -608,6 +608,24 @@ describe("Lightbox", () => {
     expect(getCurrentSlideImage().sizes).toBe("768px");
   });
 
+  it("suppresses the slide transform transition through the full zoom-out cycle", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox({ carousel: { transition: "slide" } });
+
+    await user.keyboard("+");
+    expectToBeZoomedIn();
+    expect(getCurrentSlide().style.transition).toBe("none");
+
+    await user.keyboard("-");
+    expectToBeZoomedOut();
+    expect(getCurrentSlide().style.transition).toBe("none");
+
+    clickButtonNext();
+    expectCurrentSlideToBe(1);
+    expect(getCurrentSlide().style.transition).toBe("");
+  });
+
   it("supports custom image attributes", () => {
     renderLightbox({ carousel: { imageProps: { crossOrigin: "anonymous" } } });
 
@@ -636,6 +654,35 @@ describe("Lightbox", () => {
 
     renderLightbox({ carousel: { preload: 0 } });
     expect(getSlidesCount()).toBe(1);
+  });
+
+  it("applies a transition preset class on the carousel", () => {
+    const cases: Array<["fade" | "slide" | "none" | undefined, string]> = [
+      [undefined, "yarll__transition_fade"],
+      ["fade", "yarll__transition_fade"],
+      ["slide", "yarll__transition_slide"],
+      ["none", "yarll__transition_none"],
+    ];
+
+    for (const [transition, expected] of cases) {
+      const { unmount } = renderLightbox(transition ? { carousel: { transition } } : {});
+      expect(querySelector(".yarll__carousel")?.classList.contains(expected)).toBe(true);
+      unmount();
+    }
+  });
+
+  it("exposes data-offset relative to the current slide", () => {
+    renderLightbox();
+
+    expect(querySelector(".yarll__slide_current")?.getAttribute("data-offset")).toBe("0");
+    expect(querySelectorAll('.yarll__slide[data-offset="1"]')).toHaveLength(1);
+    expect(querySelectorAll('.yarll__slide[data-offset="-1"]')).toHaveLength(0);
+
+    clickButtonNext();
+
+    expect(querySelector(".yarll__slide_current")?.getAttribute("data-offset")).toBe("0");
+    expect(querySelectorAll('.yarll__slide[data-offset="-1"]')).toHaveLength(1);
+    expect(querySelectorAll('.yarll__slide[data-offset="1"]')).toHaveLength(1);
   });
 
   it("transfers focus from offscreen slides", () => {

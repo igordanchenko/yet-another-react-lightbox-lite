@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import ImageSlide from "./ImageSlide";
 import { useZoom, useZoomInternal } from "./Zoom";
@@ -6,12 +6,11 @@ import { useLightboxContext } from "./LightboxContext";
 import { clsx, cssClass, isImageSlide, round, translateLabel, translateSlideCounter } from "../utils";
 import type { RenderSlideProps, SlideImage } from "../types";
 
-function CarouselSlide({
-  slide,
-  rect,
-  current,
-  slideIndex,
-}: Pick<RenderSlideProps, "slide" | "rect" | "current" | "slideIndex">) {
+type CarouselSlideProps = Pick<RenderSlideProps, "slide" | "rect" | "current" | "slideIndex"> & {
+  offset: number;
+};
+
+function CarouselSlide({ slide, rect, current, slideIndex, offset }: CarouselSlideProps) {
   const ref = useRef<HTMLDivElement | null>(null);
 
   const { zoom, offsetX, offsetY } = useZoom();
@@ -21,6 +20,14 @@ function CarouselSlide({
     labels,
     render: { slide: renderSlide, slideHeader, slideFooter } = {},
   } = useLightboxContext();
+
+  // Once a slide has been zoomed during its current "current" stint, keep `transition: none`
+  // applied even after zoom snaps back to 1 — otherwise the slide-mode `transition: transform`
+  // rule would animate the final scale-down over the slide duration. Resets when the slide
+  // leaves the current position.
+  const [hadZoom, setHadZoom] = useState(false);
+  if (current && zoom > 1 && !hadZoom) setHadZoom(true);
+  if (!current && hadZoom) setHadZoom(false);
 
   useEffect(() => {
     if (!current) {
@@ -47,11 +54,19 @@ function CarouselSlide({
       aria-label={translateSlideCounter(labels, slideIndex + 1, slides.length)}
       aria-roledescription={translateLabel(labels, "Slide")}
       className={clsx(cssClass("slide"), current && cssClass("slide_current"))}
+      data-offset={offset}
       style={{
-        transform:
-          current && zoom > 1
-            ? `translateX(${round(offsetX, 3)}px) translateY(${round(offsetY, 3)}px) scale(${round(zoom, 3)})`
-            : undefined,
+        ...(current && (zoom > 1 || hadZoom)
+          ? {
+              transform:
+                zoom > 1
+                  ? `translateX(${round(offsetX, 3)}px) translateY(${round(offsetY, 3)}px) scale(${round(zoom, 3)})`
+                  : undefined,
+              // Suppress the slide-transition `transition: transform` so zoom/pan updates don't
+              // ride the slide-duration ease-in-out curve — the same `transform` property carries both.
+              transition: "none",
+            }
+          : undefined),
         ...styles?.slide,
       }}
     >
@@ -64,7 +79,7 @@ function CarouselSlide({
 }
 
 export default function Carousel() {
-  const { slides, index, styles, labels, carousel: { preload = 2 } = {} } = useLightboxContext();
+  const { slides, index, styles, labels, carousel: { preload = 2, transition = "fade" } = {} } = useLightboxContext();
   const { setCarouselRef } = useZoomInternal();
   const { rect } = useZoom();
 
@@ -72,7 +87,7 @@ export default function Carousel() {
     <div
       ref={setCarouselRef}
       style={styles?.carousel}
-      className={cssClass("carousel")}
+      className={clsx(cssClass("carousel"), cssClass(`transition_${transition}`))}
       role="region"
       aria-live="polite"
       aria-label={translateLabel(labels, "Photo gallery")}
@@ -92,6 +107,7 @@ export default function Carousel() {
               slide={slide}
               slideIndex={slideIndex}
               current={slideIndex === index}
+              offset={slideIndex - index}
             />
           );
         })}

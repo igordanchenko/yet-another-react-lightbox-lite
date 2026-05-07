@@ -147,6 +147,8 @@ export interface CarouselSettings {
   preload?: number;
   /** custom image slide attributes */
   imageProps?: ComponentProps<"img"> | ((slide: SlideImage) => ComponentProps<"img">);
+  /** Slide transition effect (default: `"fade"`) */
+  transition?: "fade" | "slide" | "none" | (string & {});
 }
 
 /** Controller settings */

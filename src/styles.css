@@ -73,7 +73,14 @@ body:has(.yarll__portal:not(.yarll__no_scroll_lock)) {
 
   opacity: 0;
   pointer-events: none;
+}
 
+.yarll__slide_current {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.yarll__transition_fade .yarll__slide {
   transition: opacity var(--yarll__fade_duration, 0.3s) var(--yarll__fade_easing, ease);
 
   @media (prefers-reduced-motion: reduce) {
@@ -81,9 +88,22 @@ body:has(.yarll__portal:not(.yarll__no_scroll_lock)) {
   }
 }
 
-.yarll__slide_current {
+.yarll__transition_slide .yarll__slide {
   opacity: 1;
-  pointer-events: auto;
+  transform: translateX(calc(100% + 2 * var(--yarll__carousel_margin, 16px)));
+  transition: transform var(--yarll__slide_duration, 0.5s) var(--yarll__slide_easing, ease-in-out);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: 0s;
+  }
+}
+
+.yarll__transition_slide .yarll__slide[data-offset^="-"] {
+  transform: translateX(calc(-100% - 2 * var(--yarll__carousel_margin, 16px)));
+}
+
+.yarll__transition_slide .yarll__slide_current {
+  transform: translateX(0);
 }
 
 .yarll__slide_image {
