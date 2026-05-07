@@ -764,6 +764,32 @@ to make some of your custom elements user-selectable, use the
 turns off click-and-drag slide navigation, which would likely interfere with
 text selection UX.
 
+## Imperative Handle
+
+`Lightbox` forwards a ref that exposes an imperative handle for programmatic
+control. The handle is attached only while the lightbox is mounted (open or
+closing); when the lightbox is closed, `ref.current` is `null`, so a guarded
+call (`ref.current?.next()`) is a safe no-op.
+
+```tsx
+import { useRef } from "react";
+import Lightbox, { type LightboxRef } from "yet-another-react-lightbox-lite";
+
+const ref = useRef<LightboxRef>(null);
+
+<Lightbox ref={ref} /* ... */ />;
+```
+
+The handle exposes the following methods:
+
+- `prev()` - navigate to the previous slide
+- `next()` - navigate to the next slide
+- `close()` - trigger the animated close
+
+Note that calling `close()` plays the exit transition (same as the Escape key or
+the toolbar Close button), whereas setting `index` to `undefined` from the
+parent skips the transition and unmounts immediately.
+
 ## Hooks
 
 The library exports the following hooks that you may find helpful in customizing

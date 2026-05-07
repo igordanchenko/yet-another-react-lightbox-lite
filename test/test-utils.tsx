@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { type ComponentProps, useState } from "react";
 import { expect, vi } from "vitest";
 import type { UserEvent } from "@testing-library/user-event";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 
-import Lightbox, { type LightboxProps } from "../src";
+import Lightbox from "../src";
 
 export const slides: [{ src: string }, { src: string }, { src: string }] = [
   { src: "http://localhost/image1" },
@@ -117,12 +117,14 @@ export function wheelZoom(deltaX: number, deltaY: number) {
   });
 }
 
-function LightboxTest(props: Omit<LightboxProps, "index" | "setIndex">) {
+type LightboxTestProps = Omit<ComponentProps<typeof Lightbox>, "index" | "setIndex">;
+
+function LightboxTest(props: LightboxTestProps) {
   const [index, setIndex] = useState<number | undefined>(0);
   return <Lightbox index={index} setIndex={setIndex} {...props} />;
 }
 
-export function renderLightbox(props?: Omit<Partial<LightboxProps>, "index" | "setIndex">) {
+export function renderLightbox(props?: Partial<LightboxTestProps>) {
   return render(<LightboxTest slides={slides} {...props} />);
 }
 

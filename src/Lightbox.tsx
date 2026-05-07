@@ -1,10 +1,13 @@
-import { useCallback, useState } from "react";
+import { forwardRef, useCallback, useState } from "react";
 
 import { Carousel, Controller, LightboxContext, Navigation, Portal, Toolbar, Zoom } from "./components";
-import type { LightboxPhase, LightboxProps } from "./types";
+import type { LightboxPhase, LightboxProps, LightboxRef } from "./types";
 
 /** Lightbox component */
-export default function Lightbox({ slides, index: indexProp, setIndex, ...rest }: LightboxProps) {
+const Lightbox = forwardRef<LightboxRef, LightboxProps>(function Lightbox(
+  { slides, index: indexProp, setIndex, ...rest },
+  ref,
+) {
   const index =
     Array.isArray(slides) && indexProp !== undefined && indexProp >= 0 && indexProp < slides.length ? indexProp : null;
 
@@ -23,7 +26,7 @@ export default function Lightbox({ slides, index: indexProp, setIndex, ...rest }
 
   return (
     <LightboxContext {...{ slides, index, ...rest }}>
-      <Controller {...{ setIndex, close }}>
+      <Controller {...{ ref, setIndex, close }}>
         <Zoom>
           <Portal {...{ phase, onClosed }}>
             <Toolbar />
@@ -34,4 +37,6 @@ export default function Lightbox({ slides, index: indexProp, setIndex, ...rest }
       </Controller>
     </LightboxContext>
   );
-}
+});
+
+export default Lightbox;

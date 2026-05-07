@@ -1,4 +1,4 @@
-import { createContext, createElement } from "react";
+import { createContext, createElement, createRef, type Ref } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { act, render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
@@ -13,16 +13,16 @@ import {
   expectToBeZoomedIn,
   expectToBeZoomedOut,
   getCloseButton,
-  getPortal,
   getCurrentSlide,
   getCurrentSlideImage,
   getNextButton,
+  getPortal,
   getPreviousButton,
   getSlidesCount,
   pointerSwipe,
+  queryPortal,
   querySelector,
   querySelectorAll,
-  queryPortal,
   renderLightbox,
   slides,
   suppressConsoleErrors,
@@ -30,7 +30,7 @@ import {
   wheelZoom,
   withFakeTimers,
 } from "./test-utils";
-import Lightbox, { useZoom } from "../src";
+import Lightbox, { type LightboxRef, useZoom } from "../src";
 import { makeUseContext } from "../src/utils";
 
 declare module "../src/types" {
@@ -48,8 +48,9 @@ async function testNavigation(
   prev: () => void | Promise<void>,
   next: () => void | Promise<void>,
   close?: () => void | Promise<void>,
+  ref?: Ref<LightboxRef>,
 ) {
-  renderLightbox();
+  renderLightbox({ ref });
   expectCurrentSlideToBe(0);
 
   await prev();
@@ -751,5 +752,16 @@ describe("Lightbox", () => {
     expect(document.documentElement.style.getPropertyValue("--yarll__scrollbar_width")).toBe("");
 
     window.__TEST__.scrollbarWidth = 0;
+  });
+
+  it("exposes an imperative ref", async () => {
+    const ref = createRef<LightboxRef>();
+
+    await testNavigation(
+      () => act(() => ref.current?.prev()),
+      () => act(() => ref.current?.next()),
+      () => act(() => ref.current?.close()),
+      ref,
+    );
   });
 });

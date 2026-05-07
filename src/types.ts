@@ -218,3 +218,13 @@ export type RenderFunction<T = void> = [T] extends [void] ? () => ReactNode : (p
 
 /** Lightbox lifecycle phase */
 export type LightboxPhase = "open" | "closing" | "closed";
+
+/** Lightbox imperative handle */
+export interface LightboxRef {
+  /** navigate to the previous slide */
+  prev: Callback;
+  /** navigate to the next slide */
+  next: Callback;
+  /** trigger animated close */
+  close: Callback;
+}
