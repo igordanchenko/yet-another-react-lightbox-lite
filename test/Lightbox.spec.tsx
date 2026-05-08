@@ -139,6 +139,28 @@ describe("Lightbox", () => {
     expectCurrentSlideToBe(1);
   });
 
+  it("releases the wheel cooldown after the inertia window elapses", async () => {
+    renderLightbox();
+
+    await withFakeTimers(async () => {
+      wheelSwipe(200, 0, 0);
+      wheelSwipe(200, 0, 1_500);
+    });
+
+    expectCurrentSlideToBe(2);
+  });
+
+  it("suppresses inertia continuation in the first half of the cooldown window", async () => {
+    renderLightbox();
+
+    await withFakeTimers(async () => {
+      wheelSwipe(200, 0, 0);
+      wheelSwipe(200, 0, 200);
+    });
+
+    expectCurrentSlideToBe(1);
+  });
+
   it("normalizes Firefox-style line-mode wheel events", async () => {
     renderLightbox();
 

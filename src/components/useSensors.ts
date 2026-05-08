@@ -27,6 +27,8 @@ function distance(pointerA: MouseEvent, pointerB: MouseEvent) {
   return Math.hypot(pointerA.clientX - pointerB.clientX, pointerA.clientY - pointerB.clientY);
 }
 
+type NormalizedWheelEvent = { timeStamp: number; deltaX: number; deltaY: number };
+
 // Normalize wheel deltas to pixel-equivalent values. Firefox can report deltas in
 // line- or page-mode (e.g. `deltaY = 3` for three lines), where Chromium/WebKit
 // already deliver pixel deltas — without this, line-mode events would be ~100x
@@ -53,12 +55,27 @@ function clampDelta(delta: number, max: number) {
   return Math.sign(delta) * Math.min(max, Math.abs(delta));
 }
 
-type NormalizedWheelEvent = { timeStamp: number; deltaX: number; deltaY: number };
+// Distinguish a trailing-inertia wheel event from a fresh intentional swipe.
+// Trackpad inertia continues for several hundred milliseconds after the user
+// stops scrolling, in the same direction with monotonically decaying magnitude.
+// During the first half of the cooldown window any same-direction event is
+// treated as inertia; during the second half only events whose magnitude is
+// still below the most recent decay sample (a fresh swipe ramps up to a higher
+// peak). Direction reversal escapes immediately.
+function isInertiaContinuation(dx: number, timeStamp: number, cooldownStart: number, prevailingMomentum: number) {
+  if (dx * prevailingMomentum <= 0) return false;
+
+  const elapsed = timeStamp - cooldownStart;
+  if (elapsed > WHEEL_SWIPE_COOLDOWN_TIME) return false;
+  if (elapsed <= WHEEL_SWIPE_COOLDOWN_TIME / 2) return true;
+
+  return Math.abs(dx) < PREVAILING_DIRECTION_FACTOR * Math.abs(prevailingMomentum);
+}
 
 export default function useSensors() {
-  const wheelEvents = useRef<NormalizedWheelEvent[]>([]);
-  const wheelCooldown = useRef<number | null>(null);
-  const wheelCooldownMomentum = useRef<number | null>(null);
+  const swipeHistory = useRef<NormalizedWheelEvent[]>([]);
+  const cooldownStart = useRef<number | null>(null);
+  const prevailingMomentum = useRef<number | null>(null);
 
   const activePointers = useRef<PointerEvent[]>([]);
   const initialPinchDistance = useRef<number | null>(null);
@@ -236,40 +253,40 @@ export default function useSensors() {
       return;
     }
 
-    if (wheelCooldown.current && wheelCooldownMomentum.current) {
-      if (
-        dx * wheelCooldownMomentum.current > 0 &&
-        (event.timeStamp <= wheelCooldown.current + WHEEL_SWIPE_COOLDOWN_TIME / 2 ||
-          (event.timeStamp <= wheelCooldown.current + WHEEL_SWIPE_COOLDOWN_TIME &&
-            Math.abs(dx) < PREVAILING_DIRECTION_FACTOR * Math.abs(wheelCooldownMomentum.current)))
-      ) {
-        wheelCooldownMomentum.current = dx;
+    if (cooldownStart.current !== null && prevailingMomentum.current !== null) {
+      if (isInertiaContinuation(dx, event.timeStamp, cooldownStart.current, prevailingMomentum.current)) {
+        prevailingMomentum.current = dx;
         return;
       }
 
-      wheelCooldown.current = null;
-      wheelCooldownMomentum.current = null;
+      cooldownStart.current = null;
+      prevailingMomentum.current = null;
     }
 
-    // Track the normalized values alongside the original event so accumulators
-    // sum pixel-equivalent deltas regardless of source deltaMode.
-    wheelEvents.current = wheelEvents.current.filter((e) => e.timeStamp > event.timeStamp - WHEEL_EVENT_HISTORY_WINDOW);
-    wheelEvents.current.push({ timeStamp: event.timeStamp, deltaX: dx, deltaY: dy });
+    // Accumulate normalized deltas across recent events so a slow trackpad swipe
+    // crosses the threshold even when individual events are tiny.
+    swipeHistory.current = swipeHistory.current.filter(
+      (e) => e.timeStamp > event.timeStamp - WHEEL_EVENT_HISTORY_WINDOW,
+    );
+    swipeHistory.current.push({ timeStamp: event.timeStamp, deltaX: dx, deltaY: dy });
 
-    const totalX = wheelEvents.current.map((e) => e.deltaX).reduce((a, b) => a + b, 0);
-    const deltaX = Math.abs(totalX);
-    const deltaY = Math.abs(wheelEvents.current.map((e) => e.deltaY).reduce((a, b) => a + b, 0));
+    let totalX = 0;
+    let totalY = 0;
+    for (const e of swipeHistory.current) {
+      totalX += e.deltaX;
+      totalY += e.deltaY;
+    }
 
-    if (deltaX > WHEEL_SWIPE_DISTANCE && deltaX > PREVAILING_DIRECTION_FACTOR * deltaY) {
+    if (Math.abs(totalX) > WHEEL_SWIPE_DISTANCE && Math.abs(totalX) > PREVAILING_DIRECTION_FACTOR * Math.abs(totalY)) {
       if (totalX < 0) {
         prev();
       } else {
         next();
       }
 
-      wheelEvents.current = [];
-      wheelCooldown.current = event.timeStamp;
-      wheelCooldownMomentum.current = dx;
+      swipeHistory.current = [];
+      cooldownStart.current = event.timeStamp;
+      prevailingMomentum.current = dx;
     }
   });
 
