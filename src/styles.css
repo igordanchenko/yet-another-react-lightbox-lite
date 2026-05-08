@@ -153,18 +153,8 @@ body:has(.yarll__portal:not(.yarll__no_scroll_lock)) {
     box-shadow: var(--yarll__button_focus_box_shadow, 0 0 0 4px white);
   }
 
-  @supports not selector(:focus-visible) {
-    &:focus {
-      color: var(--yarll__button_color_active, #fff);
-      outline: var(--yarll__button_focus_outline, 6px double black);
-      box-shadow: var(--yarll__button_focus_box_shadow, 0 0 0 4px white);
-    }
-  }
-
   @media (hover: hover) {
-    &:hover,
-    &:focus:hover,
-    &:focus-visible:hover {
+    &:hover {
       color: var(--yarll__button_color_active, #fff);
     }
   }
