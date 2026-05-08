@@ -267,6 +267,14 @@ Carousel settings.
   receiving the current slide and returning an object)
 - `transition` - slide transition effect, `"fade"` (default), `"slide"`, or
   `"none"` (see [Slide Transitions](#slide-transitions))
+- `infinite` - if `true`, the carousel wraps around from the last slide to the
+  first and vice versa (default: `false`). In this mode, the controlled `index`
+  value drifts beyond `[0, slides.length)` to encode navigation direction; treat
+  it as opaque navigation state. If you need to persist which slide is showing
+  (e.g., to URL params), persist a stable slide identifier and resolve it back
+  to an in-range index on load — don't round-trip the drifted index through
+  normalization, as that would break wrap animations and the preload window
+  during a live session.
 
 Usage example:
 
@@ -287,6 +295,15 @@ You can also use a function to provide per-slide attributes:
   carousel={{
     imageProps: (slide) => ({ "data-alt": slide.alt }),
   }}
+  // ...
+/>
+```
+
+Enable infinite (wrapping) navigation:
+
+```tsx
+<Lightbox
+  carousel={{ infinite: true }}
   // ...
 />
 ```

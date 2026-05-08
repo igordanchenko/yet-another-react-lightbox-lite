@@ -20,9 +20,11 @@ import {
   getPreviousButton,
   getSlidesCount,
   pointerSwipe,
+  queryCurrentSlideSource,
   queryPortal,
   querySelector,
   querySelectorAll,
+  querySlideAtOffset,
   renderLightbox,
   slides,
   suppressConsoleErrors,
@@ -30,7 +32,7 @@ import {
   wheelZoom,
   withFakeTimers,
 } from "./test-utils";
-import Lightbox, { type LightboxRef, useZoom } from "../src";
+import { type LightboxRef, useZoom } from "../src";
 import { makeUseContext } from "../src/utils";
 
 declare module "../src/types" {
@@ -233,12 +235,16 @@ describe("Lightbox", () => {
   });
 
   it("opens when index transitions from undefined to a valid value", () => {
-    const setIndex = vi.fn();
-    const { rerender } = render(<Lightbox slides={slides} index={undefined} setIndex={setIndex} />);
+    const { rerender } = renderLightbox({ index: undefined });
     expect(queryPortal()).toBeNull();
 
-    rerender(<Lightbox slides={slides} index={0} setIndex={setIndex} />);
+    rerender({ index: 0 });
     expect(queryPortal()).not.toBeNull();
+  });
+
+  it("does not open with an empty slides array", () => {
+    renderLightbox({ slides: [], index: 0 });
+    expect(queryPortal()).toBeNull();
   });
 
   it("supports render functions", () => {
@@ -675,15 +681,15 @@ describe("Lightbox", () => {
   it("exposes data-offset relative to the current slide", () => {
     renderLightbox();
 
-    expect(querySelector(".yarll__slide_current")?.getAttribute("data-offset")).toBe("0");
-    expect(querySelectorAll('.yarll__slide[data-offset="1"]')).toHaveLength(1);
-    expect(querySelectorAll('.yarll__slide[data-offset="-1"]')).toHaveLength(0);
+    expect(getCurrentSlide().getAttribute("data-offset")).toBe("0");
+    expect(querySlideAtOffset(1)).not.toBeNull();
+    expect(querySlideAtOffset(-1)).toBeNull();
 
     clickButtonNext();
 
-    expect(querySelector(".yarll__slide_current")?.getAttribute("data-offset")).toBe("0");
-    expect(querySelectorAll('.yarll__slide[data-offset="-1"]')).toHaveLength(1);
-    expect(querySelectorAll('.yarll__slide[data-offset="1"]')).toHaveLength(1);
+    expect(getCurrentSlide().getAttribute("data-offset")).toBe("0");
+    expect(querySlideAtOffset(-1)).not.toBeNull();
+    expect(querySlideAtOffset(1)).not.toBeNull();
   });
 
   it("transfers focus from offscreen slides", () => {
@@ -711,11 +717,11 @@ describe("Lightbox", () => {
 
     const newSlides = [{ src: "http://localhost/imageA" }, { src: "http://localhost/imageB" }] as const;
 
-    rerender(<Lightbox index={1} setIndex={vi.fn()} slides={newSlides} />);
+    rerender({ index: 1, slides: newSlides });
 
-    expect(querySelector<HTMLImageElement>(".yarll__slide_current .yarll__slide_image")?.src).toBe(newSlides[1].src);
+    expect(queryCurrentSlideSource()).toBe(newSlides[1].src);
 
-    rerender(<Lightbox index={1} setIndex={vi.fn()} slides={[newSlides[0]]} />);
+    rerender({ index: 1, slides: [newSlides[0]] });
 
     expect(queryPortal()).toBeNull();
   });
@@ -763,5 +769,176 @@ describe("Lightbox", () => {
       () => act(() => ref.current?.close()),
       ref,
     );
+  });
+
+  describe("infinite carousel", () => {
+    async function testInfiniteNavigation(prev: () => void | Promise<void>, next: () => void | Promise<void>) {
+      renderLightbox({ carousel: { infinite: true } });
+      expectCurrentSlideToBe(0);
+
+      await prev();
+      expectCurrentSlideToBe(2);
+
+      await next();
+      expectCurrentSlideToBe(0);
+
+      await next();
+      expectCurrentSlideToBe(1);
+
+      await next();
+      expectCurrentSlideToBe(2);
+
+      await next();
+      expectCurrentSlideToBe(0);
+    }
+
+    it("wraps with mouse navigation", async () => {
+      await testInfiniteNavigation(clickButtonPrev, clickButtonNext);
+    });
+
+    it("wraps with keyboard navigation", async () => {
+      const user = userEvent.setup();
+      await testInfiniteNavigation(
+        () => user.keyboard("{ArrowLeft}"),
+        () => user.keyboard("{ArrowRight}"),
+      );
+    });
+
+    it("wraps with pointer swipe", async () => {
+      const user = userEvent.setup();
+      await testInfiniteNavigation(
+        () => pointerSwipe(user, getCurrentSlide(), 150, 0),
+        () => pointerSwipe(user, getCurrentSlide(), -150, 0),
+      );
+    });
+
+    it("wraps with wheel swipe", async () => {
+      await withFakeTimers(async () => {
+        await testInfiniteNavigation(
+          () => wheelSwipe(-200, 0),
+          () => wheelSwipe(200, 0),
+        );
+      });
+    });
+
+    it("keeps navigation buttons enabled at both boundaries", () => {
+      renderLightbox({ carousel: { infinite: true } });
+
+      expect(getPreviousButton().disabled).toBe(false);
+      expect(getNextButton().disabled).toBe(false);
+
+      clickButtonNext();
+      clickButtonNext();
+      expectCurrentSlideToBe(2);
+
+      expect(getPreviousButton().disabled).toBe(false);
+      expect(getNextButton().disabled).toBe(false);
+    });
+
+    it("renders preloaded slides on both sides at the boundary", () => {
+      const fiveSlides = [
+        { src: "http://localhost/imageA" },
+        { src: "http://localhost/imageB" },
+        { src: "http://localhost/imageC" },
+        { src: "http://localhost/imageD" },
+        { src: "http://localhost/imageE" },
+      ];
+      renderLightbox({ slides: fiveSlides, carousel: { infinite: true } });
+
+      expect(getCurrentSlide().getAttribute("data-offset")).toBe("0");
+      expect(querySlideAtOffset(-1)).not.toBeNull();
+      expect(querySlideAtOffset(-2)).not.toBeNull();
+      expect(querySlideAtOffset(1)).not.toBeNull();
+      expect(querySlideAtOffset(2)).not.toBeNull();
+    });
+
+    it("exposes wrapped slideIndex to render functions", () => {
+      const observed: number[] = [];
+
+      renderLightbox({
+        carousel: { infinite: true },
+        render: {
+          slide: ({ slideIndex }) => {
+            observed.push(slideIndex);
+            return undefined;
+          },
+        },
+      });
+
+      expect(observed.length).toBeGreaterThan(0);
+
+      observed.forEach((slideIndex) => {
+        expect(slideIndex).toBeGreaterThanOrEqual(0);
+        expect(slideIndex).toBeLessThan(slides.length);
+      });
+    });
+
+    it("calls setIndex with the unbounded delta when wrapping", () => {
+      const setIndex = vi.fn();
+      renderLightbox({ setIndex, carousel: { infinite: true } });
+
+      clickButtonPrev();
+      expect(setIndex).toHaveBeenCalledWith(-1);
+    });
+
+    it("avoids React key collisions when slide.key is set on a small slides array", () => {
+      const tinySlides = [
+        { src: "http://localhost/imageA", key: "shared-A" },
+        { src: "http://localhost/imageB", key: "shared-B" },
+      ];
+
+      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+      try {
+        renderLightbox({ slides: tinySlides, carousel: { infinite: true, preload: 2 } });
+
+        expect(getSlidesCount()).toBe(3);
+        expect(consoleError).not.toHaveBeenCalled();
+      } finally {
+        consoleError.mockRestore();
+      }
+    });
+
+    it("renders correctly when the controlled index is out of [0, slides.length)", () => {
+      const { rerender } = renderLightbox({ index: 0, carousel: { infinite: true } });
+
+      rerender({ index: -1 });
+      expectCurrentSlideToBe(2);
+
+      rerender({ index: 5 });
+      expectCurrentSlideToBe(2);
+    });
+
+    it("supports zoom after wrap-around", () => {
+      renderLightbox({ carousel: { infinite: true } });
+
+      clickButtonPrev();
+      expectCurrentSlideToBe(2);
+
+      wheelZoom(0, -100);
+      expectToBeZoomedIn();
+    });
+
+    it("does not navigate a single-slide carousel", async () => {
+      const setIndex = vi.fn();
+      const user = userEvent.setup();
+      renderLightbox({ slides: [slides[0]], setIndex, carousel: { infinite: true } });
+
+      await user.keyboard("{ArrowRight}");
+      await user.keyboard("{ArrowLeft}");
+
+      expect(setIndex).not.toHaveBeenCalled();
+    });
+
+    it("caps preload to floor(slides.length / 2) for a single slide", () => {
+      renderLightbox({ slides: [slides[0]], carousel: { infinite: true, preload: 2 } });
+
+      expect(getSlidesCount()).toBe(1);
+    });
+
+    it("caps preload to floor(slides.length / 2) for two slides", () => {
+      renderLightbox({ slides: [slides[0], slides[1]], carousel: { infinite: true, preload: 2 } });
+
+      expect(getSlidesCount()).toBe(3);
+    });
   });
 });

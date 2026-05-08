@@ -145,6 +145,8 @@ export interface ToolbarSettings {
 export interface CarouselSettings {
   /** the lightbox preloads (2 * preload + 1) slides */
   preload?: number;
+  /** if `true`, the carousel wraps around from the last slide to the first and vice versa (default: `false`) */
+  infinite?: boolean;
   /** custom image slide attributes */
   imageProps?: ComponentProps<"img"> | ((slide: SlideImage) => ComponentProps<"img">);
   /** Slide transition effect (default: `"fade"`) */

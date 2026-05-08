@@ -3,7 +3,7 @@ import { createContext, useCallback, useLayoutEffect, useMemo, useRef, useState 
 
 import { useLightboxContext } from "./LightboxContext";
 import useEventCallback from "./useEventCallback";
-import { cssClass, getChildren, isImageSlide, makeUseContext } from "../utils";
+import { cssClass, getChildren, isImageSlide, makeUseContext, wrapIndex } from "../utils";
 import type { Rect } from "../types";
 
 /** Zoom context */
@@ -63,7 +63,7 @@ export default function Zoom({ children }: PropsWithChildren) {
     setPrevIndex(index);
   }
 
-  const slide = slides[index];
+  const slide = slides[wrapIndex(index, slides.length)];
   const maxZoom =
     slide && ((isImageSlide(slide) && !disabled) || (slide.type !== undefined && supports?.includes(slide.type)))
       ? 8

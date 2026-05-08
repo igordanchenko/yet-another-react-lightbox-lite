@@ -17,23 +17,19 @@ const ControllerContext = createContext<ControllerContextType | null>(null);
 export const useController = makeUseContext(ControllerContext);
 
 const Controller = forwardRef<LightboxRef, ControllerProps>(function Controller({ setIndex, close, children }, ref) {
-  const { slides, index } = useLightboxContext();
+  const { slides, index, carousel: { infinite = false } = {} } = useLightboxContext();
 
   const context = useMemo(() => {
-    const prev = () => {
-      if (index > 0) {
-        setIndex(index - 1);
+    const navigate = (delta: number) => {
+      if (slides.length < 2) return;
+      const target = index + delta;
+      if (infinite || (target >= 0 && target < slides.length)) {
+        setIndex(target);
       }
     };
 
-    const next = () => {
-      if (index < slides.length - 1) {
-        setIndex(index + 1);
-      }
-    };
-
-    return { prev, next, close };
-  }, [slides.length, index, setIndex, close]);
+    return { prev: () => navigate(-1), next: () => navigate(1), close };
+  }, [slides.length, index, setIndex, infinite, close]);
 
   useImperativeHandle(ref, () => context, [context]);
 

@@ -40,6 +40,10 @@ export function round(value: number, decimals = 0) {
   return Math.round((value + Number.EPSILON) * factor) / factor;
 }
 
+export function wrapIndex(index: number, length: number) {
+  return ((index % length) + length) % length;
+}
+
 export function scaleZoom(value: number, delta: number, factor = 100, clamp = 2) {
   return value * Math.min(1 + Math.abs(delta / factor), clamp) ** Math.sign(delta);
 }

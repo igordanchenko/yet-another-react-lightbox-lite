@@ -5,7 +5,12 @@ import { Next, Previous } from "./icons";
 import { cssClass } from "../utils";
 
 export default function Navigation() {
-  const { slides, index, render: { iconPrev, iconNext, controls } = {} } = useLightboxContext();
+  const {
+    slides,
+    index,
+    carousel: { infinite = false } = {},
+    render: { iconPrev, iconNext, controls } = {},
+  } = useLightboxContext();
   const { prev, next } = useController();
 
   return (
@@ -18,7 +23,7 @@ export default function Navigation() {
             renderIcon={iconPrev}
             onClick={prev}
             className={cssClass("button_prev")}
-            disabled={index <= 0}
+            disabled={!infinite && index <= 0}
           />
 
           <Button
@@ -27,7 +32,7 @@ export default function Navigation() {
             renderIcon={iconNext}
             onClick={next}
             className={cssClass("button_next")}
-            disabled={index >= slides.length - 1}
+            disabled={!infinite && index >= slides.length - 1}
           />
         </>
       )}

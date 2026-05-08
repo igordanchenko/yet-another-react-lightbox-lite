@@ -10,6 +10,7 @@ import {
   scaleZoom,
   translateLabel,
   translateSlideCounter,
+  wrapIndex,
 } from "../src/utils";
 
 describe("scaleZoom", (test) => {
@@ -119,6 +120,26 @@ describe("isImageSlide", () => {
 
   it("returns false when src is missing", () => {
     expect(isImageSlide({} as never)).toBe(false);
+  });
+});
+
+describe("wrapIndex", (test) => {
+  test.for([
+    [0, 3, 0],
+    [1, 3, 1],
+    [2, 3, 2],
+    [3, 3, 0],
+    [4, 3, 1],
+    [5, 3, 2],
+    [-1, 3, 2],
+    [-2, 3, 1],
+    [-3, 3, 0],
+    [-4, 3, 2],
+    [0, 1, 0],
+    [5, 1, 0],
+    [-5, 1, 0],
+  ] as const)("wrapIndex(%i, %i) -> %i", ([n, length, expected], { expect }) => {
+    expect(wrapIndex(n, length)).toBe(expected);
   });
 });
 

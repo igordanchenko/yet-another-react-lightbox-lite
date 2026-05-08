@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import ImageSlide from "./ImageSlide";
 import { useZoom, useZoomInternal } from "./Zoom";
 import { useLightboxContext } from "./LightboxContext";
-import { clsx, cssClass, isImageSlide, round, translateLabel, translateSlideCounter } from "../utils";
+import { clsx, cssClass, isImageSlide, round, translateLabel, translateSlideCounter, wrapIndex } from "../utils";
 import type { RenderSlideProps, SlideImage } from "../types";
 
 type CarouselSlideProps = Pick<RenderSlideProps, "slide" | "rect" | "current" | "slideIndex"> & {
@@ -79,7 +79,13 @@ function CarouselSlide({ slide, rect, current, slideIndex, offset }: CarouselSli
 }
 
 export default function Carousel() {
-  const { slides, index, styles, labels, carousel: { preload = 2, transition = "fade" } = {} } = useLightboxContext();
+  const {
+    slides,
+    index,
+    styles,
+    labels,
+    carousel: { preload = 2, transition = "fade", infinite = false } = {},
+  } = useLightboxContext();
   const { setCarouselRef } = useZoomInternal();
   const { rect } = useZoom();
 
@@ -96,16 +102,20 @@ export default function Carousel() {
       {rect &&
         Array.from({ length: 2 * preload + 1 }).map((_, i) => {
           const slideIndex = index - preload + i;
-          const slide = slides[slideIndex];
+          // keep out-of-bounds indices as-is when not infinite so slides[wrappedIndex] returns undefined
+          const wrappedIndex = infinite ? wrapIndex(slideIndex, slides.length) : slideIndex;
+          const slide = slides[wrappedIndex];
 
           if (!slide) return null;
 
           return (
             <CarouselSlide
-              key={slide.key ?? (isImageSlide(slide) ? `${slideIndex}|${slide.src}` : `${slideIndex}`)}
+              // Always prefix with slideIndex: in infinite mode the same slide can appear at
+              // multiple positions simultaneously (when 2 * preload + 1 > slides.length)
+              key={`${slideIndex}|${slide.key ?? (isImageSlide(slide) ? slide.src : "")}`}
               rect={rect}
               slide={slide}
-              slideIndex={slideIndex}
+              slideIndex={wrappedIndex}
               current={slideIndex === index}
               offset={slideIndex - index}
             />

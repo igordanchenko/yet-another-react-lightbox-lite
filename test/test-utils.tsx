@@ -52,7 +52,11 @@ export function getSlidesCount() {
   return querySelectorAll(".yarll__slide").length;
 }
 
-function queryCurrentSlideSource() {
+export function querySlideAtOffset(offset: number) {
+  return querySelector<HTMLDivElement>(`.yarll__slide[data-offset="${offset}"]`);
+}
+
+export function queryCurrentSlideSource() {
   return querySelector<HTMLImageElement>(".yarll__slide_current .yarll__slide_image")?.src;
 }
 
@@ -117,15 +121,23 @@ export function wheelZoom(deltaX: number, deltaY: number) {
   });
 }
 
-type LightboxTestProps = Omit<ComponentProps<typeof Lightbox>, "index" | "setIndex">;
+type LightboxTestProps = Partial<ComponentProps<typeof Lightbox>>;
 
 function LightboxTest(props: LightboxTestProps) {
   const [index, setIndex] = useState<number | undefined>(0);
-  return <Lightbox index={index} setIndex={setIndex} {...props} />;
+  return <Lightbox slides={slides} index={index} setIndex={setIndex} {...props} />;
 }
 
-export function renderLightbox(props?: Partial<LightboxTestProps>) {
-  return render(<LightboxTest slides={slides} {...props} />);
+export function renderLightbox(props?: LightboxTestProps) {
+  let currentProps = props;
+  const { rerender, ...rest } = render(<LightboxTest {...currentProps} />);
+  return {
+    ...rest,
+    rerender: (nextProps?: LightboxTestProps) => {
+      currentProps = { ...currentProps, ...nextProps };
+      rerender(<LightboxTest {...currentProps} />);
+    },
+  };
 }
 
 export async function expectLightboxToBeOpen() {
