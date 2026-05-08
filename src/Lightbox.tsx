@@ -1,25 +1,40 @@
 import { forwardRef, useCallback, useState } from "react";
 
 import { Carousel, Controller, LightboxContext, Navigation, Portal, Toolbar, Zoom } from "./components";
-import type { LightboxPhase, LightboxProps, LightboxRef } from "./types";
+import type { LightboxPhase, LightboxProps, LightboxRef, ResolvedLightboxProps } from "./types";
 
-function resolveProps(props: LightboxProps) {
-  if (!Array.isArray(props.slides) || props.slides.length === 0) {
-    return { ...props, index: undefined };
-  }
+function resolveProps(props: LightboxProps): ResolvedLightboxProps {
+  const { slides, index, labels, styles, carousel, controller, render, toolbar, zoom } = props;
 
-  const { slides, index, carousel } = props;
+  const validSlides = Array.isArray(slides) && slides.length > 0;
+  const infinite = carousel?.infinite ?? false;
+  const preload = carousel?.preload ?? 2;
 
   return {
     ...props,
     // Out-of-range index closes the lightbox — except in infinite mode, where index is
     // allowed to drift outside [0, slides.length) to encode navigation direction across wraps.
-    index: index !== undefined && (carousel?.infinite || (index >= 0 && index < slides.length)) ? index : undefined,
-    // In infinite mode, cap preload so 2*preload+1 ≤ slides.length where possible —
-    // rendering more slots than slides only produces duplicate slides in the window.
-    carousel: carousel?.infinite
-      ? { ...carousel, preload: Math.min(carousel.preload ?? 2, Math.floor(slides.length / 2)) }
-      : carousel,
+    index:
+      validSlides && index !== undefined && (infinite || (index >= 0 && index < slides.length)) ? index : undefined,
+    carousel: {
+      ...carousel,
+      // In infinite mode, cap preload so 2*preload+1 ≤ slides.length where possible —
+      // rendering more slots than slides only produces duplicate slides in the window.
+      preload: validSlides && infinite ? Math.min(preload, Math.floor(slides.length / 2)) : preload,
+      transition: carousel?.transition ?? "fade",
+      infinite,
+    },
+    controller: {
+      closeOnEscape: controller?.closeOnEscape ?? true,
+      closeOnPullUp: controller?.closeOnPullUp ?? true,
+      closeOnPullDown: controller?.closeOnPullDown ?? true,
+      closeOnBackdropClick: controller?.closeOnBackdropClick ?? true,
+    },
+    labels: labels ?? {},
+    styles: styles ?? {},
+    render: render ?? {},
+    toolbar: toolbar ?? {},
+    zoom: zoom ?? {},
   };
 }
 

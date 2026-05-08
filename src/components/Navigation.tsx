@@ -8,8 +8,8 @@ export default function Navigation() {
   const {
     slides,
     index,
-    carousel: { infinite = false } = {},
-    render: { iconPrev, iconNext, controls } = {},
+    carousel: { infinite },
+    render: { iconPrev, iconNext, controls },
   } = useLightboxContext();
   const { prev, next } = useController();
 

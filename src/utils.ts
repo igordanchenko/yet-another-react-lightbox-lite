@@ -16,11 +16,11 @@ export function clsx(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-export function translateLabel(labels: Labels | undefined, label: Label) {
-  return labels?.[label] ?? label;
+export function translateLabel(labels: Labels, label: Label) {
+  return labels[label] ?? label;
 }
 
-export function translateSlideCounter(labels: Labels | undefined, index: number, total: number) {
+export function translateSlideCounter(labels: Labels, index: number, total: number) {
   return translateLabel(labels, "{index} of {total}")
     .replace(/\{index}/g, `${index}`)
     .replace(/\{total}/g, `${total}`);

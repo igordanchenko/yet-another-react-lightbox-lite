@@ -53,7 +53,11 @@ export default function Zoom({ children }: PropsWithChildren) {
   const carouselRectRef = useRef<DOMRectReadOnly>(undefined);
   const slideDimensionsRef = useRef<readonly [number, number]>([0, 0]);
 
-  const { index, slides, zoom: { supports, disabled } = {} } = useLightboxContext();
+  const {
+    index,
+    slides,
+    zoom: { supports, disabled },
+  } = useLightboxContext();
 
   const [prevIndex, setPrevIndex] = useState(index);
   if (index !== prevIndex) {

@@ -21,10 +21,10 @@ export default function Button({ icon: Icon, renderIcon, label, onClick, disable
       aria-label={buttonLabel}
       onClick={onClick}
       disabled={disabled}
-      style={styles?.button}
+      style={styles.button}
       className={clsx(cssClass("button"), className)}
     >
-      {renderIcon?.() ?? <Icon style={styles?.icon} className={cssClass("icon")} />}
+      {renderIcon?.() ?? <Icon style={styles.icon} className={cssClass("icon")} />}
     </button>
   );
 }

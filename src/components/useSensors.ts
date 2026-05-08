@@ -36,13 +36,9 @@ export default function useSensors() {
   const { zoom, maxZoom, changeZoom, changeOffsets } = useZoom();
   const { prev, next, close } = useController();
 
-  const { closeOnPullUp, closeOnPullDown, closeOnBackdropClick, closeOnEscape } = {
-    closeOnEscape: true,
-    closeOnPullUp: true,
-    closeOnPullDown: true,
-    closeOnBackdropClick: true,
-    ...useLightboxContext().controller,
-  };
+  const {
+    controller: { closeOnEscape, closeOnPullUp, closeOnPullDown, closeOnBackdropClick },
+  } = useLightboxContext();
 
   const addPointer = (event: PointerEvent) => {
     removePointer(event);

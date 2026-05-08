@@ -70,10 +70,6 @@ describe("cssVar", () => {
 });
 
 describe("translateLabel", () => {
-  it("returns the label as-is when labels is undefined", () => {
-    expect(translateLabel(undefined, "Close")).toBe("Close");
-  });
-
   it("returns the label as-is when key is not in labels", () => {
     expect(translateLabel({}, "Close")).toBe("Close");
   });
@@ -85,7 +81,7 @@ describe("translateLabel", () => {
 
 describe("translateSlideCounter", () => {
   it("returns default template with placeholders replaced", () => {
-    expect(translateSlideCounter(undefined, 3, 10)).toBe("3 of 10");
+    expect(translateSlideCounter({}, 3, 10)).toBe("3 of 10");
   });
 
   it("uses custom label template", () => {

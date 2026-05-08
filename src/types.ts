@@ -230,3 +230,11 @@ export interface LightboxRef {
   /** trigger animated close */
   close: Callback;
 }
+
+type WithRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+
+/** Lightbox props with defaults filled in */
+export type ResolvedLightboxProps = WithRequired<LightboxProps, "labels" | "render" | "styles" | "toolbar" | "zoom"> & {
+  carousel: WithRequired<CarouselSettings, "infinite" | "preload" | "transition">;
+  controller: Required<ControllerSettings>;
+};

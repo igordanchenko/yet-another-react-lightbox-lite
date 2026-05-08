@@ -17,7 +17,11 @@ const ControllerContext = createContext<ControllerContextType | null>(null);
 export const useController = makeUseContext(ControllerContext);
 
 const Controller = forwardRef<LightboxRef, ControllerProps>(function Controller({ setIndex, close, children }, ref) {
-  const { slides, index, carousel: { infinite = false } = {} } = useLightboxContext();
+  const {
+    slides,
+    index,
+    carousel: { infinite },
+  } = useLightboxContext();
 
   const context = useMemo(() => {
     const navigate = (delta: number) => {

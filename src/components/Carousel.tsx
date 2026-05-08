@@ -14,12 +14,7 @@ function CarouselSlide({ slide, rect, current, slideIndex, offset }: CarouselSli
   const ref = useRef<HTMLDivElement | null>(null);
 
   const { zoom, offsetX, offsetY } = useZoom();
-  const {
-    slides,
-    styles,
-    labels,
-    render: { slide: renderSlide, slideHeader, slideFooter } = {},
-  } = useLightboxContext();
+  const { slides, styles, labels, render } = useLightboxContext();
 
   // Once a slide has been zoomed during its current "current" stint, keep `transition: none`
   // applied even after zoom snaps back to 1 — otherwise the slide-mode `transition: transform`
@@ -67,43 +62,37 @@ function CarouselSlide({ slide, rect, current, slideIndex, offset }: CarouselSli
               transition: "none",
             }
           : undefined),
-        ...styles?.slide,
+        ...styles.slide,
       }}
     >
-      {slideHeader?.(context)}
-      {renderSlide?.(context) ??
+      {render.slideHeader?.(context)}
+      {render.slide?.(context) ??
         (isImageSlide(slide) && <ImageSlide {...(context as typeof context & { slide: SlideImage })} />)}
-      {slideFooter?.(context)}
+      {render.slideFooter?.(context)}
     </div>
   );
 }
 
 export default function Carousel() {
-  const {
-    slides,
-    index,
-    styles,
-    labels,
-    carousel: { preload = 2, transition = "fade", infinite = false } = {},
-  } = useLightboxContext();
+  const { slides, index, styles, labels, carousel } = useLightboxContext();
   const { setCarouselRef } = useZoomInternal();
   const { rect } = useZoom();
 
   return (
     <div
       ref={setCarouselRef}
-      style={styles?.carousel}
-      className={clsx(cssClass("carousel"), cssClass(`transition_${transition}`))}
+      style={styles.carousel}
+      className={clsx(cssClass("carousel"), cssClass(`transition_${carousel.transition}`))}
       role="region"
       aria-live="polite"
       aria-label={translateLabel(labels, "Photo gallery")}
       aria-roledescription={translateLabel(labels, "Carousel")}
     >
       {rect &&
-        Array.from({ length: 2 * preload + 1 }).map((_, i) => {
-          const slideIndex = index - preload + i;
+        Array.from({ length: 2 * carousel.preload + 1 }).map((_, i) => {
+          const slideIndex = index - carousel.preload + i;
           // keep out-of-bounds indices as-is when not infinite so slides[wrappedIndex] returns undefined
-          const wrappedIndex = infinite ? wrapIndex(slideIndex, slides.length) : slideIndex;
+          const wrappedIndex = carousel.infinite ? wrapIndex(slideIndex, slides.length) : slideIndex;
           const slide = slides[wrappedIndex];
 
           if (!slide) return null;

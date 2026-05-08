@@ -123,7 +123,7 @@ export default function Portal({ phase, onClosed, children }: PortalProps) {
           aria-label={translateLabel(labels, "Lightbox")}
           tabIndex={-1}
           ref={handleRef}
-          style={styles?.portal}
+          style={styles.portal}
           className={clsx(cssClass("portal"), phase !== "open" && cssClass("portal_closed"), className)}
           onFocus={(event) => {
             if (!restoreFocus.current) {
