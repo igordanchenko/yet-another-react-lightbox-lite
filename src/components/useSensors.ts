@@ -16,6 +16,9 @@ const KEYBOARD_ZOOM_FACTOR = 8 ** (1 / 4);
 const KEYBOARD_MOVE_DISTANCE = 50;
 const PINCH_ZOOM_DISTANCE_FACTOR = 100;
 const PREVAILING_DIRECTION_FACTOR = 1.2;
+const DELTA_LINE_MULTIPLIER = 8;
+const DELTA_PAGE_MULTIPLIER = 24;
+const MAX_WHEEL_ZOOM_DELTA = 24;
 
 function hasTwoPointers(pointers: PointerEvent[]): pointers is [PointerEvent, PointerEvent] {
   return pointers.length === 2;
@@ -25,8 +28,31 @@ function distance(pointerA: MouseEvent, pointerB: MouseEvent) {
   return Math.hypot(pointerA.clientX - pointerB.clientX, pointerA.clientY - pointerB.clientY);
 }
 
+// Normalize wheel deltas to pixel-equivalent values. Firefox can report deltas in
+// line- or page-mode (e.g. `deltaY = 3` for three lines), where Chromium/WebKit
+// already deliver pixel deltas — without this, line-mode events would be ~100x
+// weaker than pixel-mode ones.
+function normalizeWheel(event: WheelEvent) {
+  let dx = event.deltaX;
+  let dy = event.deltaY;
+  if (event.deltaMode === 1 /* DOM_DELTA_LINE */) {
+    dx *= DELTA_LINE_MULTIPLIER;
+    dy *= DELTA_LINE_MULTIPLIER;
+  } else if (event.deltaMode === 2 /* DOM_DELTA_PAGE */) {
+    dx *= DELTA_PAGE_MULTIPLIER;
+    dy *= DELTA_PAGE_MULTIPLIER;
+  }
+  return [dx, dy] as const;
+}
+
+function clampDelta(delta: number, max: number) {
+  return Math.sign(delta) * Math.min(max, Math.abs(delta));
+}
+
+type NormalizedWheelEvent = { timeStamp: number; deltaX: number; deltaY: number };
+
 export default function useSensors() {
-  const wheelEvents = useRef<WheelEvent[]>([]);
+  const wheelEvents = useRef<NormalizedWheelEvent[]>([]);
   const wheelCooldown = useRef<number | null>(null);
   const wheelCooldownMomentum = useRef<number | null>(null);
 
@@ -186,26 +212,30 @@ export default function useSensors() {
   });
 
   const onWheel = useEventCallback((event: WheelEvent) => {
+    const [dx, dy] = normalizeWheel(event);
+
     if (event.ctrlKey) {
-      if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
-        changeZoom(scaleZoom(zoom, -event.deltaY, WHEEL_ZOOM_FACTOR), event);
+      if (Math.abs(dy) > Math.abs(dx)) {
+        // Clamp per-event zoom delta — a single oversized wheel event (line/page mode,
+        // or fast scroll) shouldn't jump multiple zoom steps at once.
+        changeZoom(scaleZoom(zoom, -clampDelta(dy, MAX_WHEEL_ZOOM_DELTA), WHEEL_ZOOM_FACTOR), event);
       }
       return;
     }
 
     if (zoom > 1) {
-      changeOffsets(-event.deltaX, -event.deltaY);
+      changeOffsets(-dx, -dy);
       return;
     }
 
     if (wheelCooldown.current && wheelCooldownMomentum.current) {
       if (
-        event.deltaX * wheelCooldownMomentum.current > 0 &&
+        dx * wheelCooldownMomentum.current > 0 &&
         (event.timeStamp <= wheelCooldown.current + WHEEL_SWIPE_COOLDOWN_TIME / 2 ||
           (event.timeStamp <= wheelCooldown.current + WHEEL_SWIPE_COOLDOWN_TIME &&
-            Math.abs(event.deltaX) < PREVAILING_DIRECTION_FACTOR * Math.abs(wheelCooldownMomentum.current)))
+            Math.abs(dx) < PREVAILING_DIRECTION_FACTOR * Math.abs(wheelCooldownMomentum.current)))
       ) {
-        wheelCooldownMomentum.current = event.deltaX;
+        wheelCooldownMomentum.current = dx;
         return;
       }
 
@@ -213,15 +243,17 @@ export default function useSensors() {
       wheelCooldownMomentum.current = null;
     }
 
+    // Track the normalized values alongside the original event so accumulators
+    // sum pixel-equivalent deltas regardless of source deltaMode.
     wheelEvents.current = wheelEvents.current.filter((e) => e.timeStamp > event.timeStamp - WHEEL_EVENT_HISTORY_WINDOW);
-    wheelEvents.current.push(event);
+    wheelEvents.current.push({ timeStamp: event.timeStamp, deltaX: dx, deltaY: dy });
 
-    const dx = wheelEvents.current.map((e) => e.deltaX).reduce((a, b) => a + b, 0);
-    const deltaX = Math.abs(dx);
+    const totalX = wheelEvents.current.map((e) => e.deltaX).reduce((a, b) => a + b, 0);
+    const deltaX = Math.abs(totalX);
     const deltaY = Math.abs(wheelEvents.current.map((e) => e.deltaY).reduce((a, b) => a + b, 0));
 
     if (deltaX > WHEEL_SWIPE_DISTANCE && deltaX > PREVAILING_DIRECTION_FACTOR * deltaY) {
-      if (dx < 0) {
+      if (totalX < 0) {
         prev();
       } else {
         next();
@@ -229,7 +261,7 @@ export default function useSensors() {
 
       wheelEvents.current = [];
       wheelCooldown.current = event.timeStamp;
-      wheelCooldownMomentum.current = event.deltaX;
+      wheelCooldownMomentum.current = dx;
     }
   });
 

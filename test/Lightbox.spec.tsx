@@ -1,6 +1,6 @@
 import { createContext, createElement, createRef, type Ref } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { act, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
 import {
@@ -134,6 +134,34 @@ describe("Lightbox", () => {
     await withFakeTimers(async () => {
       wheelSwipe(200, 0, 0);
       wheelSwipe(200, 0, 800);
+    });
+
+    expectCurrentSlideToBe(1);
+  });
+
+  it("normalizes Firefox-style line-mode wheel events", async () => {
+    renderLightbox();
+
+    await withFakeTimers(async () => {
+      // 25 lines × 8 = 200px equivalent — exceeds the 100px threshold
+      act(() => {
+        vi.setSystemTime(Date.now() + 2_000);
+        fireEvent.wheel(getCurrentSlide(), { deltaX: 25, deltaY: 0, deltaMode: 1 });
+      });
+    });
+
+    expectCurrentSlideToBe(1);
+  });
+
+  it("normalizes page-mode wheel events", async () => {
+    renderLightbox();
+
+    await withFakeTimers(async () => {
+      // 10 pages × 24 = 240px equivalent — exceeds the 100px threshold
+      act(() => {
+        vi.setSystemTime(Date.now() + 2_000);
+        fireEvent.wheel(getCurrentSlide(), { deltaX: 10, deltaY: 0, deltaMode: 2 });
+      });
     });
 
     expectCurrentSlideToBe(1);
@@ -638,9 +666,10 @@ describe("Lightbox", () => {
 
     await withFakeTimers(async () => {
       wheelZoom(0, -50);
+      wheelZoom(0, -50);
     });
 
-    expect(getCurrentSlideImage().sizes).toBe("768px");
+    expect(getCurrentSlideImage().sizes).toBe("787.46px");
   });
 
   it("suppresses the slide transform transition through the full zoom-out cycle", async () => {
