@@ -1,5 +1,5 @@
 import type { KeyboardEvent, MouseEvent, PointerEvent, WheelEvent } from "react";
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 
 import { useZoom } from "./Zoom";
 import { useController } from "./Controller";
@@ -314,16 +314,13 @@ export default function useSensors() {
     }
   });
 
-  return useMemo(
-    () => ({
-      onKeyDown,
-      onPointerDown,
-      onPointerMove,
-      onPointerUp,
-      onPointerLeave: onPointerUp,
-      onPointerCancel: onPointerUp,
-      onWheel,
-    }),
-    [onKeyDown, onPointerDown, onPointerMove, onPointerUp, onWheel],
-  );
+  return {
+    onKeyDown,
+    onPointerDown,
+    onPointerMove,
+    onPointerUp,
+    onPointerLeave: onPointerUp,
+    onPointerCancel: onPointerUp,
+    onWheel,
+  };
 }
