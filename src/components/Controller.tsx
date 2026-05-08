@@ -1,6 +1,7 @@
 import { createContext, forwardRef, type PropsWithChildren, useImperativeHandle, useMemo } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
+import useEventCallback from "./useEventCallback";
 import { makeUseContext } from "../utils";
 import type { Callback, LightboxProps, LightboxRef } from "../types";
 
@@ -23,17 +24,18 @@ const Controller = forwardRef<LightboxRef, ControllerProps>(function Controller(
     carousel: { infinite },
   } = useLightboxContext();
 
-  const context = useMemo(() => {
-    const navigate = (delta: number) => {
-      if (slides.length < 2) return;
-      const target = index + delta;
-      if (infinite || (target >= 0 && target < slides.length)) {
-        setIndex(target);
-      }
-    };
+  const navigate = (delta: number) => {
+    if (slides.length < 2) return;
+    const target = index + delta;
+    if (infinite || (target >= 0 && target < slides.length)) {
+      setIndex(target);
+    }
+  };
 
-    return { prev: () => navigate(-1), next: () => navigate(1), close };
-  }, [slides.length, index, setIndex, infinite, close]);
+  const prev = useEventCallback(() => navigate(-1));
+  const next = useEventCallback(() => navigate(1));
+
+  const context = useMemo(() => ({ prev, next, close }), [prev, next, close]);
 
   useImperativeHandle(ref, () => context, [context]);
 
