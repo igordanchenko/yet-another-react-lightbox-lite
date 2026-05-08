@@ -154,12 +154,12 @@ body:has(.yarll__portal:not(.yarll__no_scroll_lock)) {
   }
 
   @media (hover: hover) {
-    &:hover {
+    &:not([aria-disabled="true"]):hover {
       color: var(--yarll__button_color_active, #fff);
     }
   }
 
-  &:disabled {
+  &[aria-disabled="true"] {
     cursor: default;
     color: var(--yarll__button_color_disabled, rgb(255 255 255 / 0.4));
   }

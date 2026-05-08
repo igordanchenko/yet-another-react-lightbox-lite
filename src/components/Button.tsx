@@ -19,8 +19,8 @@ export default function Button({ icon: Icon, renderIcon, label, onClick, disable
       type="button"
       title={buttonLabel}
       aria-label={buttonLabel}
-      onClick={onClick}
-      disabled={disabled}
+      aria-disabled={disabled || undefined}
+      onClick={disabled ? undefined : onClick}
       style={styles.button}
       className={clsx(cssClass("button"), className)}
     >

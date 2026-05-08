@@ -172,6 +172,15 @@ export function expectToBeZoomedOut() {
   expect(isCurrentSlideScaled()).toBe(false);
 }
 
+export function expectToBeSoftDisabled(button: HTMLButtonElement) {
+  expect(button).toHaveAttribute("aria-disabled", "true");
+  expect(button).not.toBeDisabled();
+}
+
+export function expectNotToBeSoftDisabled(button: HTMLButtonElement) {
+  expect(button).not.toHaveAttribute("aria-disabled", "true");
+}
+
 export async function withFakeTimers(callback: () => Promise<void>) {
   vi.useFakeTimers();
   try {

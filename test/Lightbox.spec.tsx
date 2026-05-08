@@ -10,6 +10,8 @@ import {
   expectCurrentSlideToBe,
   expectLightboxToBeClosed,
   expectLightboxToBeOpen,
+  expectNotToBeSoftDisabled,
+  expectToBeSoftDisabled,
   expectToBeZoomedIn,
   expectToBeZoomedOut,
   getCloseButton,
@@ -135,6 +137,32 @@ describe("Lightbox", () => {
     });
 
     expectCurrentSlideToBe(1);
+  });
+
+  it("soft-disables navigation buttons at boundaries", () => {
+    renderLightbox();
+
+    expectToBeSoftDisabled(getPreviousButton());
+    expectNotToBeSoftDisabled(getNextButton());
+
+    getPreviousButton().focus();
+    expect(document.activeElement).toBe(getPreviousButton());
+
+    clickButtonPrev();
+    expectCurrentSlideToBe(0);
+    expect(document.activeElement).toBe(getPreviousButton());
+
+    clickButtonNext();
+    clickButtonNext();
+    expectCurrentSlideToBe(2);
+
+    expectNotToBeSoftDisabled(getPreviousButton());
+    expectToBeSoftDisabled(getNextButton());
+
+    getNextButton().focus();
+    clickButtonNext();
+    expectCurrentSlideToBe(2);
+    expect(document.activeElement).toBe(getNextButton());
   });
 
   it("supports closeOnPullUp", async () => {
@@ -824,15 +852,15 @@ describe("Lightbox", () => {
     it("keeps navigation buttons enabled at both boundaries", () => {
       renderLightbox({ carousel: { infinite: true } });
 
-      expect(getPreviousButton().disabled).toBe(false);
-      expect(getNextButton().disabled).toBe(false);
+      expectNotToBeSoftDisabled(getPreviousButton());
+      expectNotToBeSoftDisabled(getNextButton());
 
       clickButtonNext();
       clickButtonNext();
       expectCurrentSlideToBe(2);
 
-      expect(getPreviousButton().disabled).toBe(false);
-      expect(getNextButton().disabled).toBe(false);
+      expectNotToBeSoftDisabled(getPreviousButton());
+      expectNotToBeSoftDisabled(getNextButton());
     });
 
     it("renders preloaded slides on both sides at the boundary", () => {
