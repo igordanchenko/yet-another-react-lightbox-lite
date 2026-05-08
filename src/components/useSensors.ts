@@ -14,7 +14,6 @@ const WHEEL_EVENT_HISTORY_WINDOW = 3_000;
 const POINTER_SWIPE_DISTANCE = 100;
 const KEYBOARD_ZOOM_FACTOR = 8 ** (1 / 4);
 const KEYBOARD_MOVE_DISTANCE = 50;
-const PINCH_ZOOM_DISTANCE_FACTOR = 100;
 const PREVAILING_DIRECTION_FACTOR = 1.2;
 const DELTA_LINE_MULTIPLIER = 8;
 const DELTA_PAGE_MULTIPLIER = 24;
@@ -62,7 +61,8 @@ export default function useSensors() {
   const wheelCooldownMomentum = useRef<number | null>(null);
 
   const activePointers = useRef<PointerEvent[]>([]);
-  const pinchZoomDistance = useRef<number>(undefined);
+  const initialPinchDistance = useRef<number | null>(null);
+  const initialPinchZoom = useRef<number>(1);
 
   const { zoom, maxZoom, changeZoom, changeOffsets } = useZoom();
   const { prev, next, close } = useController();
@@ -146,7 +146,11 @@ export default function useSensors() {
     addPointer(event);
 
     if (hasTwoPointers(activePointers.current)) {
-      pinchZoomDistance.current = distance(activePointers.current[0], activePointers.current[1]);
+      // Anchor the pinch to the starting distance and zoom so the gesture
+      // tracks the finger spread as a ratio rather than accumulating per-event
+      // deltas — feels natural and avoids drift.
+      initialPinchDistance.current = distance(activePointers.current[0], activePointers.current[1]);
+      initialPinchZoom.current = zoom;
     }
   });
 
@@ -155,20 +159,15 @@ export default function useSensors() {
 
     if (!activePointer) return;
 
-    if (hasTwoPointers(activePointers.current) && pinchZoomDistance.current) {
+    if (hasTwoPointers(activePointers.current) && initialPinchDistance.current) {
       addPointer(event);
 
       const currentDistance = distance(activePointers.current[0], activePointers.current[1]);
-      const delta = currentDistance - pinchZoomDistance.current;
 
-      if (Math.abs(delta) > 0) {
-        changeZoom(scaleZoom(zoom, delta, PINCH_ZOOM_DISTANCE_FACTOR), {
-          clientX: (activePointers.current[0].clientX + activePointers.current[1].clientX) / 2,
-          clientY: (activePointers.current[0].clientY + activePointers.current[1].clientY) / 2,
-        });
-
-        pinchZoomDistance.current = currentDistance;
-      }
+      changeZoom((initialPinchZoom.current * currentDistance) / initialPinchDistance.current, {
+        clientX: (activePointers.current[0].clientX + activePointers.current[1].clientX) / 2,
+        clientY: (activePointers.current[0].clientY + activePointers.current[1].clientY) / 2,
+      });
 
       return;
     }
@@ -214,6 +213,10 @@ export default function useSensors() {
     }
 
     removePointer(event);
+
+    if (activePointers.current.length < 2) {
+      initialPinchDistance.current = null;
+    }
   });
 
   const onWheel = useEventCallback((event: WheelEvent) => {
