@@ -18,13 +18,17 @@ const PREVAILING_DIRECTION_FACTOR = 1.2;
 const DELTA_LINE_MULTIPLIER = 8;
 const DELTA_PAGE_MULTIPLIER = 24;
 const MAX_WHEEL_ZOOM_DELTA = 24;
+const DOUBLE_TAP_INTERVAL = 300;
+const DOUBLE_TAP_DISTANCE = 30;
+
+type Point = Pick<MouseEvent, "clientX" | "clientY">;
+
+function distance(pointerA: Point, pointerB: Point) {
+  return Math.hypot(pointerA.clientX - pointerB.clientX, pointerA.clientY - pointerB.clientY);
+}
 
 function hasTwoPointers(pointers: PointerEvent[]): pointers is [PointerEvent, PointerEvent] {
   return pointers.length === 2;
-}
-
-function distance(pointerA: MouseEvent, pointerB: MouseEvent) {
-  return Math.hypot(pointerA.clientX - pointerB.clientX, pointerA.clientY - pointerB.clientY);
 }
 
 type NormalizedWheelEvent = { timeStamp: number; deltaX: number; deltaY: number };
@@ -80,6 +84,7 @@ export default function useSensors() {
   const activePointers = useRef<PointerEvent[]>([]);
   const initialPinchDistance = useRef<number | null>(null);
   const initialPinchZoom = useRef<number>(1);
+  const lastTap = useRef<MouseEvent | null>(null);
 
   const { zoom, maxZoom, changeZoom, changeOffsets } = useZoom();
   const { prev, next, close } = useController();
@@ -97,11 +102,11 @@ export default function useSensors() {
     activePointers.current = activePointers.current.filter((pointer) => pointer.pointerId !== event.pointerId);
   };
 
-  // intentionally querying the DOM each time — this only runs on pointerDown/doubleClick
+  // intentionally querying the DOM each time — this only runs on pointerDown
   // (not on every pointer move), and the selectable elements can change per slide
-  const shouldIgnoreEvent = (event: MouseEvent | PointerEvent) =>
+  const shouldIgnoreEvent = (event: PointerEvent) =>
     // ignore right button clicks (e.g., context menu)
-    ("pointerType" in event && event.pointerType === "mouse" && event.buttons > 1) ||
+    (event.pointerType === "mouse" && event.buttons > 1) ||
     // ignore clicks on navigation buttons, toolbar, user-selectable elements, etc.
     (event.target instanceof Element &&
       event.target.closest(
@@ -203,29 +208,48 @@ export default function useSensors() {
 
     if (!activePointer) return;
 
-    if (activePointers.current.length === 1 && zoom === 1) {
+    if (activePointers.current.length === 1) {
       const dx = event.clientX - activePointer.clientX;
       const dy = event.clientY - activePointer.clientY;
 
       const deltaX = Math.abs(dx);
       const deltaY = Math.abs(dy);
 
-      if (deltaX > POINTER_SWIPE_DISTANCE && deltaX > PREVAILING_DIRECTION_FACTOR * deltaY) {
+      const swiped = zoom === 1 && deltaX > POINTER_SWIPE_DISTANCE && deltaX > PREVAILING_DIRECTION_FACTOR * deltaY;
+
+      const closed =
+        zoom === 1 &&
+        ((deltaY > POINTER_SWIPE_DISTANCE &&
+          deltaY > PREVAILING_DIRECTION_FACTOR * deltaX &&
+          ((closeOnPullUp && dy < 0) || (closeOnPullDown && dy > 0))) ||
+          (closeOnBackdropClick &&
+            activePointer.target instanceof Element &&
+            (activePointer.target.classList.contains(cssClass("slide")) ||
+              activePointer.target.classList.contains(cssClass("portal")))));
+
+      if (swiped) {
         if (dx > 0) {
           prev();
         } else {
           next();
         }
-      } else if (
-        (deltaY > POINTER_SWIPE_DISTANCE &&
-          deltaY > PREVAILING_DIRECTION_FACTOR * deltaX &&
-          ((closeOnPullUp && dy < 0) || (closeOnPullDown && dy > 0))) ||
-        (closeOnBackdropClick &&
-          activePointer.target instanceof Element &&
-          (activePointer.target.classList.contains(cssClass("slide")) ||
-            activePointer.target.classList.contains(cssClass("portal"))))
-      ) {
+      } else if (closed) {
         close();
+      } else if (deltaX < DOUBLE_TAP_DISTANCE && deltaY < DOUBLE_TAP_DISTANCE) {
+        // Detect double-tap inline rather than relying on the synthetic
+        // `dblclick` event — Android Chrome and several WebViews emit it
+        // unreliably when the second tap lands within the platform's
+        // "double-tap-to-zoom" window.
+        if (
+          lastTap.current &&
+          event.timeStamp - lastTap.current.timeStamp < DOUBLE_TAP_INTERVAL &&
+          distance(event, lastTap.current) < DOUBLE_TAP_DISTANCE
+        ) {
+          changeZoom(zoom < maxZoom ? scaleZoom(zoom, 2, 1) : 1, event);
+          lastTap.current = null;
+        } else {
+          lastTap.current = event;
+        }
       }
     }
 
@@ -290,12 +314,6 @@ export default function useSensors() {
     }
   });
 
-  const onDoubleClick = useEventCallback((event: MouseEvent) => {
-    if (shouldIgnoreEvent(event)) return;
-
-    changeZoom(zoom < maxZoom ? scaleZoom(zoom, 2, 1) : 1, event);
-  });
-
   return useMemo(
     () => ({
       onKeyDown,
@@ -304,9 +322,8 @@ export default function useSensors() {
       onPointerUp,
       onPointerLeave: onPointerUp,
       onPointerCancel: onPointerUp,
-      onDoubleClick,
       onWheel,
     }),
-    [onKeyDown, onPointerDown, onPointerMove, onPointerUp, onDoubleClick, onWheel],
+    [onKeyDown, onPointerDown, onPointerMove, onPointerUp, onWheel],
   );
 }
