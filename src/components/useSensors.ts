@@ -31,10 +31,15 @@ function distance(pointerA: MouseEvent, pointerB: MouseEvent) {
 // Normalize wheel deltas to pixel-equivalent values. Firefox can report deltas in
 // line- or page-mode (e.g. `deltaY = 3` for three lines), where Chromium/WebKit
 // already deliver pixel deltas — without this, line-mode events would be ~100x
-// weaker than pixel-mode ones.
+// weaker than pixel-mode ones. Shift+vertical-wheel is also remapped to a
+// horizontal delta to match the platform convention used by mice without a
+// horizontal scroll wheel.
 function normalizeWheel(event: WheelEvent) {
   let dx = event.deltaX;
   let dy = event.deltaY;
+  if (event.shiftKey && dx === 0) {
+    [dx, dy] = [dy, dx];
+  }
   if (event.deltaMode === 1 /* DOM_DELTA_LINE */) {
     dx *= DELTA_LINE_MULTIPLIER;
     dy *= DELTA_LINE_MULTIPLIER;

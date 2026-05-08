@@ -153,6 +153,21 @@ describe("Lightbox", () => {
     expectCurrentSlideToBe(1);
   });
 
+  it("swaps axes for Shift+vertical-wheel", async () => {
+    renderLightbox();
+
+    await withFakeTimers(async () => {
+      // Shift+wheel with vertical delta navigates as if it were horizontal —
+      // matches the platform convention used by mice without a horizontal wheel.
+      act(() => {
+        vi.setSystemTime(Date.now() + 2_000);
+        fireEvent.wheel(getCurrentSlide(), { deltaX: 0, deltaY: 200, shiftKey: true });
+      });
+    });
+
+    expectCurrentSlideToBe(1);
+  });
+
   it("normalizes page-mode wheel events", async () => {
     renderLightbox();
 
