@@ -31,6 +31,10 @@ function hasTwoPointers(pointers: PointerEvent[]): pointers is [PointerEvent, Po
   return pointers.length === 2;
 }
 
+function isDominantAxis(primary: number, secondary: number, threshold: number) {
+  return primary > threshold && primary > PREVAILING_DIRECTION_FACTOR * secondary;
+}
+
 type NormalizedWheelEvent = { timeStamp: number; deltaX: number; deltaY: number };
 
 // Normalize wheel deltas to pixel-equivalent values. Firefox can report deltas in
@@ -215,12 +219,11 @@ export default function useSensors() {
       const deltaX = Math.abs(dx);
       const deltaY = Math.abs(dy);
 
-      const swiped = zoom === 1 && deltaX > POINTER_SWIPE_DISTANCE && deltaX > PREVAILING_DIRECTION_FACTOR * deltaY;
+      const swiped = zoom === 1 && isDominantAxis(deltaX, deltaY, POINTER_SWIPE_DISTANCE);
 
       const closed =
         zoom === 1 &&
-        ((deltaY > POINTER_SWIPE_DISTANCE &&
-          deltaY > PREVAILING_DIRECTION_FACTOR * deltaX &&
+        ((isDominantAxis(deltaY, deltaX, POINTER_SWIPE_DISTANCE) &&
           ((closeOnPullUp && dy < 0) || (closeOnPullDown && dy > 0))) ||
           (closeOnBackdropClick &&
             activePointer.target instanceof Element &&
@@ -301,7 +304,7 @@ export default function useSensors() {
       totalY += e.deltaY;
     }
 
-    if (Math.abs(totalX) > WHEEL_SWIPE_DISTANCE && Math.abs(totalX) > PREVAILING_DIRECTION_FACTOR * Math.abs(totalY)) {
+    if (isDominantAxis(Math.abs(totalX), Math.abs(totalY), WHEEL_SWIPE_DISTANCE)) {
       if (totalX < 0) {
         prev();
       } else {
