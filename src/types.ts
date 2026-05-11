@@ -212,8 +212,8 @@ export type Rect = {
   height: number;
 };
 
-/** Generic callback function */
-export type Callback<T = void> = () => T;
+/** Callback function */
+export type Callback = () => void;
 
 /** Render function */
 export type RenderFunction<T = void> = [T] extends [void] ? () => ReactNode : (props: T) => ReactNode;
