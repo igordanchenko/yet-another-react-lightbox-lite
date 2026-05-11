@@ -12,15 +12,11 @@ type ImageSlideProps = {
 
 function getImageDimensions(slide: SlideImage, rect: Rect) {
   const { width, height } = slide.srcSet?.[0] || slide;
-  const imageAspectRatio = width && height ? width / height : undefined;
-  const rectAspectRatio = rect.width / rect.height;
-
-  return imageAspectRatio
-    ? [
-        round(imageAspectRatio < rectAspectRatio ? imageAspectRatio * rect.height : rect.width, 2),
-        round(imageAspectRatio > rectAspectRatio ? rect.width / imageAspectRatio : rect.height, 2),
-      ]
-    : [];
+  if (!width || !height) return [];
+  const imageAspectRatio = width / height;
+  return imageAspectRatio < rect.width / rect.height
+    ? [round(imageAspectRatio * rect.height, 2), rect.height]
+    : [rect.width, round(rect.width / imageAspectRatio, 2)];
 }
 
 export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
@@ -33,14 +29,8 @@ export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
 
   useEffect(() => {
     if (zoom <= scale) return;
-
-    const timeoutId = setTimeout(() => {
-      setScale(zoom);
-    }, 300);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
+    const timeoutId = setTimeout(() => setScale(zoom), 300);
+    return () => clearTimeout(timeoutId);
   }, [zoom, scale]);
 
   const srcSet = slide.srcSet
