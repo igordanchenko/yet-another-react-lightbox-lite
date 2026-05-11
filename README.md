@@ -288,12 +288,23 @@ Usage example:
 />
 ```
 
-You can also use a function to provide per-slide attributes:
+You can also use a function to provide per-slide attributes. The example below
+augments `SlideImage` with a custom `lang` field (see
+[Custom Slide Attributes](#custom-slide-attributes)) and forwards it to the
+underlying `<img>`:
+
+```tsx
+declare module "yet-another-react-lightbox-lite" {
+  interface SlideImage {
+    lang?: string;
+  }
+}
+```
 
 ```tsx
 <Lightbox
   carousel={{
-    imageProps: (slide) => ({ "data-alt": slide.alt }),
+    imageProps: (slide) => ({ lang: slide.lang }),
   }}
   // ...
 />
@@ -417,8 +428,13 @@ const slides = [
 
 const [index, setIndex] = useState<number>();
 
-// ...
+// Fold the controlled index back into [0, slides.length) — needed because
+// `infinite` mode lets `index` drift outside that range.
+const normalizeIndex = (i: number) =>
+  ((i % slides.length) + slides.length) % slides.length;
+```
 
+```tsx
 <Lightbox
   slides={slides}
   index={index}
@@ -427,11 +443,11 @@ const [index, setIndex] = useState<number>();
     controls: () =>
       index !== undefined && (
         <div style={{ position: "absolute", top: 16, left: 16 }}>
-          {index + 1} of {slides.length}
+          {`${normalizeIndex(index) + 1} of ${slides.length}`}
         </div>
       ),
   }}
-/>;
+/>
 ```
 
 #### iconPrev: () => ReactNode
