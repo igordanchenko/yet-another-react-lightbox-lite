@@ -1,4 +1,4 @@
-import type { ComponentProps, CSSProperties, Dispatch, Key, ReactNode, SetStateAction } from "react";
+import type { ComponentProps, CSSProperties, Key, ReactNode } from "react";
 
 /** Lightbox props */
 export interface LightboxProps {
@@ -7,7 +7,7 @@ export interface LightboxProps {
   /** slide index */
   index: number | undefined;
   /** slide index change callback */
-  setIndex: Dispatch<SetStateAction<number | undefined>>;
+  setIndex: (index: number | undefined) => void;
   /** custom UI labels / translations */
   labels?: Labels;
   /** custom render functions */
