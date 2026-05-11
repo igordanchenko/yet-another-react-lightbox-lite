@@ -167,9 +167,7 @@ export interface ControllerSettings {
 
 /** Zoom settings */
 export interface ZoomSettings {
-  /** disable zoom on image slides */
-  disabled?: boolean;
-  /** zoom-enabled custom slide types */
+  /** slide types that support zoom (default: `["image"]`) */
   supports?: readonly SlideTypeKey[];
 }
 
@@ -234,7 +232,8 @@ export interface LightboxRef {
 type WithRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
 /** Lightbox props with defaults filled in */
-export type ResolvedLightboxProps = WithRequired<LightboxProps, "labels" | "render" | "styles" | "toolbar" | "zoom"> & {
+export type ResolvedLightboxProps = WithRequired<LightboxProps, "labels" | "render" | "styles" | "toolbar"> & {
   carousel: WithRequired<CarouselSettings, "infinite" | "preload" | "transition">;
   controller: Required<ControllerSettings>;
+  zoom: Required<ZoomSettings>;
 };

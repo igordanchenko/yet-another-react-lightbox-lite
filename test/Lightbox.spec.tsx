@@ -668,7 +668,7 @@ describe("Lightbox", () => {
   it("supports disabling zoom", async () => {
     const user = userEvent.setup();
 
-    renderLightbox({ zoom: { disabled: true } });
+    renderLightbox({ zoom: { supports: [] } });
 
     await user.dblClick(getCurrentSlideImage());
     expectToBeZoomedOut();
@@ -711,7 +711,7 @@ describe("Lightbox", () => {
 
     renderLightbox({
       ...scenario,
-      zoom: { supports: ["custom-slide"] },
+      zoom: { supports: ["image", "custom-slide"] },
     });
     expect(maxZoom).toBe(8);
   });

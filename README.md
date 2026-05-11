@@ -548,14 +548,22 @@ Type: `object`
 
 Zoom settings.
 
-- `disabled` - disable zoom on image slides
-- `supports` - zoom-enabled custom slide types
+- `supports` - slide types that support zoom (default: `["image"]`)
 
-Usage example:
+Enable zoom on custom slide types:
 
 ```tsx
 <Lightbox
-  zoom={{ supports: ["custom-slide-type"] }}
+  zoom={{ supports: ["image", "custom-slide-type"] }}
+  // ...
+/>
+```
+
+Disable zoom entirely:
+
+```tsx
+<Lightbox
+  zoom={{ supports: [] }}
   // ...
 />
 ```

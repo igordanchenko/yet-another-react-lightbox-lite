@@ -30,11 +30,13 @@ function resolveProps(props: LightboxProps): ResolvedLightboxProps {
       closeOnPullDown: controller?.closeOnPullDown ?? true,
       closeOnBackdropClick: controller?.closeOnBackdropClick ?? true,
     },
+    zoom: {
+      supports: zoom?.supports ?? ["image"],
+    },
     labels: labels ?? {},
     styles: styles ?? {},
     render: render ?? {},
     toolbar: toolbar ?? {},
-    zoom: zoom ?? {},
   };
 }
 

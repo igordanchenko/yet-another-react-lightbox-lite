@@ -3,7 +3,7 @@ import { createContext, useCallback, useLayoutEffect, useMemo, useRef, useState 
 
 import { useLightboxContext } from "./LightboxContext";
 import useEventCallback from "./useEventCallback";
-import { cssClass, getChildren, isImageSlide, makeUseContext, wrapIndex } from "../utils";
+import { cssClass, getChildren, makeUseContext, wrapIndex } from "../utils";
 import type { Rect } from "../types";
 
 /** Zoom context */
@@ -56,7 +56,7 @@ export default function Zoom({ children }: PropsWithChildren) {
   const {
     index,
     slides,
-    zoom: { supports, disabled },
+    zoom: { supports },
   } = useLightboxContext();
 
   const [prevIndex, setPrevIndex] = useState(index);
@@ -68,10 +68,7 @@ export default function Zoom({ children }: PropsWithChildren) {
   }
 
   const slide = slides[wrapIndex(index, slides.length)];
-  const maxZoom =
-    slide && ((isImageSlide(slide) && !disabled) || (slide.type !== undefined && supports?.includes(slide.type)))
-      ? 8
-      : 1;
+  const maxZoom = slide && supports.includes(slide.type ?? "image") ? 8 : 1;
 
   const carouselHalfWidth = (rect?.width || 0) / 2;
   const carouselHalfHeight = (rect?.height || 0) / 2;
