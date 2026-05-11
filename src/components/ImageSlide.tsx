@@ -33,15 +33,9 @@ export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
     return () => clearTimeout(timeoutId);
   }, [zoom, scale]);
 
-  const srcSet = slide.srcSet
-    ?.slice()
-    .sort((a, b) => a.width - b.width)
-    .map((image) => `${image.src} ${image.width}w`)
-    .join(", ");
-
   const [width, height] = getImageDimensions(slide, rect);
-
   const sizes = width ? `${round(width * scale, 2)}px` : undefined;
+  const srcSet = slide.srcSet?.map((image) => `${image.src} ${image.width}w`).join(", ");
 
   return (
     <img

@@ -400,7 +400,7 @@ describe("Lightbox", () => {
     });
 
     expect(querySelector('img[srcset="src1 800w, src2 1600w"]')).toBeInTheDocument();
-    expect(querySelector('img[srcset="src4 600w, src3 1200w"]')).toBeInTheDocument();
+    expect(querySelector('img[srcset="src3 1200w, src4 600w"]')).toBeInTheDocument();
   });
 
   it("supports custom styles", () => {
