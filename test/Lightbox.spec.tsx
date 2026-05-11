@@ -204,6 +204,31 @@ describe("Lightbox", () => {
     expectCurrentSlideToBe(1);
   });
 
+  it("suppresses wheel and keyboard navigation inside yarll__interactive elements", async () => {
+    renderLightbox({
+      render: {
+        slideFooter: () => (
+          <div className="yarll__interactive">
+            <input type="text" data-testid="interactive-input" />
+          </div>
+        ),
+      },
+    });
+
+    const input = getCurrentSlide().querySelector<HTMLInputElement>('[data-testid="interactive-input"]')!;
+
+    fireEvent.keyDown(input, { key: "ArrowRight" });
+    expectCurrentSlideToBe(0);
+
+    await withFakeTimers(async () => {
+      act(() => {
+        vi.setSystemTime(Date.now() + 2_000);
+        fireEvent.wheel(input, { deltaX: 200, deltaY: 0 });
+      });
+    });
+    expectCurrentSlideToBe(0);
+  });
+
   it("soft-disables navigation buttons at boundaries", () => {
     renderLightbox();
 

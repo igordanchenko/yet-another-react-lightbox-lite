@@ -773,13 +773,17 @@ regardless of the `carousel.preload` value:
 }
 ```
 
-## Text Selection
+## Interactive Custom Elements
 
-The lightbox is rendered with the `user-select: none` CSS style. If you'd like
-to make some of your custom elements user-selectable, use the
-`yarll__selectable` CSS class. This class sets the `user-select: text` style and
-turns off click-and-drag slide navigation, which would likely interfere with
-text selection UX.
+The lightbox sets `user-select: none`, `touch-action: none`, and
+`-webkit-touch-callout: none` on the portal, and captures pointer, wheel, and
+keyboard events for navigation and zoom. If you render custom content that needs
+native behavior — text selection in captions, form inputs (including their
+arrow-key cursor movement), scrollable panels, range sliders, iOS long-press
+menus on embedded images, etc. — wrap it (or apply directly to the element) in
+the `yarll__interactive` CSS class. This class restores native browser behavior
+for those three properties and suppresses lightbox gesture, wheel, and keyboard
+handling for events originating inside the subtree.
 
 ## Imperative Handle
 

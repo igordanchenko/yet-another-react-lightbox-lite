@@ -56,3 +56,11 @@ export function isImageSlide(slide: Slide): slide is SlideImage {
 export function getChildren(element: Element | null | undefined) {
   return Array.from(element?.children || []);
 }
+
+// Walk up from the event target to see if it's inside a subtree the user
+// opted out via `.yarll__interactive` — suppresses gestures, wheel handling,
+// and keyboard nav in favor of native behavior for custom inputs, scrollable
+// panels, captions with text selection, etc.
+export function isInteractiveTarget(target: EventTarget | null) {
+  return target instanceof Element && target.closest(`.${cssClass("interactive")}`) !== null;
+}

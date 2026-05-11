@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 
 import useSensors from "./useSensors";
 import { useLightboxContext } from "./LightboxContext";
-import { clsx, cssClass, cssVar, getChildren, translateLabel } from "../utils";
+import { clsx, cssClass, cssVar, getChildren, isInteractiveTarget, translateLabel } from "../utils";
 import type { Callback, LightboxPhase } from "../types";
 
 type PortalProps = PropsWithChildren & {
@@ -90,7 +90,12 @@ export default function Portal({ phase, onClosed, children }: PortalProps) {
 
         // prevent the default touchpad / touchscreen overscroll behavior
         // this has to be done via non-passive native event handler
-        const preventWheelDefaults = (event: WheelEvent) => event.preventDefault();
+        const preventWheelDefaults = (event: WheelEvent) => {
+          // skip the opt-out subtree so wheel scrolling reaches native scrollers
+          // (textareas, overflow containers) inside `.yarll__interactive`
+          if (isInteractiveTarget(event.target)) return;
+          event.preventDefault();
+        };
         node.addEventListener("wheel", preventWheelDefaults, { passive: false });
         cleanup.current.push(() => {
           node.removeEventListener("wheel", preventWheelDefaults);

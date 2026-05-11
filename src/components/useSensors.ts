@@ -5,7 +5,7 @@ import { useZoom } from "./Zoom";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
 import useEventCallback from "./useEventCallback";
-import { cssClass, scaleZoom } from "../utils";
+import { cssClass, isInteractiveTarget, scaleZoom } from "../utils";
 
 const WHEEL_ZOOM_FACTOR = 100;
 const WHEEL_SWIPE_DISTANCE = 100;
@@ -80,6 +80,19 @@ function isInertiaContinuation(dx: number, timeStamp: number, cooldownStart: num
   return Math.abs(dx) < PREVAILING_DIRECTION_FACTOR * Math.abs(prevailingMomentum);
 }
 
+// intentionally querying the DOM each time — interactive elements can change per slide
+function shouldIgnorePointer(event: PointerEvent) {
+  return (
+    // ignore right button clicks (e.g., context menu)
+    (event.pointerType === "mouse" && event.buttons > 1) ||
+    // ignore clicks on navigation buttons, toolbar, user-interactive subtrees, etc.
+    (event.target instanceof Element &&
+      event.target.closest(
+        `.${cssClass("button")}, .${cssClass("icon")}, .${cssClass("toolbar")}, .${cssClass("interactive")}`,
+      ) !== null)
+  );
+}
+
 export default function useSensors() {
   const swipeHistory = useRef<NormalizedWheelEvent[]>([]);
   const cooldownStart = useRef<number | null>(null);
@@ -106,18 +119,9 @@ export default function useSensors() {
     activePointers.current = activePointers.current.filter((pointer) => pointer.pointerId !== event.pointerId);
   };
 
-  // intentionally querying the DOM each time — this only runs on pointerDown
-  // (not on every pointer move), and the selectable elements can change per slide
-  const shouldIgnoreEvent = (event: PointerEvent) =>
-    // ignore right button clicks (e.g., context menu)
-    (event.pointerType === "mouse" && event.buttons > 1) ||
-    // ignore clicks on navigation buttons, toolbar, user-selectable elements, etc.
-    (event.target instanceof Element &&
-      event.target.closest(
-        `.${cssClass("button")}, .${cssClass("icon")}, .${cssClass("toolbar")}, .${cssClass("selectable")}`,
-      ) !== null);
-
   const onKeyDown = useEventCallback((event: KeyboardEvent) => {
+    if (isInteractiveTarget(event.target)) return;
+
     const { key, metaKey, ctrlKey } = event;
     const meta = metaKey || ctrlKey;
 
@@ -167,7 +171,7 @@ export default function useSensors() {
   });
 
   const onPointerDown = useEventCallback((event: PointerEvent) => {
-    if (shouldIgnoreEvent(event)) return;
+    if (shouldIgnorePointer(event)) return;
 
     addPointer(event);
 
@@ -264,6 +268,8 @@ export default function useSensors() {
   });
 
   const onWheel = useEventCallback((event: WheelEvent) => {
+    if (isInteractiveTarget(event.target)) return;
+
     const [dx, dy] = normalizeWheel(event);
 
     if (event.ctrlKey) {

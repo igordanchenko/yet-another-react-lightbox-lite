@@ -187,6 +187,8 @@ body:has(.yarll__portal:not(.yarll__no_scroll_lock)) {
   pointer-events: none;
 }
 
-.yarll__selectable {
+.yarll__interactive {
   user-select: text;
+  touch-action: auto;
+  -webkit-touch-callout: default;
 }
