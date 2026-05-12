@@ -1,3 +1,3 @@
 export * from "./types";
 export { default } from "./Lightbox";
-export { useZoom } from "./components";
+export { IconButton, type IconButtonProps, useZoom } from "./components";

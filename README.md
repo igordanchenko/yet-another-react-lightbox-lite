@@ -230,7 +230,8 @@ Type: `object`
 Toolbar settings.
 
 - `buttons` - custom toolbar buttons (type: `ReactNode[]`). Each button should
-  have a unique `key` attribute.
+  have a unique `key` attribute. Use the exported [`IconButton`](#iconbutton)
+  component for buttons that match the built-in styling.
 - `fixed` - if `true`, the toolbar is positioned statically above the carousel
 
 Usage example:
@@ -240,16 +241,14 @@ Usage example:
   toolbar={{
     fixed: true,
     buttons: [
-      <button
-        key="custom-button"
-        type="button"
-        className="yarll__button"
+      <IconButton
+        key="download"
+        label="Download"
+        icon={DownloadIcon}
         onClick={() => {
           // ...
         }}
-      >
-        Download
-      </button>,
+      />,
     ],
   }}
   // ...
@@ -452,7 +451,8 @@ Supported slots:
 - `carousel` - lightbox carousel `<div>`
 - `toolbar` - lightbox toolbar `<div>`
 - `button` - lightbox button `<button>` (Close, Previous, Next, and any custom
-  toolbar buttons rendered via the exported `Button` component)
+  toolbar buttons rendered via the exported [`IconButton`](#iconbutton)
+  component)
 - `icon` - lightbox icon `<svg>`
 - `slide` - lightbox slide wrapper `<div>`
 - `image` - lightbox slide image `<img>` (object form, or a function receiving
@@ -854,6 +854,70 @@ Note that calling `close()` plays the exit transition (same as the Escape key or
 the toolbar Close button), whereas setting `index` to `undefined` from the
 parent skips the transition and unmounts immediately.
 
+## Components
+
+The library exports the following components that you may find helpful in
+customizing the lightbox UI.
+
+### IconButton
+
+`IconButton` renders an icon-only button with the same styling, ARIA semantics,
+and `slots.button` / `slots.icon` integration as the built-in Close, Previous,
+and Next buttons. Use it to build custom toolbar buttons that look and behave
+identically to the defaults.
+
+```tsx
+import Lightbox, { IconButton } from "yet-another-react-lightbox-lite";
+```
+
+`IconButton` accepts all standard `<button>` attributes (except `type`, `title`,
+`aria-label`, and `children` — owned by the component), plus:
+
+- `label` (required) - button label, used for both `title` and `aria-label`.
+  Accepts a known `Labels` key (translated via the [`labels`](#labels) prop) or
+  any custom string.
+- `icon` (required) - icon component rendered inside the button.
+- `renderIcon` - custom icon render function. When provided, takes precedence
+  over `icon`.
+
+`IconButton` must be rendered inside a `<Lightbox>` (it relies on the lightbox
+context).
+
+Usage example — a custom Download button rendered in the toolbar:
+
+```tsx
+import Lightbox, { IconButton } from "yet-another-react-lightbox-lite";
+
+function DownloadIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+    </svg>
+  );
+}
+
+<Lightbox
+  toolbar={{
+    buttons: [
+      <IconButton
+        key="download"
+        label="Download"
+        icon={DownloadIcon}
+        onClick={() => {
+          // download the current slide
+        }}
+      />,
+    ],
+  }}
+  // ...
+/>;
+```
+
+Styling applied via [`slots.button`](#slots) and `slots.icon` is forwarded
+automatically. Note that slot props take precedence over the caller's props
+(including `onClick` and `className`), matching the behavior of the built-in
+buttons.
+
 ## Hooks
 
 The library exports the following hooks that you may find helpful in customizing
@@ -881,25 +945,33 @@ The hook provides an object with the following props:
 Usage example:
 
 ```tsx
+import { IconButton, useZoom } from "yet-another-react-lightbox-lite";
+
 function ZoomControls() {
   const { zoom, maxZoom, changeZoom } = useZoom();
 
   return (
-    <div style={{ position: "absolute", bottom: 16, left: 16 }}>
-      <button
-        type="button"
+    <div
+      style={{
+        position: "absolute",
+        display: "flex",
+        bottom: 16,
+        left: 16,
+        gap: 8,
+      }}
+    >
+      <IconButton
+        label="Zoom in"
+        icon={ZoomInIcon}
         disabled={zoom >= maxZoom}
         onClick={() => changeZoom(zoom * 2)}
-      >
-        Zoom In
-      </button>
-      <button
-        type="button"
+      />
+      <IconButton
+        label="Zoom out"
+        icon={ZoomOutIcon}
         disabled={zoom <= 1}
         onClick={() => changeZoom(zoom / 2)}
-      >
-        Zoom Out
-      </button>
+      />
     </div>
   );
 }

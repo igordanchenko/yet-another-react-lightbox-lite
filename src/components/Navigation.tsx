@@ -1,4 +1,4 @@
-import Button from "./Button";
+import IconButton from "./IconButton";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
 import { Next, Previous } from "./icons";
@@ -17,7 +17,7 @@ export default function Navigation() {
     <>
       {slides.length > 1 && (
         <>
-          <Button
+          <IconButton
             label="Previous"
             icon={Previous}
             renderIcon={iconPrev}
@@ -26,7 +26,7 @@ export default function Navigation() {
             disabled={!infinite && index <= 0}
           />
 
-          <Button
+          <IconButton
             label="Next"
             icon={Next}
             renderIcon={iconNext}

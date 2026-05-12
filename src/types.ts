@@ -96,8 +96,8 @@ export interface Labels {
   "{index} of {total}"?: string;
 }
 
-/** Label key */
-export type Label = keyof Labels;
+/** Label key — accepts a known `Labels` key (with autocomplete) or any custom string */
+export type Label = keyof Labels | (string & {});
 
 /** Custom render functions. */
 export interface Render {

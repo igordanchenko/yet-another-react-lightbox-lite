@@ -1,4 +1,4 @@
-import Button from "./Button";
+import IconButton from "./IconButton";
 import { Close } from "./icons";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
@@ -15,7 +15,7 @@ export default function Toolbar() {
   return (
     <div {...mergeSlot(slots.toolbar, clsx(cssClass("toolbar"), fixed && cssClass("toolbar_fixed")))}>
       {buttons}
-      <Button label="Close" icon={Close} renderIcon={iconClose} onClick={close} />
+      <IconButton label="Close" icon={Close} renderIcon={iconClose} onClick={close} />
     </div>
   );
 }
