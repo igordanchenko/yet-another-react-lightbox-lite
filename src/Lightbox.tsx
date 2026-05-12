@@ -32,6 +32,7 @@ function resolveProps(props: LightboxProps): ResolvedLightboxProps {
     },
     zoom: {
       supports: zoom?.supports ?? ["image"],
+      maxZoom: zoom?.maxZoom ?? 8,
     },
     labels: labels ?? {},
     styles: styles ?? {},

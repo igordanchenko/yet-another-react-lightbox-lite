@@ -716,6 +716,26 @@ describe("Lightbox", () => {
     expect(maxZoom).toBe(8);
   });
 
+  it("honors zoom.maxZoom override", () => {
+    let snapshot: { zoom: number; maxZoom: number; changeZoom: (z: number) => void } | undefined;
+    const render = {
+      controls: () =>
+        createElement(() => {
+          snapshot = useZoom();
+          return null;
+        }),
+    };
+
+    const { unmount } = renderLightbox({ render, zoom: { maxZoom: 4 } });
+    expect(snapshot?.maxZoom).toBe(4);
+    act(() => snapshot?.changeZoom(100));
+    expect(snapshot?.zoom).toBe(4);
+    unmount();
+
+    renderLightbox({ render, zoom: { maxZoom: 4, supports: [] } });
+    expect(snapshot?.maxZoom).toBe(1);
+  });
+
   it("updates responsive image sizes when zoomed in", async () => {
     renderLightbox({
       slides: [

@@ -549,6 +549,16 @@ Type: `object`
 Zoom settings.
 
 - `supports` - slide types that support zoom (default: `["image"]`)
+- `maxZoom` - maximum zoom level (default: `8`)
+
+Cap the maximum zoom level:
+
+```tsx
+<Lightbox
+  zoom={{ maxZoom: 4 }}
+  // ...
+/>
+```
 
 Enable zoom on custom slide types:
 
@@ -851,9 +861,9 @@ import { useZoom } from "yet-another-react-lightbox-lite";
 The hook provides an object with the following props:
 
 - `rect` - slide rect
-- `zoom` - current zoom level (numeric value between `1` and `8`)
+- `zoom` - current zoom level (numeric value between `1` and `maxZoom`)
 - `maxZoom` - maximum zoom level (`1` if zoom is not supported on the current
-  slide)
+  slide, otherwise the configured `zoom.maxZoom`, default `8`)
 - `offsetX` - horizontal slide position offset
 - `offsetY` - vertical slide position offset
 - `changeZoom` - change zoom level

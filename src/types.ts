@@ -169,6 +169,8 @@ export interface ControllerSettings {
 export interface ZoomSettings {
   /** slide types that support zoom (default: `["image"]`) */
   supports?: readonly SlideTypeKey[];
+  /** maximum zoom level (default: `8`) */
+  maxZoom?: number;
 }
 
 /** Customization slots */
