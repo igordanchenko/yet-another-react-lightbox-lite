@@ -1,4 +1,4 @@
-import { type Context, useContext } from "react";
+import { type Context, type CSSProperties, useContext } from "react";
 
 import type { Label, Labels, Slide, SlideImage } from "./types";
 
@@ -14,6 +14,18 @@ export function cssVar(name: string) {
 
 export function clsx(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(" ");
+}
+
+export function mergeSlot<T extends { className?: string; style?: CSSProperties }>(
+  slot: T | undefined,
+  className: string,
+  style?: CSSProperties,
+) {
+  return {
+    ...slot,
+    className: clsx(className, slot?.className),
+    style: style || slot?.style ? { ...style, ...slot?.style } : undefined,
+  };
 }
 
 export function translateLabel(labels: Labels, label: Label) {

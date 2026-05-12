@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
-import { cssClass, round } from "../utils";
+import { cssClass, mergeSlot, round } from "../utils";
 import type { Rect, SlideImage } from "../types";
 
 type ImageSlideProps = {
@@ -23,8 +23,7 @@ export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
   const [scale, setScale] = useState(1);
 
   const {
-    styles,
-    carousel: { imageProps },
+    slots: { image },
   } = useLightboxContext();
 
   useEffect(() => {
@@ -35,13 +34,11 @@ export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
 
   const [width, height] = getImageDimensions(slide, rect);
   const sizes = width ? `${round(width * scale, 2)}px` : undefined;
-  const srcSet = slide.srcSet?.map((image) => `${image.src} ${image.width}w`).join(", ");
+  const srcSet = slide.srcSet?.map((source) => `${source.src} ${source.width}w`).join(", ");
 
   return (
     <img
       draggable={false}
-      style={styles.image}
-      className={cssClass("slide_image")}
       // `srcSet` must precede `src` attribute
       srcSet={srcSet}
       sizes={sizes}
@@ -49,8 +46,8 @@ export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
       height={height}
       src={slide.src}
       alt={slide.alt ?? ""}
-      // intentionally spread last — escape hatch to override any attribute
-      {...(typeof imageProps === "function" ? imageProps(slide) : imageProps)}
+      // mergeSlot is spread last — escape hatch to override any attribute
+      {...mergeSlot(typeof image === "function" ? image(slide) : image, cssClass("slide_image"))}
     />
   );
 }

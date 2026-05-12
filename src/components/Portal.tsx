@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 
 import useSensors from "./useSensors";
 import { useLightboxContext } from "./LightboxContext";
-import { clsx, cssClass, cssVar, getChildren, isInteractiveTarget, translateLabel } from "../utils";
+import { clsx, cssClass, cssVar, getChildren, isInteractiveTarget, mergeSlot, translateLabel } from "../utils";
 import type { Callback, LightboxPhase } from "../types";
 
 type PortalProps = PropsWithChildren & {
@@ -26,7 +26,7 @@ function setAttribute(element: Element, attribute: string, value: string) {
 }
 
 export default function Portal({ phase, onClosed, children }: PortalProps) {
-  const { labels, styles, className } = useLightboxContext();
+  const { labels, slots } = useLightboxContext();
 
   const [mounted, setMounted] = useState(false);
 
@@ -128,14 +128,13 @@ export default function Portal({ phase, onClosed, children }: PortalProps) {
           aria-label={translateLabel(labels, "Lightbox")}
           tabIndex={-1}
           ref={handleRef}
-          style={styles.portal}
-          className={clsx(cssClass("portal"), phase !== "open" && cssClass("portal_closed"), className)}
           onFocus={(event) => {
             if (!restoreFocus.current) {
               restoreFocus.current = event.relatedTarget as HTMLElement | null;
             }
           }}
           {...sensors}
+          {...mergeSlot(slots.portal, clsx(cssClass("portal"), phase !== "open" && cssClass("portal_closed")))}
         >
           {children}
         </div>,

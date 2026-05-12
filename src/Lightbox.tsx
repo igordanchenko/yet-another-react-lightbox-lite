@@ -4,7 +4,7 @@ import { Carousel, Controller, LightboxContext, Navigation, Portal, Toolbar, Zoo
 import type { LightboxPhase, LightboxProps, LightboxRef, ResolvedLightboxProps } from "./types";
 
 function resolveProps(props: LightboxProps): ResolvedLightboxProps {
-  const { slides, index, labels, styles, carousel, controller, render, toolbar, zoom } = props;
+  const { slides, index, labels, slots, carousel, controller, render, toolbar, zoom } = props;
 
   const validSlides = Array.isArray(slides) && slides.length > 0;
   const infinite = carousel?.infinite ?? false;
@@ -35,7 +35,7 @@ function resolveProps(props: LightboxProps): ResolvedLightboxProps {
       maxZoom: zoom?.maxZoom ?? 8,
     },
     labels: labels ?? {},
-    styles: styles ?? {},
+    slots: slots ?? {},
     render: render ?? {},
     toolbar: toolbar ?? {},
   };

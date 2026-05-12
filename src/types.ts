@@ -20,10 +20,8 @@ export interface LightboxProps {
   controller?: ControllerSettings;
   /** zoom settings */
   zoom?: ZoomSettings;
-  /** customization slots styles */
-  styles?: SlotStyles;
-  /** CSS class of the lightbox root element */
-  className?: string;
+  /** customization slots — override HTML attributes (including className and style) on the lightbox elements */
+  slots?: Slots;
 }
 
 /** Slide */
@@ -147,8 +145,6 @@ export interface CarouselSettings {
   preload?: number;
   /** if `true`, the carousel wraps around from the last slide to the first and vice versa (default: `false`) */
   infinite?: boolean;
-  /** custom image slide attributes */
-  imageProps?: ComponentProps<"img"> | ((slide: SlideImage) => ComponentProps<"img">);
   /** Slide transition effect (default: `"fade"`) */
   transition?: "fade" | "slide" | "none" | (string & {});
 }
@@ -173,35 +169,36 @@ export interface ZoomSettings {
   maxZoom?: number;
 }
 
-/** Customization slots */
-export interface SlotType {
-  /** lightbox portal (root) customization slot */
-  portal: "portal";
-  /** lightbox carousel customization slot */
-  carousel: "carousel";
-  /** lightbox slide customization slot */
-  slide: "slide";
-  /** lightbox slide image customization slot */
-  image: "image";
-  /** lightbox toolbar customization slot */
-  toolbar: "toolbar";
-  /** lightbox button customization slot */
-  button: "button";
-  /** lightbox icon customization slot */
-  icon: "icon";
-}
-
-/** Customization slots */
-export type Slot = SlotType[keyof SlotType];
-
-/** Customization slot CSS properties */
-interface SlotCSSProperties extends CSSProperties {
+/** CSS properties of a customization slot, including typed `--yarll__*` CSS variables */
+interface SlotStyle extends CSSProperties {
   [key: `--yarll__${string}`]: string | number;
 }
 
-/** Customization slots styles */
-export type SlotStyles = {
-  [key in Slot]?: SlotCSSProperties;
+/**
+ * Customization slot props — HTML attributes of the slot element with typed `style`.
+ * `children`, `key`, `ref`, and `dangerouslySetInnerHTML` are excluded — they clobber
+ * the lightbox subtree or are silently dropped on spread, and have no slot use case.
+ */
+type SlotProps<T> = Omit<T, "children" | "dangerouslySetInnerHTML" | "key" | "ref" | "style"> & {
+  style?: SlotStyle;
+};
+
+/** Customization slots */
+export type Slots = {
+  /** lightbox portal (root) */
+  portal?: SlotProps<ComponentProps<"div">>;
+  /** lightbox carousel */
+  carousel?: SlotProps<ComponentProps<"div">>;
+  /** lightbox toolbar */
+  toolbar?: SlotProps<ComponentProps<"div">>;
+  /** lightbox button (Close, Previous, Next, and any toolbar buttons rendered through the same component) */
+  button?: SlotProps<ComponentProps<"button">>;
+  /** lightbox icon (svg) */
+  icon?: SlotProps<ComponentProps<"svg">>;
+  /** lightbox slide wrapper */
+  slide?: SlotProps<ComponentProps<"div">>;
+  /** lightbox slide image — object form, or function that receives the slide and returns props */
+  image?: SlotProps<ComponentProps<"img">> | ((slide: SlideImage) => SlotProps<ComponentProps<"img">>);
 };
 
 /** Rect */
@@ -234,7 +231,7 @@ export interface LightboxRef {
 type WithRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
 /** Lightbox props with defaults filled in */
-export type ResolvedLightboxProps = WithRequired<LightboxProps, "labels" | "render" | "styles" | "toolbar"> & {
+export type ResolvedLightboxProps = WithRequired<LightboxProps, "labels" | "render" | "slots" | "toolbar"> & {
   carousel: WithRequired<CarouselSettings, "infinite" | "preload" | "transition">;
   controller: Required<ControllerSettings>;
   zoom: Required<ZoomSettings>;

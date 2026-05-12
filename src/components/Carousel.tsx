@@ -3,7 +3,16 @@ import { useEffect, useRef, useState } from "react";
 import ImageSlide from "./ImageSlide";
 import { useZoom, useZoomInternal } from "./Zoom";
 import { useLightboxContext } from "./LightboxContext";
-import { clsx, cssClass, isImageSlide, round, translateLabel, translateSlideCounter, wrapIndex } from "../utils";
+import {
+  clsx,
+  cssClass,
+  isImageSlide,
+  mergeSlot,
+  round,
+  translateLabel,
+  translateSlideCounter,
+  wrapIndex,
+} from "../utils";
 import type { RenderSlideProps, SlideImage } from "../types";
 
 type CarouselSlideProps = Pick<RenderSlideProps, "slide" | "rect" | "current" | "slideIndex"> & {
@@ -14,7 +23,7 @@ function CarouselSlide({ slide, rect, current, slideIndex, offset }: CarouselSli
   const ref = useRef<HTMLDivElement | null>(null);
 
   const { zoom, offsetX, offsetY } = useZoom();
-  const { slides, styles, labels, render } = useLightboxContext();
+  const { slides, slots, labels, render } = useLightboxContext();
 
   // Once a slide has been zoomed during its current "current" stint, keep `transition: none`
   // applied even after zoom snaps back to 1 — otherwise the slide-mode `transition: transform`
@@ -48,22 +57,22 @@ function CarouselSlide({ slide, rect, current, slideIndex, offset }: CarouselSli
       role="group"
       aria-label={translateSlideCounter(labels, slideIndex + 1, slides.length)}
       aria-roledescription={translateLabel(labels, "Slide")}
-      className={clsx(cssClass("slide"), current && cssClass("slide_current"))}
       data-offset={offset}
-      style={{
-        ...(current && (zoom > 1 || hadZoom)
+      {...mergeSlot(
+        slots.slide,
+        clsx(cssClass("slide"), current && cssClass("slide_current")),
+        current && (zoom > 1 || hadZoom)
           ? {
-              transform:
-                zoom > 1
-                  ? `translateX(${round(offsetX, 3)}px) translateY(${round(offsetY, 3)}px) scale(${round(zoom, 3)})`
-                  : undefined,
-              // Suppress the slide-transition `transition: transform` so zoom/pan updates don't
-              // ride the slide-duration ease-in-out curve — the same `transform` property carries both.
-              transition: "none",
-            }
-          : undefined),
-        ...styles.slide,
-      }}
+            transform:
+              zoom > 1
+                ? `translateX(${round(offsetX, 3)}px) translateY(${round(offsetY, 3)}px) scale(${round(zoom, 3)})`
+                : undefined,
+            // Suppress the slide-transition `transition: transform` so zoom/pan updates don't
+            // ride the slide-duration ease-in-out curve — the same `transform` property carries both.
+            transition: "none",
+          }
+          : undefined,
+      )}
     >
       {render.slideHeader?.(context)}
       {render.slide?.(context) ??
@@ -74,19 +83,18 @@ function CarouselSlide({ slide, rect, current, slideIndex, offset }: CarouselSli
 }
 
 export default function Carousel() {
-  const { slides, index, styles, labels, carousel } = useLightboxContext();
+  const { slides, index, slots, labels, carousel } = useLightboxContext();
   const { setCarouselRef } = useZoomInternal();
   const { rect } = useZoom();
 
   return (
     <div
       ref={setCarouselRef}
-      style={styles.carousel}
-      className={clsx(cssClass("carousel"), cssClass(`transition_${carousel.transition}`))}
       role="region"
       aria-live="polite"
       aria-label={translateLabel(labels, "Photo gallery")}
       aria-roledescription={translateLabel(labels, "Carousel")}
+      {...mergeSlot(slots.carousel, clsx(cssClass("carousel"), cssClass(`transition_${carousel.transition}`)))}
     >
       {rect &&
         Array.from({ length: 2 * carousel.preload + 1 }).map((_, i) => {

@@ -263,8 +263,6 @@ Type: `object`
 Carousel settings.
 
 - `preload` - the lightbox preloads `(2 * preload + 1)` slides (default: `2`)
-- `imageProps` - custom image slide attributes (an object or a function
-  receiving the current slide and returning an object)
 - `transition` - slide transition effect, `"fade"` (default), `"slide"`, or
   `"none"` (see [Slide Transitions](#slide-transitions))
 - `infinite` - if `true`, the carousel wraps around from the last slide to the
@@ -280,32 +278,7 @@ Usage example:
 
 ```tsx
 <Lightbox
-  carousel={{
-    preload: 5,
-    imageProps: { crossOrigin: "anonymous" },
-  }}
-  // ...
-/>
-```
-
-You can also use a function to provide per-slide attributes. The example below
-augments `SlideImage` with a custom `lang` field (see
-[Custom Slide Attributes](#custom-slide-attributes)) and forwards it to the
-underlying `<img>`:
-
-```tsx
-declare module "yet-another-react-lightbox-lite" {
-  interface SlideImage {
-    lang?: string;
-  }
-}
-```
-
-```tsx
-<Lightbox
-  carousel={{
-    imageProps: (slide) => ({ lang: slide.lang }),
-  }}
+  carousel={{ preload: 5 }}
   // ...
 />
 ```
@@ -318,6 +291,9 @@ Enable infinite (wrapping) navigation:
   // ...
 />
 ```
+
+To customize image slide attributes (e.g., `crossOrigin`, `loading`, `lang`),
+use the [`slots.image`](#slots) prop.
 
 ### controller
 
@@ -462,40 +438,78 @@ Render custom `Next` icon.
 
 Render custom `Close` icon.
 
-### styles
+### slots
 
 Type: `object`
 
-Customization slots styles allow you to specify custom CSS styles or override
-`--yarll__*` CSS variables by passing your custom styles through to the
-corresponding lightbox elements.
+Customization slots let you override HTML attributes on the lightbox elements —
+`className`, `style` (including `--yarll__*` CSS variables), `data-*`, `aria-*`,
+`crossOrigin`, etc.
 
-Supported customization slots:
+Supported slots:
 
-- `portal` - lightbox portal (root)
-- `carousel` - lightbox carousel
-- `slide` - lightbox slide
-- `image` - lightbox slide image
-- `toolbar` - lightbox toolbar
-- `button` - lightbox button
-- `icon` - lightbox icon
+- `portal` - lightbox portal (root) `<div>`
+- `carousel` - lightbox carousel `<div>`
+- `toolbar` - lightbox toolbar `<div>`
+- `button` - lightbox button `<button>` (Close, Previous, Next, and any custom
+  toolbar buttons rendered via the exported `Button` component)
+- `icon` - lightbox icon `<svg>`
+- `slide` - lightbox slide wrapper `<div>`
+- `image` - lightbox slide image `<img>` (object form, or a function receiving
+  the current slide and returning props)
 
-Usage example:
+Usage examples:
 
 ```tsx
 <Lightbox
-  styles={{
-    portal: { "--yarll__backdrop_color": "rgba(0, 0, 0, 0.6)" },
+  slots={{
+    portal: {
+      className: "custom-portal-class",
+      style: { "--yarll__backdrop_color": "rgba(0, 0, 0, 0.6)" },
+    },
+    image: { crossOrigin: "anonymous" },
   }}
   // ...
 />
 ```
 
+You can also use a function form for `slots.image` to provide per-slide image
+attributes. The example below augments `SlideImage` with a custom `lang` field
+(see [Custom Slide Attributes](#custom-slide-attributes)) and forwards it to the
+underlying `<img>`:
+
+```tsx
+declare module "yet-another-react-lightbox-lite" {
+  interface SlideImage {
+    lang?: string;
+  }
+}
+```
+
+```tsx
+<Lightbox
+  slots={{
+    image: (slide) => ({ lang: slide.lang }),
+  }}
+  // ...
+/>
+```
+
+`slots.image` is the only slot that accepts a function — image is the only slot
+rendered per slide, so it's the only one with per-instance context. The other
+slots are singletons and accept objects only.
+
+`className` and `style` from a slot are merged with the lightbox internals
+(library classes stay, your additions are appended; library style entries stay,
+your entries override on conflict). All other attributes are spread last, so a
+slot can override any built-in attribute (including the lightbox's own event
+handlers) — use with caution.
+
 #### CSS Custom Properties
 
 The stylesheet exposes the following custom properties for theming. Override
-them via the `styles` prop shown above, globally via `:root`, or scoped via
-`className`.
+them via the `slots` prop shown above, globally via `:root`, or scoped via a
+custom class on the lightbox (`slots.portal.className`).
 
 **Portal**
 
@@ -534,13 +548,6 @@ them via the `styles` prop shown above, globally via `:root`, or scoped via
 **Icons**
 
 - `--yarll__icon_size` — icon width and height
-
-### className
-
-Type: `string`
-
-CSS class of the lightbox root element. You can use this class name to provide
-module-scoped style overrides.
 
 ### zoom
 
@@ -701,11 +708,11 @@ document `<body>` from scrolling underneath the lightbox by assigning the
 
 If this behavior causes undesired side effects in your case, and you prefer not
 to use this feature, you can turn it off by assigning the
-`yarll__no_scroll_lock` class to the lightbox.
+`yarll__no_scroll_lock` class to the lightbox via `slots.portal.className`.
 
 ```tsx
 <Lightbox
-  className="yarll__no_scroll_lock"
+  slots={{ portal: { className: "yarll__no_scroll_lock" } }}
   // ...
 />
 ```
@@ -739,15 +746,17 @@ Each preset exposes its own duration / easing CSS variables:
 - `"slide"` — `--yarll__slide_duration` (default `0.5s`) and
   `--yarll__slide_easing` (default `ease-in-out`)
 
-Set them on `.yarll__portal` to retune globally, or scope them to the carousel
-to retune slide navigation alone — either via `styles.carousel`:
+Override them via `slots.portal.style`, `slots.carousel.style`, or anywhere
+reachable in your CSS cascade. For example, retuning the slide preset:
 
 ```tsx
 <Lightbox
-  styles={{
+  slots={{
     carousel: {
-      "--yarll__slide_duration": "1s",
-      "--yarll__slide_easing": "ease-in-out",
+      style: {
+        "--yarll__slide_duration": "1s",
+        "--yarll__slide_easing": "ease-in-out",
+      },
     },
   }}
 />

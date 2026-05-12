@@ -1,7 +1,7 @@
 import type { ComponentProps, ElementType } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
-import { clsx, cssClass, translateLabel } from "../utils";
+import { clsx, cssClass, mergeSlot, translateLabel } from "../utils";
 import type { Label, RenderFunction } from "../types";
 
 type ButtonProps = Pick<ComponentProps<"button">, "onClick" | "disabled" | "className"> & {
@@ -11,7 +11,7 @@ type ButtonProps = Pick<ComponentProps<"button">, "onClick" | "disabled" | "clas
 };
 
 export default function Button({ icon: Icon, renderIcon, label, onClick, disabled, className }: ButtonProps) {
-  const { labels, styles } = useLightboxContext();
+  const { labels, slots } = useLightboxContext();
   const buttonLabel = translateLabel(labels, label);
 
   return (
@@ -21,10 +21,9 @@ export default function Button({ icon: Icon, renderIcon, label, onClick, disable
       aria-label={buttonLabel}
       aria-disabled={disabled || undefined}
       onClick={disabled ? undefined : onClick}
-      style={styles.button}
-      className={clsx(cssClass("button"), className)}
+      {...mergeSlot(slots.button, clsx(cssClass("button"), className))}
     >
-      {renderIcon?.() ?? <Icon style={styles.icon} className={cssClass("icon")} />}
+      {renderIcon?.() ?? <Icon {...mergeSlot(slots.icon, cssClass("icon"))} />}
     </button>
   );
 }

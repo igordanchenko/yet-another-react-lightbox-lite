@@ -428,15 +428,15 @@ describe("Lightbox", () => {
     expect(querySelector('img[srcset="src3 1200w, src4 600w"]')).toBeInTheDocument();
   });
 
-  it("supports custom styles", () => {
+  it("supports slot styles", () => {
     renderLightbox({
-      styles: {
-        portal: { "--yarll__style": "portal" },
-        carousel: { "--yarll__style": "carousel" },
-        slide: { "--yarll__style": "slide" },
-        toolbar: { "--yarll__style": "toolbarv" },
-        button: { "--yarll__style": "button" },
-        icon: { "--yarll__style": "icon" },
+      slots: {
+        portal: { style: { "--yarll__style": "portal" } },
+        carousel: { style: { "--yarll__style": "carousel" } },
+        slide: { style: { "--yarll__style": "slide" } },
+        toolbar: { style: { "--yarll__style": "toolbar" } },
+        button: { style: { "--yarll__style": "button" } },
+        icon: { style: { "--yarll__style": "icon" } },
       },
     });
 
@@ -448,10 +448,30 @@ describe("Lightbox", () => {
     expect(querySelectorAll('svg[style*="--yarll__style: icon"]').length).toBe(3);
   });
 
-  it("supports lightbox className", () => {
-    renderLightbox({ className: "custom-class" });
+  it("merges slot className with internal classes", () => {
+    renderLightbox({
+      slots: {
+        portal: { className: "custom-portal" },
+        carousel: { className: "custom-carousel" },
+        toolbar: { className: "custom-toolbar" },
+      },
+    });
 
-    expect(querySelector(".yarll__portal.custom-class")).toBeInTheDocument();
+    expect(querySelector(".yarll__portal.custom-portal")).toBeInTheDocument();
+    expect(querySelector(".yarll__carousel.custom-carousel")).toBeInTheDocument();
+    expect(querySelector(".yarll__toolbar.custom-toolbar")).toBeInTheDocument();
+  });
+
+  it("forwards arbitrary slot attributes", () => {
+    renderLightbox({
+      slots: {
+        portal: { "aria-describedby": "described-by" },
+        toolbar: { title: "toolbar-title" },
+      },
+    });
+
+    expect(querySelector('[aria-describedby="described-by"]')).toBeInTheDocument();
+    expect(querySelector('[title="toolbar-title"]')).toBeInTheDocument();
   });
 
   it("supports custom toolbar buttons", () => {
@@ -773,13 +793,13 @@ describe("Lightbox", () => {
   });
 
   it("supports custom image attributes", () => {
-    renderLightbox({ carousel: { imageProps: { crossOrigin: "anonymous" } } });
+    renderLightbox({ slots: { image: { crossOrigin: "anonymous" } } });
 
     expect(getCurrentSlideImage().getAttribute("crossOrigin")).toBe("anonymous");
   });
 
   it("supports overriding built-in image attributes", () => {
-    renderLightbox({ carousel: { imageProps: { alt: "Custom alt", draggable: true } } });
+    renderLightbox({ slots: { image: { alt: "Custom alt", draggable: true } } });
 
     expect(getCurrentSlideImage().alt).toBe("Custom alt");
     expect(getCurrentSlideImage().draggable).toBe(true);
@@ -787,7 +807,7 @@ describe("Lightbox", () => {
 
   it("supports custom image attributes as a function of a slide", () => {
     renderLightbox({
-      carousel: { imageProps: (slide) => ({ loading: slide.src === slides[0].src ? "eager" : "lazy" }) },
+      slots: { image: (slide) => ({ loading: slide.src === slides[0].src ? "eager" : "lazy" }) },
     });
 
     expect(getCurrentSlideImage().getAttribute("loading")).toBe("eager");
