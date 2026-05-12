@@ -32,7 +32,7 @@ type ZoomContextType = {
 const ZoomContext = createContext<ZoomContextType | null>(null);
 
 /** `useZoom` hook */
-export const useZoom = makeUseContext(ZoomContext);
+export const useZoom = makeUseContext("useZoom", ZoomContext);
 
 type ZoomInternalContextType = {
   setCarouselRef: RefCallback<HTMLDivElement>;
@@ -40,7 +40,7 @@ type ZoomInternalContextType = {
 
 const ZoomInternalContext = createContext<ZoomInternalContextType | null>(null);
 
-export const useZoomInternal = makeUseContext(ZoomInternalContext);
+export const useZoomInternal = makeUseContext("useZoomInternal", ZoomInternalContext);
 
 export default function Zoom({ children }: PropsWithChildren) {
   const [zoom, setZoom] = useState(1);

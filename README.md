@@ -923,6 +923,63 @@ buttons.
 The library exports the following hooks that you may find helpful in customizing
 lightbox functionality.
 
+### useController
+
+`useController` exposes the lightbox's navigation controls so that custom
+toolbar buttons (or other elements rendered through
+[`render.controls`](#render)) can drive the lightbox from the inside. The
+returned `close()` plays the exit transition — same as the toolbar Close button
+or the Escape key — whereas clearing `index` from the parent unmounts
+immediately.
+
+```tsx
+import { useController } from "yet-another-react-lightbox-lite";
+```
+
+The hook returns an object with:
+
+- `prev()` - navigate to the previous slide
+- `next()` - navigate to the next slide
+- `close()` - trigger the animated close
+
+`useController` must be called from inside a `<Lightbox>` (it reads the
+lightbox's controller context).
+
+Usage example — a custom bottom navigation bar rendered via
+[`render.controls`](#render):
+
+```tsx
+import Lightbox, {
+  IconButton,
+  useController,
+} from "yet-another-react-lightbox-lite";
+
+function NavigationBar() {
+  const { prev, next, close } = useController();
+  return (
+    <div
+      style={{
+        position: "absolute",
+        display: "flex",
+        bottom: 16,
+        left: "50%",
+        gap: 8,
+        transform: "translateX(-50%)",
+      }}
+    >
+      <IconButton label="Previous" icon={PrevIcon} onClick={prev} />
+      <IconButton label="Done" icon={DoneIcon} onClick={close} />
+      <IconButton label="Next" icon={NextIcon} onClick={next} />
+    </div>
+  );
+}
+
+<Lightbox
+  render={{ controls: () => <NavigationBar /> }}
+  // ...
+/>;
+```
+
 ### useZoom
 
 You can use the `useZoom` hook to build your custom zoom controls.

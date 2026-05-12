@@ -1,5 +1,5 @@
 export { default as Carousel } from "./Carousel";
-export { default as Controller } from "./Controller";
+export { default as Controller, useController } from "./Controller";
 export { default as IconButton, type IconButtonProps } from "./IconButton";
 export { default as LightboxContext } from "./LightboxContext";
 export { default as Navigation } from "./Navigation";

@@ -3,19 +3,15 @@ import { createContext, forwardRef, type PropsWithChildren, useImperativeHandle,
 import { useLightboxContext } from "./LightboxContext";
 import useEventCallback from "./useEventCallback";
 import { makeUseContext } from "../utils";
-import type { Callback, LightboxProps, LightboxRef } from "../types";
+import type { LightboxProps, LightboxRef } from "../types";
 
 type ControllerProps = PropsWithChildren & Pick<LightboxProps, "setIndex"> & Pick<ControllerContextType, "close">;
 
-type ControllerContextType = {
-  prev: Callback;
-  next: Callback;
-  close: Callback;
-};
+type ControllerContextType = LightboxRef;
 
 const ControllerContext = createContext<ControllerContextType | null>(null);
 
-export const useController = makeUseContext(ControllerContext);
+export const useController = makeUseContext("useController", ControllerContext);
 
 const Controller = forwardRef<LightboxRef, ControllerProps>(function Controller({ setIndex, close, children }, ref) {
   const {

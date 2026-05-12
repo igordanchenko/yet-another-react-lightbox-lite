@@ -7,7 +7,7 @@ type LightboxContextType = Omit<ResolvedLightboxProps, "setIndex"> & { index: nu
 
 const LightboxContext = createContext<LightboxContextType | null>(null);
 
-export const useLightboxContext = makeUseContext(LightboxContext);
+export const useLightboxContext = makeUseContext("useLightboxContext", LightboxContext);
 
 // Intentionally not memoizing the context value — most props are objects that
 // consumers pass as inline literals, so deps would change on every render anyway.

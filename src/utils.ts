@@ -38,11 +38,10 @@ export function translateSlideCounter(labels: Labels, index: number, total: numb
     .replace(/\{total}/g, `${total}`);
 }
 
-export function makeUseContext<T>(context: Context<T | null>) {
+export function makeUseContext<T>(name: string, context: Context<T | null>) {
   return () => {
     const ctx = useContext(context);
-    // intentionally no message — stack trace is sufficient for internal use
-    if (!ctx) throw new Error();
+    if (!ctx) throw new Error(`${name} must be used inside <Lightbox>`);
     return ctx;
   };
 }

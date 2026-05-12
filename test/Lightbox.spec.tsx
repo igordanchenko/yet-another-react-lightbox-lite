@@ -532,7 +532,9 @@ describe("Lightbox", () => {
 
   it("supports proper context nesting", () => {
     suppressConsoleErrors(() =>
-      expect(() => render(createElement(() => makeUseContext(createContext(null))()))).toThrowError(),
+      expect(() => render(createElement(() => makeUseContext("useTest", createContext(null))()))).toThrowError(
+        "useTest must be used inside <Lightbox>",
+      ),
     );
   });
 
