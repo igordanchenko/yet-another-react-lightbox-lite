@@ -4,10 +4,12 @@ import { createPortal } from "react-dom";
 import { useSensors } from "./useSensors";
 import { useLightboxContext } from "./LightboxContext";
 import { clsx, cssClass, cssVar, getChildren, isInteractiveTarget, mergeSlot, translateLabel } from "../utils";
-import type { LightboxPhase } from "../types";
+
+/** Portal lifecycle state */
+export type PortalState = "open" | "closing" | "closed";
 
 type PortalProps = PropsWithChildren & {
-  phase: LightboxPhase;
+  state: PortalState;
   onClosed: () => void;
 };
 
@@ -25,7 +27,7 @@ function setAttribute(element: Element, attribute: string, value: string) {
   };
 }
 
-export function Portal({ phase, onClosed, children }: PortalProps) {
+export function Portal({ state, onClosed, children }: PortalProps) {
   const { labels, slots } = useLightboxContext();
 
   const [mounted, setMounted] = useState(false);
@@ -63,7 +65,7 @@ export function Portal({ phase, onClosed, children }: PortalProps) {
   }, []);
 
   useEffect(() => {
-    if (phase !== "closing") return undefined;
+    if (state !== "closing") return undefined;
 
     // Restore inert/aria-hidden/focus immediately on closing so they take effect
     // before the fade-out completes, then wait for the transition before unmounting.
@@ -78,7 +80,7 @@ export function Portal({ phase, onClosed, children }: PortalProps) {
     const timeout = setTimeout(onClosed, duration);
 
     return () => clearTimeout(timeout);
-  }, [phase, handleCleanup, onClosed]);
+  }, [state, handleCleanup, onClosed]);
 
   const handleRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -134,7 +136,7 @@ export function Portal({ phase, onClosed, children }: PortalProps) {
             }
           }}
           {...sensors}
-          {...mergeSlot(slots.portal, clsx(cssClass("portal"), phase !== "open" && cssClass("portal_closed")))}
+          {...mergeSlot(slots.portal, clsx(cssClass("portal"), state !== "open" && cssClass("portal_closed")))}
         >
           {children}
         </div>,
