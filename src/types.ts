@@ -226,9 +226,6 @@ export type Rect = {
   height: number;
 };
 
-/** Callback function */
-export type Callback = () => void;
-
 /** Render function */
 export type RenderFunction<T = void> = [T] extends [void] ? () => ReactNode : (props: T) => ReactNode;
 
@@ -238,9 +235,9 @@ export type LightboxPhase = "open" | "closing" | "closed";
 /** Lightbox imperative handle */
 export interface LightboxRef {
   /** navigate to the previous slide */
-  prev: Callback;
+  prev: () => void;
   /** navigate to the next slide */
-  next: Callback;
+  next: () => void;
   /** trigger animated close */
-  close: Callback;
+  close: () => void;
 }

@@ -4,11 +4,11 @@ import { createPortal } from "react-dom";
 import { useSensors } from "./useSensors";
 import { useLightboxContext } from "./LightboxContext";
 import { clsx, cssClass, cssVar, getChildren, isInteractiveTarget, mergeSlot, translateLabel } from "../utils";
-import type { Callback, LightboxPhase } from "../types";
+import type { LightboxPhase } from "../types";
 
 type PortalProps = PropsWithChildren & {
   phase: LightboxPhase;
-  onClosed: Callback;
+  onClosed: () => void;
 };
 
 function setAttribute(element: Element, attribute: string, value: string) {
@@ -30,7 +30,7 @@ export function Portal({ phase, onClosed, children }: PortalProps) {
 
   const [mounted, setMounted] = useState(false);
 
-  const cleanup = useRef<Callback[]>([]);
+  const cleanup = useRef<(() => void)[]>([]);
   const portalRef = useRef<HTMLDivElement | null>(null);
   const restoreFocus = useRef<HTMLElement | null>(null);
 
