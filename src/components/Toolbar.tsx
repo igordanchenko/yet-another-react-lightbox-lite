@@ -1,10 +1,10 @@
-import IconButton from "./IconButton";
+import { IconButton } from "./IconButton";
 import { Close } from "./icons";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
 import { clsx, cssClass, mergeSlot } from "../utils";
 
-export default function Toolbar() {
+export function Toolbar() {
   const {
     slots,
     render: { iconClose },

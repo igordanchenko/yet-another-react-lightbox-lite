@@ -2,7 +2,7 @@ import type { MouseEvent, PropsWithChildren, RefCallback } from "react";
 import { createContext, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
-import useEventCallback from "./useEventCallback";
+import { useEventCallback } from "./useEventCallback";
 import { cssClass, getChildren, makeUseContext, wrapIndex } from "../utils";
 import type { Rect } from "../types";
 
@@ -42,7 +42,7 @@ const ZoomInternalContext = createContext<ZoomInternalContextType | null>(null);
 
 export const useZoomInternal = makeUseContext("useZoomInternal", ZoomInternalContext);
 
-export default function Zoom({ children }: PropsWithChildren) {
+export function Zoom({ children }: PropsWithChildren) {
   const [zoom, setZoom] = useState(1);
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);

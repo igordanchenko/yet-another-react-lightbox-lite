@@ -1,8 +1,8 @@
-export { default as Carousel } from "./Carousel";
-export { default as Controller, useController } from "./Controller";
-export { default as IconButton, type IconButtonProps } from "./IconButton";
-export { default as LightboxContext } from "./LightboxContext";
-export { default as Navigation } from "./Navigation";
-export { default as Portal } from "./Portal";
-export { default as Toolbar } from "./Toolbar";
-export { default as Zoom, useZoom } from "./Zoom";
+export * from "./Carousel";
+export * from "./Controller";
+export * from "./IconButton";
+export * from "./LightboxContext";
+export * from "./Navigation";
+export * from "./Portal";
+export * from "./Toolbar";
+export * from "./Zoom";

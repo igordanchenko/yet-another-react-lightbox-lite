@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { useZoom } from "./Zoom";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
-import useEventCallback from "./useEventCallback";
+import { useEventCallback } from "./useEventCallback";
 import { cssClass, isInteractiveTarget, scaleZoom } from "../utils";
 
 const WHEEL_ZOOM_FACTOR = 100;
@@ -93,7 +93,7 @@ function shouldIgnorePointer(event: PointerEvent) {
   );
 }
 
-export default function useSensors() {
+export function useSensors() {
   const swipeHistory = useRef<NormalizedWheelEvent[]>([]);
   const cooldownStart = useRef<number | null>(null);
   const prevailingMomentum = useRef<number | null>(null);

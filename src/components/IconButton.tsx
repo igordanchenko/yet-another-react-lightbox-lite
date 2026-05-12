@@ -13,7 +13,7 @@ export type IconButtonProps = Omit<ComponentProps<"button">, "type" | "title" | 
   renderIcon?: RenderFunction;
 };
 
-const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(
+export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(
   { icon: Icon, renderIcon, label, onClick, disabled, className, ...rest },
   ref,
 ) {
@@ -35,5 +35,3 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(function IconB
     </button>
   );
 });
-
-export default IconButton;

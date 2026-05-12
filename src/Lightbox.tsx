@@ -1,6 +1,6 @@
 import { forwardRef, useCallback, useState } from "react";
 
-import { Carousel, Controller, LightboxContext, Navigation, Portal, Toolbar, Zoom } from "./components";
+import { Carousel, Controller, LightboxContextProvider, Navigation, Portal, Toolbar, Zoom } from "./components";
 import type { LightboxPhase, LightboxProps, LightboxRef, ResolvedLightboxProps } from "./types";
 
 function resolveProps(props: LightboxProps): ResolvedLightboxProps {
@@ -42,7 +42,7 @@ function resolveProps(props: LightboxProps): ResolvedLightboxProps {
 }
 
 /** Lightbox component */
-const Lightbox = forwardRef<LightboxRef, LightboxProps>(function Lightbox(props, ref) {
+export const Lightbox = forwardRef<LightboxRef, LightboxProps>(function Lightbox(props, ref) {
   const { slides, index, setIndex, ...rest } = resolveProps(props);
 
   const [phase, setPhase] = useState<LightboxPhase>(() => (index !== undefined ? "open" : "closed"));
@@ -59,7 +59,7 @@ const Lightbox = forwardRef<LightboxRef, LightboxProps>(function Lightbox(props,
   if (phase === "closed" || index === undefined) return null;
 
   return (
-    <LightboxContext {...{ slides, index, ...rest }}>
+    <LightboxContextProvider {...{ slides, index, ...rest }}>
       <Controller {...{ ref, setIndex, close }}>
         <Zoom>
           <Portal {...{ phase, onClosed }}>
@@ -69,8 +69,6 @@ const Lightbox = forwardRef<LightboxRef, LightboxProps>(function Lightbox(props,
           </Portal>
         </Zoom>
       </Controller>
-    </LightboxContext>
+    </LightboxContextProvider>
   );
 });
-
-export default Lightbox;

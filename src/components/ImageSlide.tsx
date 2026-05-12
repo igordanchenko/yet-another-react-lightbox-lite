@@ -19,7 +19,7 @@ function getImageDimensions(slide: SlideImage, rect: Rect) {
     : [rect.width, round(rect.width / imageAspectRatio, 2)];
 }
 
-export default function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
+export function ImageSlide({ slide, rect, zoom }: ImageSlideProps) {
   const [scale, setScale] = useState(1);
 
   const {

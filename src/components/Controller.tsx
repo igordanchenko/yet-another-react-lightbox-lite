@@ -1,7 +1,7 @@
 import { createContext, forwardRef, type PropsWithChildren, useImperativeHandle, useMemo } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
-import useEventCallback from "./useEventCallback";
+import { useEventCallback } from "./useEventCallback";
 import { makeUseContext } from "../utils";
 import type { LightboxProps, LightboxRef } from "../types";
 
@@ -13,7 +13,10 @@ const ControllerContext = createContext<ControllerContextType | null>(null);
 
 export const useController = makeUseContext("useController", ControllerContext);
 
-const Controller = forwardRef<LightboxRef, ControllerProps>(function Controller({ setIndex, close, children }, ref) {
+export const Controller = forwardRef<LightboxRef, ControllerProps>(function Controller(
+  { setIndex, close, children },
+  ref,
+) {
   const {
     slides,
     index,
@@ -37,5 +40,3 @@ const Controller = forwardRef<LightboxRef, ControllerProps>(function Controller(
 
   return <ControllerContext.Provider value={context}>{children}</ControllerContext.Provider>;
 });
-
-export default Controller;

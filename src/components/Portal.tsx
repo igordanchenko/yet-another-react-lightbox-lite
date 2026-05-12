@@ -1,7 +1,7 @@
 import { type PropsWithChildren, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import useSensors from "./useSensors";
+import { useSensors } from "./useSensors";
 import { useLightboxContext } from "./LightboxContext";
 import { clsx, cssClass, cssVar, getChildren, isInteractiveTarget, mergeSlot, translateLabel } from "../utils";
 import type { Callback, LightboxPhase } from "../types";
@@ -25,7 +25,7 @@ function setAttribute(element: Element, attribute: string, value: string) {
   };
 }
 
-export default function Portal({ phase, onClosed, children }: PortalProps) {
+export function Portal({ phase, onClosed, children }: PortalProps) {
   const { labels, slots } = useLightboxContext();
 
   const [mounted, setMounted] = useState(false);

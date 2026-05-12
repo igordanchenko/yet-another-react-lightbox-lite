@@ -1,10 +1,10 @@
-import IconButton from "./IconButton";
+import { IconButton } from "./IconButton";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
 import { Next, Previous } from "./icons";
 import { cssClass } from "../utils";
 
-export default function Navigation() {
+export function Navigation() {
   const {
     slides,
     index,

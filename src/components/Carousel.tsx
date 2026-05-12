@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import ImageSlide from "./ImageSlide";
+import { ImageSlide } from "./ImageSlide";
 import { useZoom, useZoomInternal } from "./Zoom";
 import { useLightboxContext } from "./LightboxContext";
 import {
@@ -82,7 +82,7 @@ function CarouselSlide({ slide, rect, current, slideIndex, offset }: CarouselSli
   );
 }
 
-export default function Carousel() {
+export function Carousel() {
   const { slides, index, slots, labels, carousel } = useLightboxContext();
   const { setCarouselRef } = useZoomInternal();
   const { rect } = useZoom();
