@@ -223,6 +223,21 @@ Custom UI labels / translations.
 />
 ```
 
+The `labels` prop accepts the built-in keys (`Previous`, `Next`, `Close`,
+`Lightbox`, `Carousel`, `Slide`, `Photo gallery`, `{index} of {total}`) and any
+custom string keys — useful for translating
+[custom `IconButton` labels](#iconbutton). To get autocomplete for your custom
+keys in both [`IconButton.label`](#iconbutton) and the `labels` prop,
+declaration-merge them into the exported `LabelRegistry` interface:
+
+```ts
+declare module "yet-another-react-lightbox-lite" {
+  interface LabelRegistry {
+    Download?: string;
+  }
+}
+```
+
 ### toolbar
 
 Type: `object`

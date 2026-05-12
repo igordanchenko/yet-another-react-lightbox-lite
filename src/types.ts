@@ -70,8 +70,22 @@ export interface ImageSource {
   height: number;
 }
 
-/** Custom UI labels / translations */
-export interface Labels {
+/**
+ * Registry of typed label keys. Declaration-merge to register your own keys
+ * for autocomplete in `IconButton.label` and the `labels` prop:
+ *
+ * ```ts
+ * declare module "yet-another-react-lightbox-lite" {
+ *   interface LabelRegistry {
+ *     Download?: string;
+ *   }
+ * }
+ * ```
+ *
+ * Arbitrary string labels still work without merging — registration only adds
+ * autocomplete.
+ */
+export interface LabelRegistry {
   /** `Previous` button title */
   Previous?: string;
   /** `Next` button title */
@@ -96,8 +110,11 @@ export interface Labels {
   "{index} of {total}"?: string;
 }
 
+/** Custom UI labels / translations — known keys plus any custom string */
+export type Labels = LabelRegistry & Record<string, string | undefined>;
+
 /** Label key — accepts a known `Labels` key (with autocomplete) or any custom string */
-export type Label = keyof Labels | (string & {});
+export type Label = keyof LabelRegistry | (string & {});
 
 /** Custom render functions. */
 export interface Render {

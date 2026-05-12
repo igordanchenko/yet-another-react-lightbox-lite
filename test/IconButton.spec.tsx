@@ -45,17 +45,19 @@ describe("IconButton", () => {
 
   it("translates known Label keys and accepts arbitrary strings", () => {
     renderLightbox({
-      labels: { Close: "Dismiss" },
+      labels: { Close: "Dismiss", Download: "Télécharger" },
       toolbar: {
         buttons: [
           <IconButton key="known" label="Close" icon={Close} data-testid="known" />,
-          <IconButton key="custom" label="My custom action" icon={Close} data-testid="custom" />,
+          <IconButton key="custom-key" label="Download" icon={Close} data-testid="custom-key" />,
+          <IconButton key="untranslated" label="My custom action" icon={Close} data-testid="untranslated" />,
         ],
       },
     });
 
     expect(screen.getByTestId("known")).toHaveAttribute("aria-label", "Dismiss");
-    expect(screen.getByTestId("custom")).toHaveAttribute("aria-label", "My custom action");
+    expect(screen.getByTestId("custom-key")).toHaveAttribute("aria-label", "Télécharger");
+    expect(screen.getByTestId("untranslated")).toHaveAttribute("aria-label", "My custom action");
   });
 
   it("soft-disables when `disabled` is set", () => {

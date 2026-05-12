@@ -29,7 +29,7 @@ export function mergeSlot<T extends { className?: string; style?: CSSProperties 
 }
 
 export function translateLabel(labels: Labels, label: Label) {
-  return labels[label as keyof Labels] ?? label;
+  return labels[label] ?? label;
 }
 
 export function translateSlideCounter(labels: Labels, index: number, total: number) {
