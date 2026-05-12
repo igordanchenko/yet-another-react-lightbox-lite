@@ -1,7 +1,7 @@
 import { createContext, forwardRef, type PropsWithChildren, useImperativeHandle, useMemo } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
-import { useEventCallback } from "./useEventCallback";
+import { useEventCallback } from "../hooks";
 import { makeUseContext } from "../utils";
 import type { LightboxProps, LightboxRef } from "../types";
 

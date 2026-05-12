@@ -2,7 +2,7 @@ import type { MouseEvent, PropsWithChildren, RefCallback } from "react";
 import { createContext, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
-import { useEventCallback } from "./useEventCallback";
+import { useEventCallback } from "../hooks";
 import { cssClass, getChildren, makeUseContext, wrapIndex } from "../utils";
 import type { Rect } from "../types";
 
