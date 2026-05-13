@@ -5,11 +5,11 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 
 import Lightbox from "../src";
 
-export const slides: [{ src: string }, { src: string }, { src: string }] = [
+export const slides = [
   { src: "http://localhost/image1" },
   { src: "http://localhost/image2" },
   { src: "http://localhost/image3" },
-];
+] as const;
 
 function expectToBeDefined<T>(value: T): asserts value is NonNullable<T> {
   expect(value).not.toBeNullable();
