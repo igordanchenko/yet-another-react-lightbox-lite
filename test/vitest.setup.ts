@@ -2,16 +2,6 @@ import "@testing-library/jest-dom/vitest";
 import { act, cleanup, fireEvent } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 
-declare global {
-  interface Window {
-    __TEST__: {
-      scrollbarWidth: number;
-    };
-  }
-}
-
-vi.stubGlobal("__TEST__", { scrollbarWidth: 0 });
-
 afterEach(() => {
   cleanup();
 });
@@ -60,10 +50,9 @@ function isCarousel(target: unknown) {
 
 Object.defineProperties(HTMLElement.prototype, {
   clientWidth: {
+    configurable: true,
     get() {
-      return isCarousel(this) || this instanceof HTMLHtmlElement
-        ? Math.max(window.innerWidth - window.__TEST__.scrollbarWidth, 0)
-        : 0;
+      return isCarousel(this) || this instanceof HTMLHtmlElement ? window.innerWidth : 0;
     },
   },
   clientHeight: {

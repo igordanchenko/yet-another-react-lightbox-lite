@@ -908,7 +908,7 @@ describe("Lightbox", () => {
   });
 
   it("detects scrollbar width", () => {
-    window.__TEST__.scrollbarWidth = 18;
+    vi.spyOn(document.documentElement, "clientWidth", "get").mockReturnValue(window.innerWidth - 18);
 
     const { unmount } = renderLightbox();
 
@@ -917,8 +917,6 @@ describe("Lightbox", () => {
     unmount();
 
     expect(document.documentElement.style.getPropertyValue("--yarll__scrollbar_width")).toBe("");
-
-    window.__TEST__.scrollbarWidth = 0;
   });
 
   it("exposes an imperative ref", async () => {
