@@ -11,16 +11,19 @@ size.
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/yet-another-react-lightbox-lite.svg?color=blue)](https://bundlephobia.com/package/yet-another-react-lightbox-lite)
 [![License MIT](https://img.shields.io/npm/l/yet-another-react-lightbox-lite.svg?color=blue)](https://github.com/igordanchenko/yet-another-react-lightbox-lite/blob/main/LICENSE)
 
-- **Built for React:** works with React 18+
-- **UX:** supports keyboard, mouse, touchpad, and touchscreen navigation
-- **Zoom:** zoom is supported out of the box
-- **Performance:** preloads a fixed number of images without compromising
-  performance or UX
-- **Responsive:** responsive images with automatic resolution switching are
-  supported out of the box
-- **Customization:** customize any UI element or add your own custom slides
-- **No bloat:** supports only essential lightbox features
-- **TypeScript:** type definitions come built-in with the package
+- **Lightweight:** around 5KB minified + gzipped, with no runtime dependencies
+- **Universal input:** keyboard, mouse, touchpad, and touchscreen navigation
+- **Zoom:** pinch, wheel, double-tap, and keyboard, with a configurable zoom
+  limit
+- **Transitions:** built-in `fade`/`slide`/`none`, with custom effects via CSS
+- **Preloading:** configurable preload window keeps memory and bandwidth in
+  check
+- **Responsive images:** built-in `srcSet` support for automatic resolution
+  switching
+- **Fully customizable:** override any element via `slots`, `render` props, and
+  exported hooks, or add custom slide types
+- **TypeScript-first:** extend `slides` and `labels` via declaration merging,
+  with full autocomplete support
 
 ![Yet Another React Lightbox Lite | Example](https://images.yet-another-react-lightbox.com/example-lite.jpg)
 
