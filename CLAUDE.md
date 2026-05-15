@@ -1,8 +1,5 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with
-code in this repository.
-
 ## Project
 
 Yet Another React Lightbox Lite — a lightweight React lightbox component with
