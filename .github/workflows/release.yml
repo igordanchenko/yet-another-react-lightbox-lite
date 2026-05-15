@@ -7,45 +7,42 @@ on:
 concurrency:
   group: release
 
+permissions:
+  contents: write
+  id-token: write
+  issues: write
+  discussions: write
+  pull-requests: write
+
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
 
     if: github.repository == 'igordanchenko/yet-another-react-lightbox-lite'
-
-    permissions:
-      contents: write
-      id-token: write
-      issues: write
-      discussions: write
-      pull-requests: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: 24
-          package-manager-cache: false
-          registry-url: https://registry.npmjs.org/
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Install semantic-release extra plugins
-        run: npm i -D @semantic-release/changelog @semantic-release/github
-
       - name: Build, Test, Lint
         run: npm run ci
 
-      - name: Verify the integrity of installed dependencies
+      - name: Verify dependency signatures
         run: npm audit signatures
 
-      - name: Cleanup
+      - name: Prune package.json
         run: npm pkg delete scripts devDependencies
 
       - name: Release
