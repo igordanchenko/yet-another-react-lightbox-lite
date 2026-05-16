@@ -350,14 +350,14 @@ An object providing custom render functions.
 ```tsx
 <Lightbox
   render={{
-    slide: ({ slide, rect, zoom, current }) => (
-      <CustomSlide {...{ slide, rect, zoom, current }} />
+    slide: ({ slide, rect, zoom, current, slideIndex }) => (
+      <CustomSlide {...{ slide, rect, zoom, current, slideIndex }} />
     ),
-    slideHeader: ({ slide, rect, zoom, current }) => (
-      <SlideHeader {...{ slide, rect, zoom, current }} />
+    slideHeader: ({ slide, rect, zoom, current, slideIndex }) => (
+      <SlideHeader {...{ slide, rect, zoom, current, slideIndex }} />
     ),
-    slideFooter: ({ slide, rect, zoom, current }) => (
-      <SlideFooter {...{ slide, rect, zoom, current }} />
+    slideFooter: ({ slide, rect, zoom, current, slideIndex }) => (
+      <SlideFooter {...{ slide, rect, zoom, current, slideIndex }} />
     ),
     controls: () => <CustomControls />,
     iconPrev: () => <IconPrev />,
@@ -368,7 +368,7 @@ An object providing custom render functions.
 />
 ```
 
-#### slide: ({ slide, rect, zoom, current }) => ReactNode
+#### slide: ({ slide, rect, zoom, current, slideIndex }) => ReactNode
 
 Render custom slide type, or override the default image slide implementation.
 
@@ -379,12 +379,17 @@ Parameters:
 - `zoom` - current zoom level (type: `number`)
 - `current` - if `true`, the slide is the current slide in the viewport (type:
   `boolean`)
+- `slideIndex` - index of this slide within the `slides` array, always in
+  `[0, slides.length)` (type: `number`). Not the same as the controlled `index`
+  prop — for preloaded neighbors it points to a neighbor, and in `infinite` mode
+  the controlled `index` may drift outside `[0, slides.length)` while
+  `slideIndex` stays wrapped.
 
-#### slideHeader: ({ slide, rect, zoom, current }) => ReactNode
+#### slideHeader: ({ slide, rect, zoom, current, slideIndex }) => ReactNode
 
 Render custom elements above each slide.
 
-#### slideFooter: ({ slide, rect, zoom, current }) => ReactNode
+#### slideFooter: ({ slide, rect, zoom, current, slideIndex }) => ReactNode
 
 Render custom elements below or over each slide. By default, the content is
 rendered right under the slide. Alternatively, you can use

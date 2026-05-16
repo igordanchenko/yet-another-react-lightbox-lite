@@ -144,7 +144,15 @@ export interface RenderSlideProps {
   zoom: number;
   /** if `true`, the slide is the current slide in the viewport */
   current: boolean;
-  /** slide index */
+  /**
+   * Index of this slide within the `slides` array (always in `[0, slides.length)`).
+   *
+   * Not the same as the controlled `index` prop:
+   * - For preloaded neighbors, it points to a neighbor, not the current slide.
+   * - In `infinite` mode, the controlled `index` is allowed to drift outside
+   *   `[0, slides.length)` to encode navigation direction; `slideIndex` is the
+   *   wrapped position you can safely use to look the slide up in `slides`.
+   */
   slideIndex: number;
 }
 
