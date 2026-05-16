@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 import { ImageSlide } from "./ImageSlide";
 import { useZoom } from "./Zoom";
@@ -24,17 +24,18 @@ export function SlideView({ slide, rect, current, slideIndex, offset }: SlideVie
   if (current && zoom > 1 && !hadZoom) setHadZoom(true);
   if (!current && hadZoom) setHadZoom(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!current) {
-      // `inert` cannot be set as a JSX prop in a way that works on both React 18 and 19:
-      // React 18 strips `inert={true}`; React 19 treats `inert=""` as falsy. Set imperatively.
-      ref.current?.setAttribute("inert", "");
-
-      // If focus was inside the slide we just made inert, the browser would drop it to <body>
-      // and break the focus trap. Lift it to the Portal (the nearest `tabindex="-1"` ancestor).
+      // If focus is inside the slide we're about to make inert, the browser would drop it to
+      // <body> and break the focus trap. Lift it to the Portal (the nearest `tabindex="-1"`
+      // ancestor) first.
       if (ref.current?.contains(document.activeElement)) {
         ref.current.closest<HTMLElement>('[tabindex="-1"]')?.focus();
       }
+
+      // `inert` cannot be set as a JSX prop in a way that works on both React 18 and 19:
+      // React 18 strips `inert={true}`; React 19 treats `inert=""` as falsy. Set imperatively.
+      ref.current?.setAttribute("inert", "");
     } else {
       ref.current?.removeAttribute("inert");
     }
