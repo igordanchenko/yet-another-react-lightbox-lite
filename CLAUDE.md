@@ -40,8 +40,8 @@ Context** for state:
   (default: 2 slides each direction)
 - `src/components/Zoom.tsx` — zoom state management and gesture handling
 
-**Public API exports** (`src/index.ts`): `Lightbox` (default), `useZoom` hook,
-all types.
+**Public API exports** (`src/index.ts`): `Lightbox` (default), `IconButton`,
+`useController` and `useZoom` hooks, all types.
 
 ## Build Pipeline
 
