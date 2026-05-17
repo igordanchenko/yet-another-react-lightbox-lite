@@ -1,8 +1,9 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import { ImageSlide } from "./ImageSlide";
 import { useZoom } from "./Zoom";
 import { useLightboxContext } from "./LightboxContext";
+import { useIsomorphicLayoutEffect } from "../hooks";
 import { clsx, cssClass, isImageSlide, mergeSlot, round, translateLabel, translateSlideCounter } from "../utils";
 import type { RenderSlideProps, SlideImage } from "../types";
 
@@ -24,7 +25,7 @@ export function SlideView({ slide, rect, current, slideIndex, offset }: SlideVie
   if (current && zoom > 1 && !hadZoom) setHadZoom(true);
   if (!current && hadZoom) setHadZoom(false);
 
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!current) {
       // If focus is inside the slide we're about to make inert, the browser would drop it to
       // <body> and break the focus trap. Lift it to the Portal (the nearest `tabindex="-1"`

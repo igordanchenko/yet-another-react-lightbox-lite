@@ -1,8 +1,8 @@
 import type { MouseEvent, PropsWithChildren, RefCallback } from "react";
-import { createContext, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useMemo, useRef, useState } from "react";
 
 import { useLightboxContext } from "./LightboxContext";
-import { useEventCallback } from "../hooks";
+import { useEventCallback, useIsomorphicLayoutEffect } from "../hooks";
 import { cssClass, getChildren, makeUseContext, wrapIndex } from "../utils";
 import type { Rect } from "../types";
 
@@ -84,7 +84,7 @@ export function Zoom({ children }: PropsWithChildren) {
   });
 
   // Cache slide dimensions on resize or slide change — the only time DOM reads are needed
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     slideDimensionsRef.current = getChildren(
       getChildren(carouselRef.current).find(
         (node) => node instanceof HTMLElement && node.classList.contains(cssClass("slide_current")),
