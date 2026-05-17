@@ -2,8 +2,8 @@
 
 Lightweight React lightbox component. This is a trimmed-down version of the
 [yet-another-react-lightbox](https://github.com/igordanchenko/yet-another-react-lightbox)
-that provides essential lightbox features and slick UX with a bundle size under
-6KB.
+that provides essential lightbox features and slick UX with a really modest
+bundle size.
 
 ## Overview
 
@@ -11,7 +11,7 @@ that provides essential lightbox features and slick UX with a bundle size under
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/yet-another-react-lightbox-lite.svg?color=blue)](https://bundlephobia.com/package/yet-another-react-lightbox-lite)
 [![License MIT](https://img.shields.io/npm/l/yet-another-react-lightbox-lite.svg?color=blue)](https://github.com/igordanchenko/yet-another-react-lightbox-lite/blob/main/LICENSE)
 
-- **Lightweight:** under 6KB minified + gzipped, with no runtime dependencies
+- **Lightweight:** around 5.5KB minified + gzipped, with no runtime dependencies
 - **Universal input:** keyboard, mouse, touchpad, and touchscreen navigation
 - **Zoom:** pinch, wheel, double-tap, and keyboard, with a configurable zoom
   limit
