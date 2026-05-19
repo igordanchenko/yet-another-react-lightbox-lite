@@ -23,18 +23,27 @@ export const Controller = forwardRef<LightboxRef, ControllerProps>(function Cont
     carousel: { infinite },
   } = useLightboxContext();
 
-  const navigate = (delta: number) => {
-    if (slides.length < 2) return;
-    const target = index + delta;
+  // When a jump exceeds the preload window in `transition: slide` mode, the target slide
+  // mounts fresh (no animation) while any slide that survived from the previous window
+  // rides the standing `transition: transform` to its new position. Suppressing that for
+  // one frame is possible but costs ~80 bytes of runtime + CSS; the visual quirk is mild
+  // and rare enough that we accept it here.
+  const goto = useEventCallback((target: number) => {
     if (infinite || (target >= 0 && target < slides.length)) {
       setIndex(target);
+    }
+  });
+
+  const navigate = (delta: number) => {
+    if (slides.length > 1) {
+      goto(index + delta);
     }
   };
 
   const prev = useEventCallback(() => navigate(-1));
   const next = useEventCallback(() => navigate(1));
 
-  const context = useMemo(() => ({ prev, next, close }), [prev, next, close]);
+  const context = useMemo(() => ({ prev, next, goto, close }), [prev, next, goto, close]);
 
   useImperativeHandle(ref, () => context, [context]);
 

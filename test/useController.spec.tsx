@@ -20,11 +20,21 @@ function CloseButton() {
   return <IconButton label="Close (custom)" icon={Close} onClick={close} data-testid="close" />;
 }
 
+function GotoLastButton() {
+  const { goto } = useController();
+  return <IconButton label="Last (custom)" icon={Next} onClick={() => goto(2)} data-testid="goto-last" />;
+}
+
 describe("useController", () => {
-  it("exposes prev / next / close from inside a custom toolbar button", async () => {
+  it("exposes prev / next / goto / close from inside a custom toolbar button", async () => {
     renderLightbox({
       toolbar: {
-        buttons: [<PrevButton key="prev" />, <NextButton key="next" />, <CloseButton key="close" />],
+        buttons: [
+          <PrevButton key="prev" />,
+          <NextButton key="next" />,
+          <GotoLastButton key="goto" />,
+          <CloseButton key="close" />,
+        ],
       },
     });
 
@@ -36,6 +46,9 @@ describe("useController", () => {
 
     act(() => screen.getByTestId("prev").click());
     expectCurrentSlideToBe(0);
+
+    act(() => screen.getByTestId("goto-last").click());
+    expectCurrentSlideToBe(2);
 
     act(() => screen.getByTestId("close").click());
     await expectLightboxToBeClosed();

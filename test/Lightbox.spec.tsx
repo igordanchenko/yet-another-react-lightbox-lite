@@ -930,6 +930,43 @@ describe("Lightbox", () => {
     );
   });
 
+  it("supports goto via imperative ref", () => {
+    const ref = createRef<LightboxRef>();
+    renderLightbox({ ref });
+    expectCurrentSlideToBe(0);
+
+    act(() => ref.current?.goto(2));
+    expectCurrentSlideToBe(2);
+
+    act(() => ref.current?.goto(0));
+    expectCurrentSlideToBe(0);
+
+    // out-of-range goto is a no-op in finite mode
+    act(() => ref.current?.goto(-1));
+    expectCurrentSlideToBe(0);
+
+    act(() => ref.current?.goto(slides.length));
+    expectCurrentSlideToBe(0);
+  });
+
+  it("allows goto to any index in infinite mode", () => {
+    const ref = createRef<LightboxRef>();
+    renderLightbox({ ref, carousel: { infinite: true } });
+    expectCurrentSlideToBe(0);
+
+    // negative and out-of-range indices wrap via the carousel; values are chosen so each
+    // step lands on a different slide, otherwise a no-op would look indistinguishable
+    // from a successful wrap.
+    act(() => ref.current?.goto(-1));
+    expectCurrentSlideToBe(2);
+
+    act(() => ref.current?.goto(4));
+    expectCurrentSlideToBe(1);
+
+    act(() => ref.current?.goto(5));
+    expectCurrentSlideToBe(2);
+  });
+
   describe("infinite carousel", () => {
     async function testInfiniteNavigation(prev: () => void | Promise<void>, next: () => void | Promise<void>) {
       renderLightbox({ carousel: { infinite: true } });

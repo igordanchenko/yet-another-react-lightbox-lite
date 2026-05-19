@@ -871,7 +871,11 @@ The handle exposes the following methods:
 
 - `prev()` - navigate to the previous slide
 - `next()` - navigate to the next slide
+- `goto(index)` - navigate to the specified slide
 - `close()` - trigger the animated close
+
+In non-infinite mode, `prev()` past the first slide, `next()` past the last, and
+`goto()` with an out-of-range index are all no-ops.
 
 Note that calling `close()` plays the exit transition (same as the Escape key or
 the toolbar Close button), whereas setting `index` to `undefined` from the
@@ -963,7 +967,11 @@ The hook returns an object with:
 
 - `prev()` - navigate to the previous slide
 - `next()` - navigate to the next slide
+- `goto(index)` - navigate to the specified slide
 - `close()` - trigger the animated close
+
+In non-infinite mode, `prev()` past the first slide, `next()` past the last, and
+`goto()` with an out-of-range index are all no-ops.
 
 `useController` must be called from inside a `<Lightbox>` (it reads the
 lightbox's controller context).

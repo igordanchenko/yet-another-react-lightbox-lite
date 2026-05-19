@@ -243,6 +243,8 @@ export interface LightboxRef {
   prev: () => void;
   /** navigate to the next slide */
   next: () => void;
+  /** navigate to the specified slide */
+  goto: (index: number) => void;
   /** trigger animated close */
   close: () => void;
 }
