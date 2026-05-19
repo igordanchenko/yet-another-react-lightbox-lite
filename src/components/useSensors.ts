@@ -5,7 +5,7 @@ import { useZoom } from "./Zoom";
 import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
 import { useEventCallback } from "../hooks";
-import { cssClass, isInteractiveTarget, scaleZoom } from "../utils";
+import { cssClass, isInteractiveTarget, scaleZoom, wrapIndex } from "../utils";
 
 const WHEEL_ZOOM_FACTOR = 100;
 const WHEEL_SWIPE_DISTANCE = 100;
@@ -104,9 +104,11 @@ export function useSensors() {
   const lastTap = useRef<MouseEvent | null>(null);
 
   const { zoom, maxZoom, changeZoom, changeOffsets } = useZoom();
-  const { prev, next, close } = useController();
+  const { prev, next, goto, close } = useController();
 
   const {
+    slides,
+    index,
     controller: { closeOnEscape, closeOnPullUp, closeOnPullDown, closeOnBackdropClick },
   } = useLightboxContext();
 
@@ -143,6 +145,17 @@ export function useSensors() {
       event.stopPropagation();
 
       close();
+    }
+
+    if (key === "Home" || key === "End") {
+      preventDefault();
+
+      if (slides.length <= 1) return;
+
+      // Pick the index of `targetSlide` in the same wrap cycle as the current
+      // `index`, so `Home` never moves forward and `End` never moves backward.
+      const targetSlide = key === "Home" ? 0 : slides.length - 1;
+      goto(index - wrapIndex(index, slides.length) + targetSlide);
     }
 
     if (zoom > 1) {

@@ -548,6 +548,49 @@ describe("Lightbox", () => {
     expectCurrentSlideToBe(0);
   });
 
+  it("jumps to the first / last slide with Home / End", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+    expectCurrentSlideToBe(0);
+
+    await user.keyboard("{End}");
+    expectCurrentSlideToBe(2);
+
+    await user.keyboard("{Home}");
+    expectCurrentSlideToBe(0);
+  });
+
+  it("jumps with Home / End even when zoomed in", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+
+    await user.keyboard("+");
+    expectToBeZoomedIn();
+
+    await user.keyboard("{End}");
+    expectCurrentSlideToBe(2);
+    expectToBeZoomedOut();
+
+    await user.keyboard("+");
+    expectToBeZoomedIn();
+
+    await user.keyboard("{Home}");
+    expectCurrentSlideToBe(0);
+    expectToBeZoomedOut();
+  });
+
+  it("does not navigate with Home / End on a single-slide carousel", async () => {
+    const setIndex = vi.fn();
+    const user = userEvent.setup();
+    renderLightbox({ slides: [slides[0]], setIndex });
+
+    await user.keyboard("{Home}{End}");
+
+    expect(setIndex).not.toHaveBeenCalled();
+  });
+
   it("supports wheel zoom", async () => {
     renderLightbox();
 
@@ -1075,6 +1118,32 @@ describe("Lightbox", () => {
 
       clickButtonPrev();
       expect(setIndex).toHaveBeenCalledWith(-1);
+    });
+
+    it("Home / End span the current cycle for drifted positive indices", async () => {
+      const setIndex = vi.fn();
+      const user = userEvent.setup();
+      // index=4 with 3 slides → current cycle [3, 5] (slide 1 displayed).
+      renderLightbox({ index: 4, setIndex, carousel: { infinite: true } });
+
+      await user.keyboard("{Home}");
+      expect(setIndex).toHaveBeenLastCalledWith(3);
+
+      await user.keyboard("{End}");
+      expect(setIndex).toHaveBeenLastCalledWith(5);
+    });
+
+    it("Home / End span the current cycle for drifted negative indices", async () => {
+      const setIndex = vi.fn();
+      const user = userEvent.setup();
+      // index=-1 with 3 slides → current cycle [-3, -1] (slide 2 displayed).
+      renderLightbox({ index: -1, setIndex, carousel: { infinite: true } });
+
+      await user.keyboard("{Home}");
+      expect(setIndex).toHaveBeenLastCalledWith(-3);
+
+      await user.keyboard("{End}");
+      expect(setIndex).toHaveBeenLastCalledWith(-1);
     });
 
     it("avoids React key collisions when slide.key is set on a small slides array", () => {

@@ -845,6 +845,22 @@ regardless of the `carousel.preload` value:
 }
 ```
 
+## Keyboard Shortcuts
+
+| Shortcut                                                                    | Action                                                             |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| <kbd>←</kbd> / <kbd>→</kbd>                                                 | Previous / next slide (pan horizontally when zoomed in)            |
+| <kbd>↑</kbd> / <kbd>↓</kbd>                                                 | Pan vertically when zoomed in                                      |
+| <kbd>Home</kbd> / <kbd>End</kbd>                                            | Jump to the first / last slide                                     |
+| <kbd>+</kbd> / <kbd>-</kbd>                                                 | Zoom in / out                                                      |
+| <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>=</kbd> / <kbd>-</kbd> / <kbd>0</kbd> | Zoom in / out / reset                                              |
+| <kbd>Esc</kbd>                                                              | Close the lightbox (see [`controller.closeOnEscape`](#controller)) |
+
+In `infinite` mode, `Home` and `End` stay within the current
+`slides.length`-wide cycle rather than jumping to hard-coded `0` /
+`slides.length - 1`: `Home` moves to the first slide of the current cycle, and
+`End` moves to the last slide of the current cycle.
+
 ## Interactive Custom Elements
 
 The lightbox sets `user-select: none`, `touch-action: none`, and
