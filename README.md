@@ -209,6 +209,12 @@ Type: `(index: number | undefined) => void`
 
 A callback to update current slide index state. This prop is required.
 
+Setting `index` to `undefined` unmounts the lightbox immediately, skipping the
+exit transition. To close with the transition (same as the Escape key or the
+toolbar Close button), call `close()` from the
+[imperative handle](#imperative-handle) or [`useController`](#usecontroller)
+instead.
+
 ### labels
 
 Type: `object`
@@ -877,10 +883,6 @@ The handle exposes the following methods:
 In non-infinite mode, `prev()` past the first slide, `next()` past the last, and
 `goto()` with an out-of-range index are all no-ops.
 
-Note that calling `close()` plays the exit transition (same as the Escape key or
-the toolbar Close button), whereas setting `index` to `undefined` from the
-parent skips the transition and unmounts immediately.
-
 ## Components
 
 The library exports the following components that you may find helpful in
@@ -954,10 +956,7 @@ lightbox functionality.
 
 `useController` exposes the lightbox's navigation controls so that custom
 toolbar buttons (or other elements rendered through
-[`render.controls`](#render)) can drive the lightbox from the inside. The
-returned `close()` plays the exit transition — same as the toolbar Close button
-or the Escape key — whereas clearing `index` from the parent unmounts
-immediately.
+[`render.controls`](#render)) can drive the lightbox from the inside.
 
 ```tsx
 import { useController } from "yet-another-react-lightbox-lite";
