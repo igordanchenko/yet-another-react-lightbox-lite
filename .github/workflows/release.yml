@@ -50,6 +50,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npx \
-            --package semantic-release \
-            --package conventional-changelog-conventionalcommits \
+            --package semantic-release@25 \
+            --package conventional-changelog-conventionalcommits@9 \
             semantic-release
