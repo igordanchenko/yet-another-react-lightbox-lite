@@ -101,6 +101,7 @@ export function useSensors() {
   const activePointers = useRef<PointerEvent[]>([]);
   const initialPinchDistance = useRef<number | null>(null);
   const initialPinchZoom = useRef<number>(1);
+  const multiTouchGesture = useRef(false);
   const lastTap = useRef<MouseEvent | null>(null);
 
   const { zoom, maxZoom, changeZoom, changeOffsets } = useZoom();
@@ -189,6 +190,8 @@ export function useSensors() {
     addPointer(event);
 
     if (hasTwoPointers(activePointers.current)) {
+      multiTouchGesture.current = true;
+
       // Anchor the pinch to the starting distance and zoom so the gesture
       // tracks the finger spread as a ratio rather than accumulating per-event
       // deltas — feels natural and avoids drift.
@@ -229,7 +232,12 @@ export function useSensors() {
 
     if (!activePointer) return;
 
-    if (activePointers.current.length === 1) {
+    // A pointer-up ending a multi-touch gesture must not run tap / swipe / close
+    // detection — the last finger's stored coordinates were updated on every pinch
+    // move, so its near-zero delta reads as a tap, registering a phantom `lastTap`
+    // (arming an unintended double-tap zoom toggle) or closing the lightbox as a
+    // backdrop click.
+    if (activePointers.current.length === 1 && !multiTouchGesture.current) {
       const dx = event.clientX - activePointer.clientX;
       const dy = event.clientY - activePointer.clientY;
 
@@ -281,8 +289,18 @@ export function useSensors() {
 
     removePointer(event);
 
-    if (activePointers.current.length < 2) {
+    if (hasTwoPointers(activePointers.current)) {
+      // Re-anchor when the pointer count returns to exactly 2 (e.g., a 3→2 finger
+      // transition) — resuming the pinch against the original anchor distance and
+      // zoom would produce a zoom jump on the next move.
+      initialPinchDistance.current = distance(activePointers.current[0], activePointers.current[1]);
+      initialPinchZoom.current = zoom;
+    } else {
       initialPinchDistance.current = null;
+    }
+
+    if (activePointers.current.length === 0) {
+      multiTouchGesture.current = false;
     }
   });
 

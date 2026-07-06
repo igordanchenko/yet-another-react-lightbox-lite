@@ -746,6 +746,47 @@ describe("Lightbox", () => {
     expectToBeZoomedIn();
   });
 
+  it("re-anchors the pinch after a 3→2 finger transition", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+
+    const target = getCurrentSlideImage();
+
+    // pinch-zoom in, add a third finger, lift it, then continue the pinch with a
+    // slight pinch-in — a stale anchor would clamp the zoom all the way back to 1
+    await user.pointer([
+      { keys: "[TouchA>]", target, coords: { x: 100, y: 100 } },
+      { keys: "[TouchB>]", target, coords: { x: 200, y: 200 } },
+      { pointerName: "TouchA", target, coords: { x: 50, y: 50 } },
+      { keys: "[TouchC>]", target, coords: { x: 300, y: 300 } },
+      { pointerName: "TouchA", target, coords: { x: 100, y: 100 } },
+      { keys: "[/TouchC]", target },
+      { pointerName: "TouchA", target, coords: { x: 110, y: 110 } },
+      { keys: "[/TouchA][/TouchB]", target },
+    ]);
+
+    expectToBeZoomedIn();
+  });
+
+  it("does not close on a pinch that starts on the backdrop", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+
+    // a pinch-in at minimum zoom — the last finger's near-zero delta must not
+    // count as a backdrop click
+    await user.pointer([
+      { keys: "[TouchA>]", target: getCurrentSlide(), coords: { x: 100, y: 100 } },
+      { keys: "[TouchB>]", target: getCurrentSlide(), coords: { x: 200, y: 200 } },
+      { pointerName: "TouchA", target: getCurrentSlide(), coords: { x: 150, y: 150 } },
+      { keys: "[/TouchA][/TouchB]", target: getCurrentSlide() },
+    ]);
+
+    await expectLightboxToBeOpen();
+    expectToBeZoomedOut();
+  });
+
   it("supports double-click zoom", async () => {
     const user = userEvent.setup();
 
