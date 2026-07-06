@@ -372,6 +372,42 @@ describe("Lightbox", () => {
     });
   });
 
+  it("waits for both transition duration and delay before unmounting", async () => {
+    await withFakeTimers(async () => {
+      renderLightbox();
+      await expectLightboxToBeOpen();
+
+      // resolve the button before mocking — getByRole relies on real computed styles
+      const closeButton = getCloseButton();
+
+      const spy = vi.spyOn(window, "getComputedStyle").mockReturnValue({
+        transitionDuration: "0.3s, 0.5s",
+        transitionDelay: "0.1s, 0.2s",
+      } as CSSStyleDeclaration);
+
+      try {
+        act(() => {
+          closeButton.click();
+        });
+
+        // longest duration (0.5s) + longest delay (0.2s) = 700ms
+        act(() => {
+          vi.advanceTimersByTime(650);
+        });
+        await expectLightboxToBeOpen();
+
+        act(() => {
+          vi.advanceTimersByTime(50);
+        });
+        // deliberately not expectLightboxToBeClosed() — it runs all pending timers when the
+        // portal is still mounted, which would mask a timeout scheduled past the 700ms mark
+        expect(queryPortal()).toBeNull();
+      } finally {
+        spy.mockRestore();
+      }
+    });
+  });
+
   it("ignores double close", async () => {
     const user = userEvent.setup();
 

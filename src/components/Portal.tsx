@@ -71,11 +71,12 @@ export function Portal({ state, onClosed, children }: PortalProps) {
     // before the fade-out completes, then wait for the transition before unmounting.
     handleCleanup();
 
-    // transitionDuration can be a comma-separated list (e.g., "0.3s, 0.5s"), pick the longest
-    const duration =
-      (portalRef.current &&
-        Math.max(...getComputedStyle(portalRef.current).transitionDuration.split(",").map(parseFloat)) * 1_000) ||
-      0;
+    // transition timing values can be comma-separated lists (e.g., "0.3s, 0.5s"), so wait out
+    // the longest duration plus the longest delay — a custom transition with a delay
+    // (via slots.portal.style) must not get its fade-out cut short
+    const maxTime = (times: string) => Math.max(...times.split(",").map(parseFloat)) || 0;
+    const style = portalRef.current && getComputedStyle(portalRef.current);
+    const duration = (style && (maxTime(style.transitionDuration) + maxTime(style.transitionDelay)) * 1_000) || 0;
 
     const timeout = setTimeout(onClosed, duration);
 
