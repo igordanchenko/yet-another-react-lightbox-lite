@@ -950,6 +950,50 @@ describe("Lightbox", () => {
     expect(transformAfter).not.toBe(transformBefore);
   });
 
+  it("re-measures and clamps offsets when the slide content resizes", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+
+    await user.keyboard("+++");
+    expectToBeZoomedIn();
+
+    await user.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
+
+    const transformBefore = getCurrentSlide().style.transform;
+    expect(transformBefore).toContain("translateX(-");
+
+    // shrink the slide image to zero effective width, as reported by the content
+    // ResizeObserver (e.g., an image without `width` / `height` metadata)
+    Object.defineProperty(getCurrentSlideImage(), "offsetLeft", { get: () => window.innerWidth / 2 });
+
+    // fire `resize` without changing the window dimensions, so the content observer
+    // is the only re-measure trigger
+    act(() => {
+      fireEvent(window, new Event("resize"));
+    });
+
+    const transformAfter = getCurrentSlide().style.transform;
+    expect(transformAfter).toContain("translateX(0px)");
+    expect(transformAfter).toContain("scale");
+  });
+
+  it("supports environments without ResizeObserver", async () => {
+    const originalResizeObserver = window.ResizeObserver;
+    vi.stubGlobal("ResizeObserver", undefined);
+
+    try {
+      const user = userEvent.setup();
+
+      renderLightbox();
+
+      await user.keyboard("+");
+      expectToBeZoomedIn();
+    } finally {
+      vi.stubGlobal("ResizeObserver", originalResizeObserver);
+    }
+  });
+
   it("detects scrollbar width", () => {
     vi.spyOn(document.documentElement, "clientWidth", "get").mockReturnValue(window.innerWidth - 18);
 

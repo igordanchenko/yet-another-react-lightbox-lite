@@ -85,25 +85,38 @@ export function Zoom({ children }: PropsWithChildren) {
 
   // Cache slide dimensions on resize or slide change — the only time DOM reads are needed
   useIsomorphicLayoutEffect(() => {
-    slideDimensionsRef.current = getChildren(
+    const nodes = getChildren(
       getChildren(carouselRef.current).find(
         (node) => node instanceof HTMLElement && node.classList.contains(cssClass("slide_current")),
       ),
-    )
-      .filter((node) => node instanceof HTMLElement)
-      .map(
-        (node) =>
-          [
-            Math.max(carouselHalfWidth - node.offsetLeft, node.offsetLeft + node.offsetWidth - carouselHalfWidth),
-            Math.max(carouselHalfHeight - node.offsetTop, node.offsetTop + node.offsetHeight - carouselHalfHeight),
-          ] as const,
-      )
-      .reduce(
-        ([maxWidth, maxHeight], [width, height]) => [Math.max(width, maxWidth), Math.max(height, maxHeight)] as const,
-        [0, 0],
-      );
+    ).filter((node) => node instanceof HTMLElement);
 
-    clampOffsets();
+    const measure = () => {
+      slideDimensionsRef.current = nodes
+        .map(
+          (node) =>
+            [
+              Math.max(carouselHalfWidth - node.offsetLeft, node.offsetLeft + node.offsetWidth - carouselHalfWidth),
+              Math.max(carouselHalfHeight - node.offsetTop, node.offsetTop + node.offsetHeight - carouselHalfHeight),
+            ] as const,
+        )
+        .reduce(
+          ([maxWidth, maxHeight], [width, height]) => [Math.max(width, maxWidth), Math.max(height, maxHeight)] as const,
+          [0, 0],
+        );
+
+      clampOffsets();
+    };
+
+    measure();
+
+    // Re-measure when the slide content resizes after the initial render — e.g., an image
+    // without `width` / `height` metadata reports zero dimensions until it loads
+    if (typeof ResizeObserver !== "undefined") {
+      const contentObserver = new ResizeObserver(measure);
+      nodes.forEach((node) => contentObserver.observe(node));
+      return () => contentObserver.disconnect();
+    }
   }, [carouselHalfWidth, carouselHalfHeight, index, clampOffsets]); // clampOffsets is stable
 
   const setCarouselRef = useCallback((node: HTMLDivElement | null) => {
