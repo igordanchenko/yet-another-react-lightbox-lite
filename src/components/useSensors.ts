@@ -236,13 +236,19 @@ export function useSensors() {
       const deltaX = Math.abs(dx);
       const deltaY = Math.abs(dy);
 
+      const tapped = deltaX < DOUBLE_TAP_DISTANCE && deltaY < DOUBLE_TAP_DISTANCE;
+
       const swiped = zoom === 1 && isDominantAxis(deltaX, deltaY, POINTER_SWIPE_DISTANCE);
 
       const closed =
         zoom === 1 &&
         ((isDominantAxis(deltaY, deltaX, POINTER_SWIPE_DISTANCE) &&
           ((closeOnPullUp && dy < 0) || (closeOnPullDown && dy > 0))) ||
-          (closeOnBackdropClick &&
+          // require a (near-)stationary pointer on the backdrop-click branch — without
+          // it, any aborted drag (an under-threshold swipe, or a pull with the matching
+          // closeOnPull* option disabled) that starts on the backdrop would close
+          (tapped &&
+            closeOnBackdropClick &&
             activePointer.target instanceof Element &&
             (activePointer.target.classList.contains(cssClass("slide")) ||
               activePointer.target.classList.contains(cssClass("portal")))));
@@ -255,7 +261,7 @@ export function useSensors() {
         }
       } else if (closed) {
         close();
-      } else if (deltaX < DOUBLE_TAP_DISTANCE && deltaY < DOUBLE_TAP_DISTANCE) {
+      } else if (tapped) {
         // Detect double-tap inline rather than relying on the synthetic
         // `dblclick` event — Android Chrome and several WebViews emit it
         // unreliably when the second tap lands within the platform's

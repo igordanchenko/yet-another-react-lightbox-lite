@@ -306,6 +306,36 @@ describe("Lightbox", () => {
     await expectLightboxToBeOpen();
   });
 
+  it("does not close on an under-threshold swipe that starts on the backdrop", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+
+    await pointerSwipe(user, getCurrentSlide(), 90, 0);
+    await expectLightboxToBeOpen();
+
+    await pointerSwipe(user, getPortal(), 0, 90);
+    await expectLightboxToBeOpen();
+  });
+
+  it("does not close on a backdrop pull-down when closeOnPullDown is false", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox({ controller: { closeOnPullDown: false } });
+
+    await pointerSwipe(user, getCurrentSlide(), 0, 120);
+    await expectLightboxToBeOpen();
+  });
+
+  it("does not close on a backdrop pull-up when closeOnPullUp is false", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox({ controller: { closeOnPullUp: false } });
+
+    await pointerSwipe(user, getCurrentSlide(), 0, -120);
+    await expectLightboxToBeOpen();
+  });
+
   it("does not close on backdrop click when closeOnBackdropClick is false", async () => {
     const user = userEvent.setup();
 
