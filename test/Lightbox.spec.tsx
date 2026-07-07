@@ -34,7 +34,7 @@ import {
   wheelZoom,
   withFakeTimers,
 } from "./test-utils";
-import { type LightboxRef, useZoom } from "../src";
+import { type LightboxRef, type RenderSlideProps, useZoom } from "../src";
 import { makeUseContext } from "../src/utils";
 
 declare module "../src/types" {
@@ -1083,6 +1083,45 @@ describe("Lightbox", () => {
     const transformAfter = getCurrentSlide().style.transform;
     expect(transformAfter).toContain("translateX(0px)");
     expect(transformAfter).toContain("scale");
+  });
+
+  it("does not re-run slide render props on pan frames", async () => {
+    const user = userEvent.setup();
+
+    const renderSlide = vi.fn(({ slideIndex }: RenderSlideProps) => <span>custom slide {slideIndex}</span>);
+    const countCalls = (slideIndex: number) =>
+      renderSlide.mock.calls.filter(([props]) => props.slideIndex === slideIndex).length;
+
+    renderLightbox({ render: { slide: renderSlide } });
+
+    await user.keyboard("+");
+    expectToBeZoomedIn();
+
+    const target = screen.getByText("custom slide 0");
+    const transformBeforePan = getCurrentSlide().style.transform;
+    const callsBeforePan = renderSlide.mock.calls.length;
+
+    // single-finger drag-pan — every pointer-move commits new offsets
+    await user.pointer([
+      { keys: "[TouchA>]", target, coords: { x: 200, y: 200 } },
+      { pointerName: "TouchA", target, coords: { x: 180, y: 190 } },
+      { pointerName: "TouchA", target, coords: { x: 160, y: 180 } },
+      { pointerName: "TouchA", target, coords: { x: 140, y: 170 } },
+      { keys: "[/TouchA]", target },
+    ]);
+
+    // the slide moved, but only the wrapper re-rendered — offsets are not part of the render context
+    expect(getCurrentSlide().style.transform).not.toBe(transformBeforePan);
+    expect(renderSlide.mock.calls.length).toBe(callsBeforePan);
+
+    // a zoom change re-runs the current slide's renderer, but not the preloaded neighbors
+    const currentCalls = countCalls(0);
+    const neighborCalls = [countCalls(1), countCalls(2)];
+
+    await user.keyboard("+");
+
+    expect(countCalls(0)).toBe(currentCalls + 1);
+    expect([countCalls(1), countCalls(2)]).toEqual(neighborCalls);
   });
 
   it("supports environments without ResizeObserver", async () => {

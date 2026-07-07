@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { ImageSlide } from "./ImageSlide";
 import { useZoom } from "./Zoom";
@@ -42,7 +42,23 @@ export function SlideView({ slide, rect, current, slideIndex, offset }: SlideVie
     }
   }, [current]);
 
-  const context = { slide, rect, current, slideIndex, zoom: round(current ? zoom : 1, 3) };
+  const zoomLevel = round(current ? zoom : 1, 3);
+
+  // Memoize the content so per-frame pan/zoom state commits re-render only this thin wrapper.
+  // None of the content inputs change while panning (offsets are not part of the render context),
+  // and non-current slides always render at zoom 1 — so render props and ImageSlide don't re-run
+  // on every pointer-move for the whole preload window.
+  const children = useMemo(() => {
+    const context = { slide, rect, current, slideIndex, zoom: zoomLevel };
+    return (
+      <>
+        {render.slideHeader?.(context)}
+        {render.slide?.(context) ??
+          (isImageSlide(slide) && <ImageSlide {...(context as typeof context & { slide: SlideImage })} />)}
+        {render.slideFooter?.(context)}
+      </>
+    );
+  }, [slide, rect, current, slideIndex, zoomLevel, render]);
 
   return (
     <div
@@ -67,10 +83,7 @@ export function SlideView({ slide, rect, current, slideIndex, offset }: SlideVie
           : undefined,
       )}
     >
-      {render.slideHeader?.(context)}
-      {render.slide?.(context) ??
-        (isImageSlide(slide) && <ImageSlide {...(context as typeof context & { slide: SlideImage })} />)}
-      {render.slideFooter?.(context)}
+      {children}
     </div>
   );
 }
