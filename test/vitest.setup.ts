@@ -2,6 +2,14 @@ import "@testing-library/jest-dom/vitest";
 import { act, cleanup, fireEvent } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 
+// Testing Library only auto-configures the React act environment when the test
+// runner exposes global beforeAll/afterAll (vitest globals are disabled here),
+// so set the flag explicitly. Without it, an update that lands in React's
+// async act-flush window (e.g., the Portal close timeout racing React's
+// setImmediate flush task after `await act(...)`) intermittently triggers
+// "The current testing environment is not configured to support act(...)".
+(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+
 afterEach(() => {
   cleanup();
 });
