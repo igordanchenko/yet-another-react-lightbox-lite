@@ -24,6 +24,10 @@ type ZoomContextType = {
     newZoom: number,
     /** pointer/mouse/wheel event that determines zoom-in point */
     event?: Pick<MouseEvent, "clientX" | "clientY">,
+    /** additional horizontal position offset */
+    deltaX?: number,
+    /** additional vertical position offset */
+    deltaY?: number,
   ) => void;
   /** change position offsets */
   changeOffsets: (dx: number, dy: number) => void;
@@ -73,15 +77,25 @@ export function Zoom({ children }: PropsWithChildren) {
   const carouselHalfWidth = (rect?.width || 0) / 2;
   const carouselHalfHeight = (rect?.height || 0) / 2;
 
-  const clampOffsets = useEventCallback((x: number = offsetX, y: number = offsetY, currentZoom: number = zoom) => {
-    const [slideHalfWidth, slideHalfHeight] = slideDimensionsRef.current;
+  // Offsets must be updated functionally — multiple sensor events can share a single
+  // render (e.g., both fingers of a two-finger pan report movement in the same frame),
+  // so computing new offsets from `offsetX` / `offsetY` would lose all but the last
+  // update in the batch.
+  const clampOffsets = useEventCallback(
+    (
+      updateX: (x: number) => number = (x) => x,
+      updateY: (y: number) => number = (y) => y,
+      currentZoom: number = zoom,
+    ) => {
+      const [slideHalfWidth, slideHalfHeight] = slideDimensionsRef.current;
 
-    const maxOffsetX = Math.max(slideHalfWidth * currentZoom - carouselHalfWidth, 0);
-    const maxOffsetY = Math.max(slideHalfHeight * currentZoom - carouselHalfHeight, 0);
+      const maxOffsetX = Math.max(slideHalfWidth * currentZoom - carouselHalfWidth, 0);
+      const maxOffsetY = Math.max(slideHalfHeight * currentZoom - carouselHalfHeight, 0);
 
-    setOffsetX(Math.min(maxOffsetX, Math.max(-maxOffsetX, x)));
-    setOffsetY(Math.min(maxOffsetY, Math.max(-maxOffsetY, y)));
-  });
+      setOffsetX((x) => Math.min(maxOffsetX, Math.max(-maxOffsetX, updateX(x))));
+      setOffsetY((y) => Math.min(maxOffsetY, Math.max(-maxOffsetY, updateY(y))));
+    },
+  );
 
   // Cache slide dimensions on resize or slide change — the only time DOM reads are needed
   useIsomorphicLayoutEffect(() => {
@@ -139,28 +153,31 @@ export function Zoom({ children }: PropsWithChildren) {
   }, []);
 
   const changeOffsets = useEventCallback((dx: number, dy: number) => {
-    clampOffsets(offsetX + dx, offsetY + dy, zoom);
+    clampOffsets(
+      (x) => x + dx,
+      (y) => y + dy,
+    );
   });
 
-  const changeZoom = useEventCallback((targetZoom: number, event?: Pick<MouseEvent, "clientX" | "clientY">) => {
-    const newZoom = Math.min(Math.max(targetZoom, 1), maxZoom);
+  const changeZoom = useEventCallback(
+    (targetZoom: number, event?: Pick<MouseEvent, "clientX" | "clientY">, deltaX: number = 0, deltaY: number = 0) => {
+      const newZoom = Math.min(Math.max(targetZoom, 1), maxZoom);
 
-    setZoom(newZoom);
+      setZoom(newZoom);
 
-    let newOffsetX = offsetX;
-    let newOffsetY = offsetY;
-
-    if (event && carouselRectRef.current) {
-      const { clientX, clientY } = event;
-      const { left, top, width, height } = carouselRectRef.current;
+      const rect = carouselRectRef.current;
+      // `zoom` may lag by one commit within a batch, overstating `zoomDelta` on the second
+      // of two same-frame events — the re-centering error is second-order, and the zoom value
+      // itself stays exact (`targetZoom` is absolute).
       const zoomDelta = newZoom / zoom - 1;
 
-      newOffsetX += (left + width / 2 + offsetX - clientX) * zoomDelta;
-      newOffsetY += (top + height / 2 + offsetY - clientY) * zoomDelta;
-    }
-
-    clampOffsets(newOffsetX, newOffsetY, newZoom);
-  });
+      clampOffsets(
+        (x) => x + deltaX + (event && rect ? (rect.left + rect.width / 2 + x - event.clientX) * zoomDelta : 0),
+        (y) => y + deltaY + (event && rect ? (rect.top + rect.height / 2 + y - event.clientY) * zoomDelta : 0),
+        newZoom,
+      );
+    },
+  );
 
   const context = useMemo(
     () => ({ rect, zoom, maxZoom, offsetX, offsetY, changeZoom, changeOffsets }),

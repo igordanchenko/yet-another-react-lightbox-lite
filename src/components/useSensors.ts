@@ -210,10 +210,17 @@ export function useSensors() {
 
       const currentDistance = distance(activePointers.current[0], activePointers.current[1]);
 
-      changeZoom((initialPinchZoom.current * currentDistance) / initialPinchDistance.current, {
-        clientX: (activePointers.current[0].clientX + activePointers.current[1].clientX) / 2,
-        clientY: (activePointers.current[0].clientY + activePointers.current[1].clientY) / 2,
-      });
+      changeZoom(
+        (initialPinchZoom.current * currentDistance) / initialPinchDistance.current,
+        {
+          clientX: (activePointers.current[0].clientX + activePointers.current[1].clientX) / 2,
+          clientY: (activePointers.current[0].clientY + activePointers.current[1].clientY) / 2,
+        },
+        // pan by the midpoint's frame-to-frame delta — only one pointer moves per
+        // event, so the midpoint moves by half that pointer's delta
+        (event.clientX - activePointer.clientX) / 2,
+        (event.clientY - activePointer.clientY) / 2,
+      );
 
       return;
     }

@@ -805,6 +805,67 @@ describe("Lightbox", () => {
     expectToBeZoomedIn();
   });
 
+  it("supports two-finger pan while zoomed in", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+
+    const target = getCurrentSlideImage();
+
+    await user.keyboard("+");
+    expectToBeZoomedIn();
+
+    const transformBefore = getCurrentSlide().style.transform;
+
+    // move both fingers together while keeping the pinch spread constant — each
+    // step rotates one finger around the other, so zoom never changes and the
+    // gesture is a pure two-finger pan
+    await user.pointer([
+      { keys: "[TouchA>]", target, coords: { x: 100, y: 100 } },
+      { keys: "[TouchB>]", target, coords: { x: 200, y: 100 } },
+      { pointerName: "TouchA", target, coords: { x: 200, y: 200 } },
+      { pointerName: "TouchB", target, coords: { x: 300, y: 200 } },
+      { keys: "[/TouchA][/TouchB]", target },
+    ]);
+
+    // the midpoint moved by (100, 100); the zoom level is unchanged
+    const transformAfter = getCurrentSlide().style.transform;
+    expect(transformAfter).toContain("translateX(100px)");
+    expect(transformAfter).toContain("translateY(100px)");
+    expect(transformAfter.slice(transformAfter.indexOf("scale"))).toBe(
+      transformBefore.slice(transformBefore.indexOf("scale")),
+    );
+  });
+
+  it("accumulates two-finger pan offsets across same-frame pointer events", async () => {
+    const user = userEvent.setup();
+
+    renderLightbox();
+
+    const target = getCurrentSlideImage();
+
+    await user.keyboard("+");
+    expectToBeZoomedIn();
+
+    fireEvent.pointerDown(target, { pointerId: 1, clientX: 100, clientY: 100 });
+    fireEvent.pointerDown(target, { pointerId: 2, clientX: 200, clientY: 100 });
+
+    // both fingers report movement within the same frame, so React batches both
+    // updates into a single render — the two offset contributions must compose
+    // rather than the second overwriting the first
+    act(() => {
+      fireEvent.pointerMove(target, { pointerId: 1, clientX: 200, clientY: 200 });
+      fireEvent.pointerMove(target, { pointerId: 2, clientX: 300, clientY: 200 });
+    });
+
+    fireEvent.pointerUp(target, { pointerId: 1 });
+    fireEvent.pointerUp(target, { pointerId: 2 });
+
+    const transform = getCurrentSlide().style.transform;
+    expect(transform).toContain("translateX(100px)");
+    expect(transform).toContain("translateY(100px)");
+  });
+
   it("does not close on a pinch that starts on the backdrop", async () => {
     const user = userEvent.setup();
 
