@@ -1,4 +1,18 @@
-# Yet Another React Lightbox Lite
+<p align="center">
+  <img alt="" src=".github/assets/logo.webp" width="180" height="180" />
+</p>
+
+<h1 align="center">
+  Yet Another React Lightbox Lite
+</h1>
+
+<div align="center">
+
+[![NPM Version](https://img.shields.io/npm/v/yet-another-react-lightbox-lite.svg?color=blue)](https://www.npmjs.com/package/yet-another-react-lightbox-lite)
+[![Bundle Size](https://img.shields.io/bundlephobia/minzip/yet-another-react-lightbox-lite.svg?color=blue)](https://bundlephobia.com/package/yet-another-react-lightbox-lite)
+[![License MIT](https://img.shields.io/npm/l/yet-another-react-lightbox-lite.svg?color=blue)](https://github.com/igordanchenko/yet-another-react-lightbox-lite/blob/main/LICENSE)
+
+</div>
 
 Lightweight React lightbox component. This is a trimmed-down version of the
 [yet-another-react-lightbox](https://github.com/igordanchenko/yet-another-react-lightbox)
@@ -6,10 +20,6 @@ that provides essential lightbox features and slick UX with a really modest
 bundle size.
 
 ## Overview
-
-[![NPM Version](https://img.shields.io/npm/v/yet-another-react-lightbox-lite.svg?color=blue)](https://www.npmjs.com/package/yet-another-react-lightbox-lite)
-[![Bundle Size](https://img.shields.io/bundlephobia/minzip/yet-another-react-lightbox-lite.svg?color=blue)](https://bundlephobia.com/package/yet-another-react-lightbox-lite)
-[![License MIT](https://img.shields.io/npm/l/yet-another-react-lightbox-lite.svg?color=blue)](https://github.com/igordanchenko/yet-another-react-lightbox-lite/blob/main/LICENSE)
 
 - **Lightweight:** around 5.5KB minified + gzipped, with no runtime dependencies
 - **Universal input:** keyboard, mouse, touchpad, and touchscreen navigation
