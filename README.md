@@ -9,7 +9,7 @@
 <div align="center">
 
 [![NPM Version](https://img.shields.io/npm/v/yet-another-react-lightbox-lite.svg?color=blue)](https://www.npmjs.com/package/yet-another-react-lightbox-lite)
-[![Bundle Size](https://img.shields.io/bundlephobia/minzip/yet-another-react-lightbox-lite.svg?color=blue)](https://bundlephobia.com/package/yet-another-react-lightbox-lite)
+[![Bundle Size](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fregistry.npmjs.org%2Fyet-another-react-lightbox-lite%2Flatest&query=%24.bundleSize&label=bundle%20size&color=blue)](https://bundlephobia.com/package/yet-another-react-lightbox-lite)
 [![License MIT](https://img.shields.io/npm/l/yet-another-react-lightbox-lite.svg?color=blue)](https://github.com/igordanchenko/yet-another-react-lightbox-lite/blob/main/LICENSE)
 
 </div>
