@@ -19,7 +19,7 @@ output.
 - **Lint:** `npm run lint`
 - **Dev server:** `npm run dev` (Vite playground in `dev/`)
 - **Bundle size check:** `npm run size`
-- **Full CI:** `npm run ci` (build + test + lint)
+- **Full CI:** `npm run ci` (build + test + lint + size)
 
 ## Architecture
 

@@ -21,7 +21,8 @@ bundle size.
 
 ## Overview
 
-- **Lightweight:** around 5.5KB minified + gzipped, with no runtime dependencies
+- **Lightweight:** around 5 kB minified + compressed, with no runtime
+  dependencies
 - **Universal input:** keyboard, mouse, touchpad, and touchscreen navigation
 - **Zoom:** pinch, wheel, double-tap, and keyboard, with a configurable zoom
   limit
