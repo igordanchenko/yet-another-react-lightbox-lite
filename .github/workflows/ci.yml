@@ -4,13 +4,17 @@ on:
   push:
     branches: [main, next]
   pull_request:
-    branches: [main, next]
   workflow_dispatch:
 
-permissions: {}
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  build:
+  test:
     name: Node.js ${{ matrix.node }} / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
@@ -34,5 +38,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build, Test, Lint
-        run: npm run ci
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm run test
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Size
+        run: npm run size
+
+  ci:
+    name: CI
+    if: always()
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify matrix succeeded
+        if: needs.test.result != 'success'
+        run: exit 1
