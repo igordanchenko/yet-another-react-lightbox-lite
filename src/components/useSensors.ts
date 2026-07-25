@@ -316,6 +316,13 @@ export function useSensors() {
 
     const [dx, dy] = normalizeWheel(event);
 
+    // Wheel input consumed by zooming or panning must not linger in the swipe
+    // accumulation window — otherwise a small nudge after zooming back out combines
+    // with the stale pre-zoom deltas and crosses the swipe threshold on its own.
+    if (event.ctrlKey || zoom > 1) {
+      swipeHistory.current = [];
+    }
+
     if (event.ctrlKey) {
       if (Math.abs(dy) > Math.abs(dx)) {
         // Clamp per-event zoom delta — a single oversized wheel event (line/page mode,

@@ -161,6 +161,46 @@ describe("Lightbox", () => {
     expectCurrentSlideToBe(1);
   });
 
+  it("discards accumulated wheel deltas consumed by zoomed panning", async () => {
+    renderLightbox();
+
+    await withFakeTimers(async () => {
+      // sub-threshold scroll — accumulates toward the swipe threshold
+      wheelSwipe(80, 0, 0);
+
+      wheelZoom(0, -50);
+      expectToBeZoomedIn();
+
+      // consumed as pan input while zoomed in
+      wheelSwipe(50, 0, 100);
+
+      wheelZoom(0, 50);
+      expectToBeZoomedOut();
+
+      wheelSwipe(30, 0, 100);
+    });
+
+    expectCurrentSlideToBe(0);
+  });
+
+  it("discards accumulated wheel deltas consumed by wheel zoom", async () => {
+    renderLightbox();
+
+    await withFakeTimers(async () => {
+      wheelSwipe(80, 0, 0);
+
+      wheelZoom(0, -50);
+      expectToBeZoomedIn();
+
+      wheelZoom(0, 50);
+      expectToBeZoomedOut();
+
+      wheelSwipe(30, 0, 100);
+    });
+
+    expectCurrentSlideToBe(0);
+  });
+
   it("normalizes Firefox-style line-mode wheel events", async () => {
     renderLightbox();
 
