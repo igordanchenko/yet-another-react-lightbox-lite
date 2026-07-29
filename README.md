@@ -932,7 +932,11 @@ import Lightbox, { IconButton } from "yet-another-react-lightbox-lite";
 - `label` (required) — button label, used for both `title` and `aria-label`.
   Accepts a known `Labels` key (translated via the [`labels`](#labels) prop) or
   any custom string.
-- `icon` (required) — icon component rendered inside the button.
+- `icon` (required) — icon component rendered inside the button. It is rendered
+  as `<Icon {...props} />`, receiving the `yarll__icon` class and any
+  [`slots.icon`](#slots) props, so it must spread the props it receives onto the
+  underlying `<svg>` — an icon that ignores them renders without the lightbox's
+  sizing and coloring.
 - `renderIcon` — custom icon render function. When provided, takes precedence
   over `icon`.
 
@@ -942,11 +946,18 @@ context).
 Usage example — a custom Download button rendered in the toolbar:
 
 ```tsx
+import type { SVGProps } from "react";
 import Lightbox, { IconButton } from "yet-another-react-lightbox-lite";
 
-function DownloadIcon() {
+function DownloadIcon(props: SVGProps<SVGSVGElement>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      focusable="false"
+      aria-hidden
+      {...props}
+    >
       <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
     </svg>
   );
