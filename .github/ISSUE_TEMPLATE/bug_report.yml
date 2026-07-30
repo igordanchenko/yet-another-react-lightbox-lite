@@ -14,7 +14,7 @@ body:
     id: package-version
     attributes:
       label: yet-another-react-lightbox-lite version
-      placeholder: e.g., 1.2.0
+      placeholder: e.g., 2.1.2
     validations:
       required: true
 
@@ -23,6 +23,14 @@ body:
     attributes:
       label: React version
       placeholder: e.g., 19.2.0
+    validations:
+      required: true
+
+  - type: input
+    id: framework
+    attributes:
+      label: Framework / bundler
+      placeholder: e.g., Next.js 16.1.0, Vite 8.0.0
     validations:
       required: true
 
