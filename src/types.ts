@@ -1,4 +1,4 @@
-import type { ComponentProps, CSSProperties, Key, ReactNode } from "react";
+import type { ComponentProps, CSSProperties, ReactNode } from "react";
 
 /** Lightbox props */
 export interface LightboxProps {
@@ -39,7 +39,7 @@ export type SlideTypeKey = keyof SlideTypes;
 /** Generic slide */
 export interface GenericSlide {
   /** slide key */
-  key?: Key;
+  key?: string | number | bigint;
   /** slide type */
   type?: SlideTypeKey;
 }
