@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a reproducible problem.
+description: Report a reproducible problem
 labels: ["bug"]
 body:
   - type: textarea
