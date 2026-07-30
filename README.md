@@ -1,23 +1,19 @@
-<p align="center">
-  <img alt="" src=".github/assets/logo.webp" width="180" height="180" />
-</p>
-
-<h1 align="center">
-  Yet Another React Lightbox Lite
-</h1>
-
 <div align="center">
+
+<img alt="" src=".github/assets/logo.webp" width="180" height="180" />
+
+# Yet Another React Lightbox Lite
 
 [![NPM Version](https://img.shields.io/npm/v/yet-another-react-lightbox-lite.svg?color=blue)](https://www.npmjs.com/package/yet-another-react-lightbox-lite)
 [![Bundle Size](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fregistry.npmjs.org%2Fyet-another-react-lightbox-lite%2Flatest&query=%24.bundleSize&label=bundle%20size&color=blue&cacheSeconds=3600)](https://github.com/igordanchenko/yet-another-react-lightbox-lite/blob/main/.size-limit.json)
 [![License MIT](https://img.shields.io/npm/l/yet-another-react-lightbox-lite.svg?color=blue)](https://github.com/igordanchenko/yet-another-react-lightbox-lite/blob/main/LICENSE)
 
-</div>
-
 Lightweight React lightbox component. This is a trimmed-down version of the
 [yet-another-react-lightbox](https://github.com/igordanchenko/yet-another-react-lightbox)
 that provides essential lightbox features and slick UX with a really modest
 bundle size.
+
+</div>
 
 ## Overview
 
