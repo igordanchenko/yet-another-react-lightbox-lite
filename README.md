@@ -117,6 +117,14 @@ To utilize responsive images with automatic resolution switching, provide
 />
 ```
 
+Unlike `width` and `height` on the slide itself, `width` and `height` on each
+`srcSet` entry are required — they are what the lightbox uses to build the
+`srcset` and `sizes` attributes.
+
+When `srcSet` is present, the slide-level `width` and `height` serve only as a
+fallback — the first `srcSet` entry's dimensions determine the rendered aspect
+ratio.
+
 ## Next.js Image
 
 If your project is based on [Next.js](https://nextjs.org/), you may want to take
@@ -204,11 +212,26 @@ Image slide props:
 - `srcSet` — alternative images for responsive resolution switching (see
   [Responsive Images](#responsive-images))
 
+Generic slide props, available on all slide types including custom ones:
+
+- `key` — stable slide key (type: `string | number | bigint`)
+- `type` — slide type (type: `SlideTypeKey`), defaults to `"image"`
+
+To customize image slide attributes (e.g., `crossOrigin`, `loading`, `lang`),
+use the [`slots.image`](#slots) prop.
+
 ### index
 
 Type: `number | undefined`
 
-Current slide index. This prop is required.
+Current slide index. This prop is required. `undefined` means the lightbox is
+closed.
+
+The lightbox treats `index` as `undefined` — rendering as closed — when the
+value cannot address a slide: when `slides` is empty or not an array, or when
+`index` falls outside `[0, slides.length)`. Your own state is not updated —
+`setIndex` is not called. The range check is skipped in [`infinite`](#carousel)
+mode, where `index` is deliberately allowed to drift outside that range.
 
 ### setIndex
 
@@ -241,7 +264,20 @@ Custom UI labels / translations.
 
 The `labels` prop accepts the built-in keys (`Previous`, `Next`, `Close`,
 `Lightbox`, `Carousel`, `Slide`, `Photo gallery`, `{index} of {total}`) and any
-custom string keys — useful for translating
+custom string keys.
+
+The `{index} of {total}` value is a template string. Two placeholders are
+substituted at render time: `{index}` (the slide's position, 1-based) and
+`{total}` (the total number of slides).
+
+```tsx
+<Lightbox
+  labels={{ "{index} of {total}": "Slide {index} sur {total}" }}
+  // ...
+/>
+```
+
+Custom string keys are useful for translating
 [custom `IconButton` labels](#iconbutton). To get autocomplete for your custom
 keys in both [`IconButton.label`](#iconbutton) and the `labels` prop,
 declaration-merge them into the exported `LabelRegistry` interface:
@@ -292,7 +328,10 @@ Type: `object`
 
 Carousel settings.
 
-- `preload` — the lightbox preloads `(2 * preload + 1)` slides (default: `2`)
+- `preload` — the lightbox preloads `(2 * preload + 1)` slides (default: `2`).
+  In `infinite` mode the value is clamped to
+  `Math.min(preload, Math.floor(slides.length / 2))`, since rendering more slots
+  than there are slides only produces duplicates in the preload window.
 - `transition` — slide transition effect, `"fade"` (default), `"slide"`, or
   `"none"` (see [Slide Transitions](#slide-transitions))
 - `infinite` — if `true`, the carousel wraps around from the last slide to the
@@ -321,9 +360,6 @@ Enable infinite (wrapping) navigation:
   // ...
 />
 ```
-
-To customize image slide attributes (e.g., `crossOrigin`, `loading`, `lang`),
-use the [`slots.image`](#slots) prop.
 
 ### controller
 
@@ -541,6 +577,11 @@ your entries override on conflict). All other attributes are spread last, so a
 slot can override any built-in attribute (including the lightbox's own event
 handlers) — use with caution.
 
+Every slot omits `children`, `dangerouslySetInnerHTML`, `key`, and `ref` — they
+would either clobber the lightbox subtree or be silently dropped on spread, and
+have no slot use case. `style` is re-typed to accept `--yarll__*` custom
+properties alongside the standard CSS properties.
+
 #### CSS Custom Properties
 
 The stylesheet exposes the following custom properties for theming. Override
@@ -591,7 +632,8 @@ Type: `object`
 
 Zoom settings.
 
-- `supports` — slide types that support zoom (default: `["image"]`)
+- `supports` — slide types that support zoom (type: `SlideTypeKey[]`, default:
+  `["image"]`)
 - `maxZoom` — maximum zoom level (default: `8`)
 
 Cap the maximum zoom level:
@@ -936,6 +978,13 @@ import Lightbox, { IconButton } from "yet-another-react-lightbox-lite";
 - `renderIcon` — custom icon render function. When provided, takes precedence
   over `icon`.
 
+The props type is exported as `IconButtonProps`, and the component forwards a
+ref to the underlying `HTMLButtonElement`.
+
+```tsx
+import { type IconButtonProps } from "yet-another-react-lightbox-lite";
+```
+
 `IconButton` must be rendered inside a `<Lightbox>` (it relies on the lightbox
 context).
 
@@ -975,6 +1024,12 @@ function DownloadIcon(props: SVGProps<SVGSVGElement>) {
   // ...
 />;
 ```
+
+A `disabled` `IconButton` gets an `aria-disabled` attribute and has its
+`onClick` stripped, rather than receiving the native `disabled` attribute. This
+keeps the button focusable and discoverable by screen readers — but it means CSS
+`:disabled` will not match. Style `[aria-disabled]` instead, or use the
+`--yarll__button_color_disabled` custom property.
 
 Styling applied via [`slots.button`](#slots) and `slots.icon` is forwarded
 automatically. Note that slot props take precedence over the caller's props
@@ -1054,7 +1109,8 @@ import { useZoom } from "yet-another-react-lightbox-lite";
 
 The hook provides an object with the following props:
 
-- `rect` — slide rect
+- `rect` — slide rect (type: `Rect | undefined` — `undefined` until the slide
+  has been measured)
 - `zoom` — current zoom level (numeric value between `1` and `maxZoom`)
 - `maxZoom` — maximum zoom level (`1` if zoom is not supported on the current
   slide, otherwise the configured `zoom.maxZoom`, default `8`)
@@ -1062,6 +1118,22 @@ The hook provides an object with the following props:
 - `offsetY` — vertical slide position offset
 - `changeZoom` — change zoom level
 - `changeOffsets` — change position offsets
+
+```ts
+type ChangeZoom = (
+  newZoom: number,
+  event?: Pick<MouseEvent, "clientX" | "clientY">,
+  deltaX?: number,
+  deltaY?: number,
+) => void;
+
+type ChangeOffsets = (dx: number, dy: number) => void;
+```
+
+`newZoom` is an absolute zoom level; out-of-range values are clamped to
+`[1, maxZoom]`, so custom zoom controls do not need to clamp on their own. The
+optional `event` determines the zoom-in point. `changeOffsets` takes **deltas**,
+not absolute positions — `dx` and `dy` are added to the current offsets.
 
 Usage example:
 
