@@ -6,6 +6,7 @@
   },
   {
     "path": "dist/styles.css",
-    "limit": "1 kB"
+    "limit": "1 kB",
+    "rolldown": false
   }
 ]
