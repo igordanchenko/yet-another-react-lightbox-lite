@@ -194,7 +194,7 @@ export async function withFakeTimers(callback: () => Promise<void>) {
   }
 }
 
-/* eslint-disable no-console */
+/* oxlint-disable no-console */
 export function suppressConsoleErrors(callback: () => void) {
   const consoleError = console.error;
   console.error = vi.fn();

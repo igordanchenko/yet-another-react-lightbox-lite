@@ -51,7 +51,7 @@ declare module "../src/types" {
 async function testNavigation(
   prev: () => void | Promise<void>,
   next: () => void | Promise<void>,
-  close?: () => void | Promise<void>,
+  close: () => void | Promise<void> = clickButtonClose,
   ref?: Ref<LightboxRef>,
 ) {
   renderLightbox({ ref });
@@ -72,7 +72,7 @@ async function testNavigation(
   await prev();
   expectCurrentSlideToBe(1);
 
-  await (close || clickButtonClose)();
+  await close();
   await expectLightboxToBeClosed();
 }
 

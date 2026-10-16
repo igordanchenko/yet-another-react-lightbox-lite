@@ -51,7 +51,7 @@ export function Portal({ state, onClosed, children }: PortalProps) {
       document.documentElement.style.setProperty(property, `${scrollbarWidth}px`);
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- false-positive lint
+    // oxlint-disable-next-line react/set-state-in-effect -- false-positive lint
     setMounted(true);
 
     return () => {
@@ -125,6 +125,7 @@ export function Portal({ state, onClosed, children }: PortalProps) {
 
   return mounted
     ? createPortal(
+        // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- onFocus only records the element to restore focus to
         <div
           aria-modal
           role="dialog"

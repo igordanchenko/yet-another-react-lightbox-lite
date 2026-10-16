@@ -47,15 +47,16 @@ npm install
 
 ### Scripts
 
-| Script            | Purpose                                          |
-| ----------------- | ------------------------------------------------ |
-| `npm run dev`     | Start the Vite dev server from `dev/`            |
-| `npm test`        | Run the Vitest suite                             |
-| `npm run test:ui` | Run Vitest with the interactive UI               |
-| `npm run lint`    | Run ESLint                                       |
-| `npm run build`   | Build CSS + JS into `dist/`                      |
-| `npm run size`    | Print the minified + gzipped JS bundle size      |
-| `npm run ci`      | Build + test + lint (what CI runs on every push) |
+| Script            | Purpose                                     |
+| ----------------- | ------------------------------------------- |
+| `npm run dev`     | Start the Vite dev server from `dev/`       |
+| `npm test`        | Run the Vitest suite                        |
+| `npm run test:ui` | Run Vitest with the interactive UI          |
+| `npm run lint`    | Lint and type-check with oxlint             |
+| `npm run format`  | Format with oxfmt (writes in place)         |
+| `npm run build`   | Build CSS + JS into `dist/`                 |
+| `npm run size`    | Print the minified + gzipped JS bundle size |
+| `npm run ci`      | Build + test + lint + size                  |
 
 To run a single test file or match by name:
 
@@ -77,7 +78,7 @@ Common types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`, `build`.
 
 ### Code style
 
-- ESLint and Prettier run on staged files via `lint-staged`. You normally don't
+- oxlint and oxfmt run on staged files via `lint-staged`. You normally don't
   need to run them manually — the pre-commit hook formats and fixes on its own.
 - If a hook fails, fix the reported issue and re-stage rather than bypassing
   with `--no-verify`.

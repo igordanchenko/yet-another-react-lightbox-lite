@@ -16,7 +16,9 @@ output.
   coverage or the 100% threshold fails on partial runs; add `-t "name"` to
   filter tests)
 - **Test UI:** `npm run test:ui`
-- **Lint:** `npm run lint`
+- **Lint:** `npm run lint` (oxlint, type-aware + `tsc`-equivalent type check:
+  `correctness` category + a few opt-ins in `.oxlintrc.json`)
+- **Format:** `npm run format` (oxfmt, writes in place)
 - **Dev server:** `npm run dev` (Vite playground in `dev/`)
 - **Bundle size check:** `npm run size`
 - **Full CI:** `npm run ci` (build + test + lint + size)
@@ -78,5 +80,5 @@ so the close transition can play before `setIndex(undefined)` fires in
 - Conventional commits enforced by commitlint + husky. No scopes — write
   `type: subject`. Wrap commit bodies at 100 chars.
 - `no-console` is an error
-- Prettier: 120 print width (80 + prose wrap for markdown)
+- oxfmt: 120 print width (80 + prose wrap for markdown)
 - Unused vars allowed only with `_` prefix
