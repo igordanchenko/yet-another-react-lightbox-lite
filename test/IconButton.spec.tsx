@@ -61,7 +61,7 @@ describe("IconButton", () => {
   });
 
   it("soft-disables when `disabled` is set", () => {
-    const onClick = vi.fn();
+    const onClick = vi.fn<() => void>();
 
     renderLightbox({
       toolbar: {
@@ -100,8 +100,8 @@ describe("IconButton", () => {
   });
 
   it("lets `slots.button` override caller props", () => {
-    const callerClick = vi.fn();
-    const slotClick = vi.fn();
+    const callerClick = vi.fn<() => void>();
+    const slotClick = vi.fn<() => void>();
 
     renderLightbox({
       slots: { button: { onClick: slotClick, className: "slot-class" } },

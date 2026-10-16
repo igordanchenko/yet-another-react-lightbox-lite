@@ -34,7 +34,7 @@ import {
   wheelZoom,
   withFakeTimers,
 } from "./test-utils";
-import { type LightboxRef, type RenderSlideProps, useZoom } from "../src";
+import { type LightboxRef, type RenderFunction, type RenderSlideProps, useZoom } from "../src";
 import { makeUseContext } from "../src/utils";
 
 declare module "../src/types" {
@@ -688,7 +688,7 @@ describe("Lightbox", () => {
   });
 
   it("does not navigate with Home / End on a single-slide carousel", async () => {
-    const setIndex = vi.fn();
+    const setIndex = vi.fn<(index: number | undefined) => void>();
     const user = userEvent.setup();
     renderLightbox({ slides: [slides[0]], setIndex });
 
@@ -1189,7 +1189,9 @@ describe("Lightbox", () => {
   it("does not re-run slide render props on pan frames", async () => {
     const user = userEvent.setup();
 
-    const renderSlide = vi.fn(({ slideIndex }: RenderSlideProps) => <span>custom slide {slideIndex}</span>);
+    const renderSlide = vi.fn<RenderFunction<RenderSlideProps>>(({ slideIndex }) => (
+      <span>custom slide {slideIndex}</span>
+    ));
     const countCalls = (slideIndex: number) =>
       renderSlide.mock.calls.filter(([props]) => props.slideIndex === slideIndex).length;
 
@@ -1404,7 +1406,7 @@ describe("Lightbox", () => {
     });
 
     it("calls setIndex with the unbounded delta when wrapping", () => {
-      const setIndex = vi.fn();
+      const setIndex = vi.fn<(index: number | undefined) => void>();
       renderLightbox({ setIndex, carousel: { infinite: true } });
 
       clickButtonPrev();
@@ -1412,7 +1414,7 @@ describe("Lightbox", () => {
     });
 
     it("Home / End span the current cycle for drifted positive indices", async () => {
-      const setIndex = vi.fn();
+      const setIndex = vi.fn<(index: number | undefined) => void>();
       const user = userEvent.setup();
       // index=4 with 3 slides → current cycle [3, 5] (slide 1 displayed).
       renderLightbox({ index: 4, setIndex, carousel: { infinite: true } });
@@ -1425,7 +1427,7 @@ describe("Lightbox", () => {
     });
 
     it("Home / End span the current cycle for drifted negative indices", async () => {
-      const setIndex = vi.fn();
+      const setIndex = vi.fn<(index: number | undefined) => void>();
       const user = userEvent.setup();
       // index=-1 with 3 slides → current cycle [-3, -1] (slide 2 displayed).
       renderLightbox({ index: -1, setIndex, carousel: { infinite: true } });
@@ -1475,7 +1477,7 @@ describe("Lightbox", () => {
     });
 
     it("does not navigate a single-slide carousel", async () => {
-      const setIndex = vi.fn();
+      const setIndex = vi.fn<(index: number | undefined) => void>();
       const user = userEvent.setup();
       renderLightbox({ slides: [slides[0]], setIndex, carousel: { infinite: true } });
 

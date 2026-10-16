@@ -13,19 +13,19 @@ import {
   wrapIndex,
 } from "../src/utils";
 
-describe("scaleZoom", (test) => {
-  test.for([
+describe("scaleZoom", () => {
+  it.for([
     [3, 50, 4.5],
     [3, 100, 6],
     [3, 200, 6],
     [3, -50, 2],
     [3, -100, 1.5],
     [3, -200, 1.5],
-  ] as const)("scaleZoom(%i, %i) -> %i", ([value, delta, expected], { expect }) => {
+  ] as const)("scaleZoom(%i, %i) -> %i", ([value, delta, expected]) => {
     expect(scaleZoom(value, delta)).toBe(expected);
   });
 
-  test.for([
+  it.for([
     [3, 50, 100, 3, 4.5],
     [3, 100, 100, 3, 6],
     [3, 200, 100, 3, 9],
@@ -34,7 +34,7 @@ describe("scaleZoom", (test) => {
     [3, -100, 100, 3, 1.5],
     [3, -200, 100, 3, 1],
     [3, -300, 100, 3, 1],
-  ] as const)("scaleZoom(%i, %i, %i, %i) -> %i", ([value, delta, factor, clamp, expected], { expect }) => {
+  ] as const)("scaleZoom(%i, %i, %i, %i) -> %i", ([value, delta, factor, clamp, expected]) => {
     expect(scaleZoom(value, delta, factor, clamp)).toBe(expected);
   });
 });
@@ -119,8 +119,8 @@ describe("isImageSlide", () => {
   });
 });
 
-describe("wrapIndex", (test) => {
-  test.for([
+describe("wrapIndex", () => {
+  it.for([
     [0, 3, 0],
     [1, 3, 1],
     [2, 3, 2],
@@ -134,7 +134,7 @@ describe("wrapIndex", (test) => {
     [0, 1, 0],
     [5, 1, 0],
     [-5, 1, 0],
-  ] as const)("wrapIndex(%i, %i) -> %i", ([n, length, expected], { expect }) => {
+  ] as const)("wrapIndex(%i, %i) -> %i", ([n, length, expected]) => {
     expect(wrapIndex(n, length)).toBe(expected);
   });
 });
