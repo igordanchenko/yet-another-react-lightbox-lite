@@ -1,11 +1,11 @@
 import { useMemo, useRef, useState } from "react";
 
-import { ImageSlide } from "./ImageSlide";
-import { useZoom } from "./Zoom";
-import { useLightboxContext } from "./LightboxContext";
 import { useIsomorphicLayoutEffect } from "../hooks";
-import { clsx, cssClass, isImageSlide, mergeSlot, round, translateLabel, translateSlideCounter } from "../utils";
 import type { RenderSlideProps, SlideImage } from "../types";
+import { clsx, cssClass, isImageSlide, mergeSlot, round, translateLabel, translateSlideCounter } from "../utils";
+import { ImageSlide } from "./ImageSlide";
+import { useLightboxContext } from "./LightboxContext";
+import { useZoom } from "./Zoom";
 
 type SlideViewProps = Pick<RenderSlideProps, "slide" | "rect" | "current" | "slideIndex"> & {
   offset: number;

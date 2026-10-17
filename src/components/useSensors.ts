@@ -1,11 +1,11 @@
 import type { KeyboardEvent, MouseEvent, PointerEvent, WheelEvent } from "react";
 import { useRef } from "react";
 
-import { useZoom } from "./Zoom";
-import { useController } from "./Controller";
-import { useLightboxContext } from "./LightboxContext";
 import { useEventCallback } from "../hooks";
 import { cssClass, isInteractiveTarget, scaleZoom, wrapIndex } from "../utils";
+import { useController } from "./Controller";
+import { useLightboxContext } from "./LightboxContext";
+import { useZoom } from "./Zoom";
 
 const WHEEL_ZOOM_FACTOR = 100;
 const WHEEL_SWIPE_DISTANCE = 100;

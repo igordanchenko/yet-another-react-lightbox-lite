@@ -1,8 +1,8 @@
-import { IconButton } from "./IconButton";
-import { useController } from "./Controller";
-import { useLightboxContext } from "./LightboxContext";
-import { Next, Previous } from "./icons";
 import { cssClass } from "../utils";
+import { useController } from "./Controller";
+import { IconButton } from "./IconButton";
+import { Next, Previous } from "./icons";
+import { useLightboxContext } from "./LightboxContext";
 
 export function Navigation() {
   const {

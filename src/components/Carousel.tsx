@@ -1,7 +1,7 @@
+import { clsx, cssClass, isImageSlide, mergeSlot, translateLabel, wrapIndex } from "../utils";
+import { useLightboxContext } from "./LightboxContext";
 import { SlideView } from "./SlideView";
 import { useZoom, useZoomInternal } from "./Zoom";
-import { useLightboxContext } from "./LightboxContext";
-import { clsx, cssClass, isImageSlide, mergeSlot, translateLabel, wrapIndex } from "../utils";
 
 export function Carousel() {
   const { slides, index, slots, labels, carousel } = useLightboxContext();

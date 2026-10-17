@@ -1,7 +1,7 @@
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import type { UserEvent } from "@testing-library/user-event";
 import { type ComponentProps, useState } from "react";
 import { expect, vi } from "vitest";
-import type { UserEvent } from "@testing-library/user-event";
-import { act, fireEvent, render, screen } from "@testing-library/react";
 
 import Lightbox from "../src";
 

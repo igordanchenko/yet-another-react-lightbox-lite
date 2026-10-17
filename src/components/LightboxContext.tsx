@@ -1,7 +1,7 @@
 import { createContext, type PropsWithChildren } from "react";
 
-import { makeUseContext } from "../utils";
 import type { ResolvedLightboxProps } from "../props";
+import { makeUseContext } from "../utils";
 
 type LightboxContextType = Omit<ResolvedLightboxProps, "setIndex"> & { index: number };
 

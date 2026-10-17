@@ -1,10 +1,10 @@
+import { screen } from "@testing-library/react";
 import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { screen } from "@testing-library/react";
 
-import { renderLightbox } from "./test-utils";
 import { IconButton } from "../src";
 import { Close } from "../src/components/icons";
+import { renderLightbox } from "./test-utils";
 
 describe("IconButton", () => {
   it("forwards ref to the underlying button element", () => {

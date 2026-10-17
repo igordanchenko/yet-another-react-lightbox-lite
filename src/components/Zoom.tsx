@@ -1,10 +1,10 @@
 import type { MouseEvent, PropsWithChildren, RefCallback } from "react";
 import { createContext, useCallback, useMemo, useRef, useState } from "react";
 
-import { useLightboxContext } from "./LightboxContext";
 import { useEventCallback, useIsomorphicLayoutEffect } from "../hooks";
-import { cssClass, getChildren, makeUseContext, wrapIndex } from "../utils";
 import type { Rect } from "../types";
+import { cssClass, getChildren, makeUseContext, wrapIndex } from "../utils";
+import { useLightboxContext } from "./LightboxContext";
 
 /** Zoom context */
 type ZoomContextType = {

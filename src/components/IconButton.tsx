@@ -1,8 +1,8 @@
 import { type ComponentProps, type ElementType, forwardRef } from "react";
 
-import { useLightboxContext } from "./LightboxContext";
-import { clsx, cssClass, mergeSlot, translateLabel } from "../utils";
 import type { Label, RenderFunction } from "../types";
+import { clsx, cssClass, mergeSlot, translateLabel } from "../utils";
+import { useLightboxContext } from "./LightboxContext";
 
 export type IconButtonProps = Omit<ComponentProps<"button">, "type" | "title" | "aria-label" | "children"> & {
   /** button label — accepts a known `Labels` key (translated via `labels`) or any custom string */

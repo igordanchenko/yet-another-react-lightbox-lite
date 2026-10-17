@@ -1,8 +1,8 @@
+import { clsx, cssClass, mergeSlot } from "../utils";
+import { useController } from "./Controller";
 import { IconButton } from "./IconButton";
 import { Close } from "./icons";
-import { useController } from "./Controller";
 import { useLightboxContext } from "./LightboxContext";
-import { clsx, cssClass, mergeSlot } from "../utils";
 
 export function Toolbar() {
   const {

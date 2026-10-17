@@ -1,9 +1,9 @@
 import { type PropsWithChildren, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import { useSensors } from "./useSensors";
-import { useLightboxContext } from "./LightboxContext";
 import { clsx, cssClass, cssVar, getChildren, isInteractiveTarget, mergeSlot, translateLabel } from "../utils";
+import { useLightboxContext } from "./LightboxContext";
+import { useSensors } from "./useSensors";
 
 /** Portal lifecycle state */
 export type PortalState = "open" | "closing" | "closed";

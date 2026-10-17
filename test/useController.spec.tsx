@@ -1,9 +1,9 @@
-import { describe, it } from "vitest";
 import { act, screen } from "@testing-library/react";
+import { describe, it } from "vitest";
 
-import { expectCurrentSlideToBe, expectLightboxToBeClosed, expectLightboxToBeOpen, renderLightbox } from "./test-utils";
 import { IconButton, useController } from "../src";
 import { Close, Next, Previous } from "../src/components/icons";
+import { expectCurrentSlideToBe, expectLightboxToBeClosed, expectLightboxToBeOpen, renderLightbox } from "./test-utils";
 
 function PrevButton() {
   const { prev } = useController();

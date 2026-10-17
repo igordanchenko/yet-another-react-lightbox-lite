@@ -66,6 +66,7 @@ npm install yet-another-react-lightbox-lite
 ```tsx
 import { useState } from "react";
 import Lightbox from "yet-another-react-lightbox-lite";
+
 import "yet-another-react-lightbox-lite/styles.css";
 
 export default function App() {
@@ -745,6 +746,7 @@ declare module "yet-another-react-lightbox-lite" {
 import LightboxComponent, {
   LightboxProps,
 } from "yet-another-react-lightbox-lite";
+
 import "yet-another-react-lightbox-lite/styles.css";
 
 export default function Lightbox(props: LightboxProps) {
@@ -755,6 +757,7 @@ export default function Lightbox(props: LightboxProps) {
 ```tsx
 // App.tsx
 import { lazy, Suspense, useState } from "react";
+
 import slides from "./slides";
 
 const Lightbox = lazy(() => import("./Lightbox"));

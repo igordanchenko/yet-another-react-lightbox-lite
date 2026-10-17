@@ -1,8 +1,10 @@
-import { createContext, createElement, createRef, type Ref } from "react";
-import { describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
+import { createContext, createElement, createRef, type Ref } from "react";
+import { describe, expect, it, vi } from "vitest";
 
+import { type LightboxRef, type RenderFunction, type RenderSlideProps, useZoom } from "../src";
+import { makeUseContext } from "../src/utils";
 import {
   clickButtonClose,
   clickButtonNext,
@@ -34,8 +36,6 @@ import {
   wheelZoom,
   withFakeTimers,
 } from "./test-utils";
-import { type LightboxRef, type RenderFunction, type RenderSlideProps, useZoom } from "../src";
-import { makeUseContext } from "../src/utils";
 
 declare module "../src/types" {
   interface CustomSlide extends GenericSlide {

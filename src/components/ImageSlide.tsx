@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { useLightboxContext } from "./LightboxContext";
-import { cssClass, mergeSlot, round } from "../utils";
 import type { Rect, SlideImage } from "../types";
+import { cssClass, mergeSlot, round } from "../utils";
+import { useLightboxContext } from "./LightboxContext";
 
 type ImageSlideProps = {
   slide: SlideImage;
